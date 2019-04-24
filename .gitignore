@@ -1,0 +1,62 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+#*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+#*.lib
+
+# Visual studio data server data and intellisense
+*.sdf
+ipch/*
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Others
+.svn/
+Debug/
+*.log
+*.ini
+*.sup
+*.pdb  
+*.wlt
+*.nlb
+*.map
+*.exp
+*.bsc
+*.suo
+*.ncb
+*.cod
+*.sbr
+*.tlh
+*.tli
+*.idb
+*.htm
+*.APS
+*.bak
+Crash.txt
+Crash.dmp
+Crash.sln
+*.dat
+*.res
+*.xml
+*.db
