@@ -1,5 +1,5 @@
 /*
-Win32Exception£¬Ê¹ÓÃWindows ErrorCode
+Win32ExceptionÂ£Â¬ÃŠÂ¹Ã“ÃƒWindows ErrorCode
 */
 #pragma once
 #include "Exception.h"

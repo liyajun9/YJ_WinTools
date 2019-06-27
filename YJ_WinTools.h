@@ -19,6 +19,7 @@ using namespace std;
 #undef WIN32_LEAN_AND_MEAN
 #endif
 
+
 #include ".\Exceptions\Exception.h"
 #include ".\Exceptions\Win32Exception.h"
 #include ".\Utils\Trace.h"

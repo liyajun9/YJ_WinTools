@@ -1,6 +1,6 @@
 #pragma once
 /*
-Exception»ùÀà£¬°üº¬msgºÍwhere
+ExceptionåŸºç±»ï¼ŒåŒ…å«msgå’Œwhere
 */
 #define MAX_LINE_LEN 16
 
@@ -14,15 +14,15 @@ namespace YJ_WinTools
 
 	public:
 		virtual _tstring GetMsg();
-		void MessageBox(HWND hWnd = NULL); //µ¯´°ÏÔÊ¾Òì³£ĞÅÏ¢
+		void MessageBox(HWND hWnd = NULL); //å¼¹çª—æ˜¾ç¤ºå¼‚å¸¸ä¿¡æ¯
 		virtual _tstring GetReason();	
 		virtual _tstring GetClass(); 
 		virtual _tstring GetMethod(); 
 
 	protected:
-		_tstring m_sReason;    //Òì³£Ô­ÒòÊÇÊ²Ã´
-		_tstring m_sClassName;		//Òì³£·¢ÉúµÄÀàÃû
-		_tstring m_sMethodName;//Òì³£·¢ÉúµÄ·½·¨Ãû
-		_tstring m_sMsg; //´òÓ¡¸ñÊ½
+		_tstring m_sReason;    //å¼‚å¸¸åŸå› æ˜¯ä»€ä¹ˆ
+		_tstring m_sClassName;		//å¼‚å¸¸å‘ç”Ÿçš„ç±»å
+		_tstring m_sMethodName;//å¼‚å¸¸å‘ç”Ÿçš„æ–¹æ³•å
+		_tstring m_sMsg; //æ‰“å°æ ¼å¼
 	};
 }

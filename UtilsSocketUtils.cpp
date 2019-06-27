@@ -118,7 +118,7 @@ string  CSocketUtils::itow_Port(int nPort)
 	return string(pszPort);
 }
 
-//成功返回0
+//鲁脡鹿娄路碌禄脴0
 int CSocketUtils::_GetAddrInfo(wstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags, SOCKADDR *pAddr)
 {
 	string sip("");

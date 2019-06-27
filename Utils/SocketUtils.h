@@ -6,21 +6,21 @@ namespace YJ_WinTools{
 class CSocketUtils
 {
 public:
-	//³É¹¦·µ»Ø0
-	static int GetAnyAddr(int nPort, SOCKADDR *pAddr);//»ñÈ¡±¾»úÓÃÓÚbindºÍconnectµÄÍ¨Åä·ûµØÖ·
-	static int GetAddr(wstring& sIP, int nPort, SOCKADDR *pAddr);//½«IPºÍport×ªÎªTCP sockaddr
+	//æˆåŠŸè¿”å›0
+	static int GetAnyAddr(int nPort, SOCKADDR *pAddr);//è·å–æœ¬æœºç”¨äºbindå’Œconnectçš„é€šé…ç¬¦åœ°å€
+	static int GetAddr(wstring& sIP, int nPort, SOCKADDR *pAddr);//å°†IPå’Œportè½¬ä¸ºTCP sockaddr
 
-	static wstring GetHostName();//»ñÈ¡Ö÷»úÃû
-	static wstring GetFirstHostAddr();//»ñÈ¡Ö÷»úµÚÒ»¸öµØÖ·
-	static int GetHostAddrs(vector<string>& sIPlist);//»ñÈ¡Ö÷»úµØÖ·ÁĞ±í
+	static wstring GetHostName();//è·å–ä¸»æœºå
+	static wstring GetFirstHostAddr();//è·å–ä¸»æœºç¬¬ä¸€ä¸ªåœ°å€
+	static int GetHostAddrs(vector<string>& sIPlist);//è·å–ä¸»æœºåœ°å€åˆ—è¡¨
 
-	static int GetPortFromAddr(SOCKADDR *pAddr);//´ÓsockaddrÈ¡port
-	static wstring GetIPFromAddr(SOCKADDR *pAddr);//´ÓsockaddrÈ¡IP
-	static int atoi_Port(wstring& sPort);	//¶Ë¿ÚºÅÓë×Ö·û´®×ª»»
-	static wstring itoa_Port(int nPort); //¶Ë¿ÚºÅÓë×Ö·û´®×ª»»
-	static string itow_Port(int nPort);  //¶Ë¿ÚºÅÓë×Ö·û´®×ª»»
+	static int GetPortFromAddr(SOCKADDR *pAddr);//ä»sockaddrå–port
+	static wstring GetIPFromAddr(SOCKADDR *pAddr);//ä»sockaddrå–IP
+	static int atoi_Port(wstring& sPort);	//ç«¯å£å·ä¸å­—ç¬¦ä¸²è½¬æ¢
+	static wstring itoa_Port(int nPort); //ç«¯å£å·ä¸å­—ç¬¦ä¸²è½¬æ¢
+	static string itow_Port(int nPort);  //ç«¯å£å·ä¸å­—ç¬¦ä¸²è½¬æ¢
 private:
-	static int _GetAddrInfo(wstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags,  SOCKADDR *pAddr);//¶ÔgetaddrinfoµÄ·â×°£¬ÇÒÖ»·µ»ØµÚÒ»¸öµØÖ·!!!
+	static int _GetAddrInfo(wstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags,  SOCKADDR *pAddr);//å¯¹getaddrinfoçš„å°è£…ï¼Œä¸”åªè¿”å›ç¬¬ä¸€ä¸ªåœ°å€!!!
 
 private:
 	CSocketUtils(void)

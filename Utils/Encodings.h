@@ -1,4 +1,4 @@
-//ÀîÑÇ¾ü 2018/3/27
+//æŽäºšå†› 2018/3/27
 //Toolbox of encoding/decoding
 #pragma once
 
@@ -6,7 +6,7 @@ namespace YJ_WinTools{
 
 class CEncodings{
 public:
-	//Ê¹ÓÃ±ê×¼¿âstringµÄ±àÂë×ª»»
+	//ä½¿ç”¨æ ‡å‡†åº“stringçš„ç¼–ç è½¬æ¢
 	static string WideChar2Utf8(const wstring& str);
 	static string WideChar2MultiByte(const wstring& str);
 
@@ -16,15 +16,15 @@ public:
 	static wstring Utf82WideChar(const string& str);	
 	static string Utf82MultiByte(const string& str);
 
-	//Ê¹ÓÃ×Ö·ûÊý×éµÄ±àÂë×ª»»,·µ»Ø×ª»»ºóµÄ×Ö½ÚÊý(°üº¬'\0')
-	static int WideChar2Utf8(const wchar_t *pszUNICODE, int nCchUNICODE, char *pszUTF, int nCbUTF);//nCchUNICODEÎªÒª×ª»»µÄ×Ö·ûÊý(²»º¬'\0'), nCbUTFÎªÊä³ö»º´æ×Ö½ÚÊý
-	static int WideChar2MultiByte(const wchar_t *pszUNICODE, int nCchUNICODE, char *pszANSI, int nCbANSI);//nCchUNICODEÎªÒª×ª»»µÄ×Ö·ûÊý(²»º¬'\0'), nCbANSIÎªÊä³ö»º´æ×Ö½ÚÊý
+	//ä½¿ç”¨å­—ç¬¦æ•°ç»„çš„ç¼–ç è½¬æ¢,è¿”å›žè½¬æ¢åŽçš„å­—èŠ‚æ•°(åŒ…å«'\0')
+	static int WideChar2Utf8(const wchar_t *pszUNICODE, int nCchUNICODE, char *pszUTF, int nCbUTF);//nCchUNICODEä¸ºè¦è½¬æ¢çš„å­—ç¬¦æ•°(ä¸å«'\0'), nCbUTFä¸ºè¾“å‡ºç¼“å­˜å­—èŠ‚æ•°
+	static int WideChar2MultiByte(const wchar_t *pszUNICODE, int nCchUNICODE, char *pszANSI, int nCbANSI);//nCchUNICODEä¸ºè¦è½¬æ¢çš„å­—ç¬¦æ•°(ä¸å«'\0'), nCbANSIä¸ºè¾“å‡ºç¼“å­˜å­—èŠ‚æ•°
 
-	static int MultiByte2Utf8(const char *pszANSI, int nCbANSI, char *pszUTF, int nCbUTF);//nCbANSIÎªÊäÈëÊý¾ÝÊµ¼Ê×Ö½ÚÊý(²»º¬'\0'), nCbUTFÎªÊä³ö»º´æ×Ö½ÚÊý
-	static int MultiByte2WideChar(const char *pszANSI, int nCbANSI, wchar_t *pszUNICODE, int nCchUNICODE);//nCbANSIÎªÊäÈëÊý¾ÝÊµ¼Ê×Ö½ÚÊý(²»º¬'\0'), nCchUNICODEÎªÊä³ö»º´æ×Ö·ûÊý(wchar_t¸öÊý)
+	static int MultiByte2Utf8(const char *pszANSI, int nCbANSI, char *pszUTF, int nCbUTF);//nCbANSIä¸ºè¾“å…¥æ•°æ®å®žé™…å­—èŠ‚æ•°(ä¸å«'\0'), nCbUTFä¸ºè¾“å‡ºç¼“å­˜å­—èŠ‚æ•°
+	static int MultiByte2WideChar(const char *pszANSI, int nCbANSI, wchar_t *pszUNICODE, int nCchUNICODE);//nCbANSIä¸ºè¾“å…¥æ•°æ®å®žé™…å­—èŠ‚æ•°(ä¸å«'\0'), nCchUNICODEä¸ºè¾“å‡ºç¼“å­˜å­—ç¬¦æ•°(wchar_tä¸ªæ•°)
 
-	static int Utf82WideChar(const char *pszUTF, int nCbUTF, wchar_t *pszUNICODE, int nCchUNICODE);//nCbUTFÎªÊäÈëÊý¾ÝÊµ¼Ê×Ö½ÚÊý(²»º¬'\0'), nCchUNICODEÎªÊä³ö»º´æ×Ö·ûÊý(wchar_t¸öÊý)
-	static int Utf82MultiByte(const char *pszUTF, int nCbUTF, char *pszANSI, int nCbANSI);//nCbUTFÎªÊäÈëÊý¾ÝÊµ¼Ê×Ö½ÚÊý(²»º¬'\0'), nCbANSIÎªÊä³ö»º´æ×Ö½ÚÊý
+	static int Utf82WideChar(const char *pszUTF, int nCbUTF, wchar_t *pszUNICODE, int nCchUNICODE);//nCbUTFä¸ºè¾“å…¥æ•°æ®å®žé™…å­—èŠ‚æ•°(ä¸å«'\0'), nCchUNICODEä¸ºè¾“å‡ºç¼“å­˜å­—ç¬¦æ•°(wchar_tä¸ªæ•°)
+	static int Utf82MultiByte(const char *pszUTF, int nCbUTF, char *pszANSI, int nCbANSI);//nCbUTFä¸ºè¾“å…¥æ•°æ®å®žé™…å­—èŠ‚æ•°(ä¸å«'\0'), nCbANSIä¸ºè¾“å‡ºç¼“å­˜å­—èŠ‚æ•°
 
 	static char ToHex(unsigned char x){
 		return x > 9 ? x + 55 : x + 48;
