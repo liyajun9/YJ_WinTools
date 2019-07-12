@@ -1,5 +1,3 @@
-#gitignore for VC++ projects
-
 # Solution User Options
 *.suo
 
@@ -30,15 +28,22 @@ ipch/*
 
 # Resource
 *.aps
+*.res
+Debug/*.rc
+Release/*.rc
+Debug/*.manifest
+Release/*.manifest
 
 # Debug
 *.pdb
 
 # Logs
 BuldLog.htm
+*.lastbuildstate
 *.log
 *.Log
 *.LOG
+*.tlog
 
 # Export file
 *.exp
