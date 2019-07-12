@@ -1,3 +1,8 @@
+#gitignore for VC++ projects
+
+# Solution User Options
+*.suo
+
 # Compiled Object files
 *.slo
 *.lo
@@ -8,55 +13,77 @@
 *.gch
 *.pch
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-#*.dll
+# Incremental Linking
+*.ilk
+*.idb
 
 # Fortran module files
 *.mod
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-#*.lib
-
 # Visual studio data server data and intellisense
 *.sdf
+*.opensdf
 ipch/*
-
-# Executables
-*.exe
-*.out
-*.app
-
-# Others
-.svn/
-Debug/
-*.log
-*.ini
-*.sup
-*.pdb  
-*.wlt
-*.nlb
-*.map
-*.exp
-*.bsc
-*.suo
 *.ncb
-*.cod
+*.bsc
 *.sbr
-*.tlh
-*.tli
-*.idb
-*.htm
-*.APS
-*.bak
-Crash.txt
-Crash.dmp
-Crash.sln
-*.dat
-*.res
-*.xml
+
+# Resource
+*.aps
+
+# Debug
+*.pdb
+
+# Logs
+BuldLog.htm
+*.log
+*.Log
+*.LOG
+
+# Export file
+*.exp
+
+# Compiled files(with folder name like "Debug" or "Release" to only exclude compiled target)
+Debug/*.lai
+Release/*.lai
+
+Debug/*.la
+Release/*.la
+
+Debug/*.a
+Release/*.a
+
+Debug/*.lib
+Release/*.lib
+
+Debug/*.so
+Release/*.so
+
+Debug/*.dylib
+Release/*.dylib
+
+Debug/*.dll
+Release/*.dll
+
+Debug/*.exe
+Release/*.exe
+
+Debug/*.out
+Release/*.out
+
+Debug/*.app
+Release/*.app
+
+# output files
+*.map
+*.cod
+
+# database
+*.nlb
 *.db
+*.wlt
+
+# Custom files
+.svn/*
+*.bak
+*.dat
