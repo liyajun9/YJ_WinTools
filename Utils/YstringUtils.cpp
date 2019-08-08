@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "YstringUtils.h"
+#include <algorithm>
+#include <stdarg.h>
 
 std::string CYstringUtils::FormatToString(const char* lpszMsg, ...)
 {
@@ -16,7 +18,7 @@ std::string CYstringUtils::FormatToString(const char* lpszMsg, ...)
     return sRes;
 }
 
-static std::wstring FormatToString(const wchar_t* lpszMsg, ...)
+std::wstring CYstringUtils::FormatToString(const wchar_t* lpszMsg, ...)
 {
 	std::wstring sRes;
 	va_list argList;
@@ -30,3 +32,16 @@ static std::wstring FormatToString(const wchar_t* lpszMsg, ...)
 
 	return sRes;
 }
+
+int CYstringUtils::CompareNoCase(const std::string& str1, const std::string str2)
+{
+	ToUpper(const_cast<std::string&>(str1));
+	return str1.compare(ToUpper(const_cast<std::string&>(str2)));
+}
+
+std::string& CYstringUtils::ToUpper(std::string& str)
+{
+	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+	return str;
+}
+
