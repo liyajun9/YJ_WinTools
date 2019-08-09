@@ -1,7 +1,12 @@
 #include "stdafx.h"
 #include "Yexception.h"
 
-CYException::CYException(wchar_t *pszMethod /*= _T("unknownMethod")*/, wchar_t *pszClass/* = _T("unknownClass")*/, wchar_t *pszReason/* = _T("unknownReason")*/)
+CYException::CYException()
+{
+
+}
+
+CYException::CYException(wchar_t *pszReason, wchar_t *pszMethod /*= L"unknownMethod"*/, wchar_t *pszClass /*= L"unknownClass"*/)
 {
 	m_sReason = pszReason;
 	m_sClass = pszClass;

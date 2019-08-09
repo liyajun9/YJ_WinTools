@@ -14,7 +14,7 @@
 class CYException
 {
 public:
-	CYException(wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass", wchar_t *pszReason = L"unknownReason");
+	CYException(wchar_t *pszReason, wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass");
 	virtual ~CYException() {};
 
 public:
@@ -24,6 +24,7 @@ public:
 	std::wstring GetMethod(); 
 
 protected:
+	CYException();
 	std::wstring m_sReason;			
 	std::wstring m_sClass;		
 	std::wstring m_sMethod;		
