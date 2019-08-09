@@ -9,32 +9,32 @@
 #define MAX_LEN_OF_PORT 16
 #define RADIX_DECIMAL 10
 
-int CYsocketUtils::GetWildcardAddr(int nPort, SOCKADDR *pAddr)
+int CYSocketUtils::GetWildcardAddr(int nPort, SOCKADDR *pAddr)
 {
 	return _GetFirstAddrInfo(std::wstring(L""), nPort, 0, AF_INET, 0, AI_PASSIVE|AI_NUMERICSERV, pAddr);
 }
 
-int CYsocketUtils::StringToAddr(std::wstring& sIP, int nPort, SOCKADDR *pAddr)
+int CYSocketUtils::StringToAddr(std::wstring& sIP, int nPort, SOCKADDR *pAddr)
 {
 	return _GetFirstAddrInfo(sIP, nPort, 0, AF_INET, 0, AI_NUMERICSERV, pAddr);
 }
 
-int CYsocketUtils::GetPortFromAddr(SOCKADDR *pAddr)
+int CYSocketUtils::GetPortFromAddr(SOCKADDR *pAddr)
 {
 	return ntohs(((SOCKADDR_IN*)pAddr)->sin_port);
 }
 
-std::wstring CYsocketUtils::GetIPFromAddr(SOCKADDR *pAddr)
+std::wstring CYSocketUtils::GetIPFromAddr(SOCKADDR *pAddr)
 {
 	char pszIP[MAX_LEN_OF_IP];
 	memset(pszIP, 0, MAX_LEN_OF_IP);
 	inet_ntop(AF_INET, reinterpret_cast<PVOID>(&((SOCKADDR_IN*)pAddr)->sin_addr), pszIP, MAX_LEN_OF_IP);
 	std::string sIP(pszIP);
 
-	return	CYencodings::MBToWChar(sIP);
+	return	CYEncodings::MBToWChar(sIP);
 }
 
-std::wstring CYsocketUtils::GetFirstHostAddr()
+std::wstring CYSocketUtils::GetFirstHostAddr()
 {
 	std::wstring sRet(L"");
 	char pszHostName[MAX_HOSTNAME_LEN];
@@ -48,12 +48,12 @@ std::wstring CYsocketUtils::GetFirstHostAddr()
 	std::string sIP;
 	if(pHostent->h_addr_list[0] != 0){
 		addr.s_addr = *(u_long *)pHostent->h_addr_list[0];
-		sRet = CYencodings::MBToWChar(inet_ntoa(addr));
+		sRet = CYEncodings::MBToWChar(inet_ntoa(addr));
 	}
 	return sRet;
 }
 
-int CYsocketUtils::GetHostAddrList(std::vector<std::string>& sIPlist)
+int CYSocketUtils::GetHostAddrList(std::vector<std::string>& sIPlist)
 {
 	char pszHostName[MAX_HOSTNAME_LEN];
 	memset(pszHostName, 0, MAX_HOSTNAME_LEN);
@@ -71,20 +71,20 @@ int CYsocketUtils::GetHostAddrList(std::vector<std::string>& sIPlist)
 	return NO_ERROR;
 }
 
-std::wstring CYsocketUtils::GetHostName()
+std::wstring CYSocketUtils::GetHostName()
 {
 	char pszHostName[MAX_HOSTNAME_LEN];
 	memset(pszHostName, 0, MAX_HOSTNAME_LEN);
 	gethostname(pszHostName, MAX_HOSTNAME_LEN);
-	return CYencodings::MBToWChar(std::string(pszHostName));
+	return CYEncodings::MBToWChar(std::string(pszHostName));
 }
 
-int CYsocketUtils::StringToIntPort(std::wstring& sPort)
+int CYSocketUtils::StringToIntPort(std::wstring& sPort)
 {
 	return _wtoi(sPort.c_str());
 }
 
-std::wstring CYsocketUtils::IntPortToWString(int nPort)
+std::wstring CYSocketUtils::IntPortToWString(int nPort)
 {
 	wchar_t pszPort[MAX_LEN_OF_PORT];
 	memset(pszPort, 0, MAX_LEN_OF_PORT);
@@ -92,7 +92,7 @@ std::wstring CYsocketUtils::IntPortToWString(int nPort)
 	return std::wstring(pszPort);
 }
 
-std::string  CYsocketUtils::IntPortToString(int nPort)
+std::string  CYSocketUtils::IntPortToString(int nPort)
 {
 	char pszPort[MAX_LEN_OF_PORT];
 	memset(pszPort, 0, MAX_LEN_OF_PORT);
@@ -100,11 +100,11 @@ std::string  CYsocketUtils::IntPortToString(int nPort)
 	return std::string(pszPort);
 }
 
-int CYsocketUtils::_GetFirstAddrInfo(std::wstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags, SOCKADDR *pAddr)
+int CYSocketUtils::_GetFirstAddrInfo(std::wstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags, SOCKADDR *pAddr)
 {
 	std::string sTmpIP("");
 	if(!sIP.empty())	
-		sTmpIP = CYencodings::WCharToMB(sIP);
+		sTmpIP = CYEncodings::WCharToMB(sIP);
 
 	char pszPort[MAX_LEN_OF_PORT];
 	memset(pszPort, 0, MAX_LEN_OF_PORT);

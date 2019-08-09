@@ -5,7 +5,7 @@
 #include <vector>
 #include <winsock.h>
 
-class CYsocketUtils
+class CYSocketUtils
 {
 public:	
 	//get addresses
@@ -28,6 +28,6 @@ private:
 	static int _GetFirstAddrInfo(std::wstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags,  SOCKADDR *pAddr);//return NO_ERROR(0) on success
 
 private:
-	CYsocketUtils(void){}
-	~CYsocketUtils(void){}
+	CYSocketUtils(void){}
+	~CYSocketUtils(void){}
 };

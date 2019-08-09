@@ -12,10 +12,10 @@
 #include "Yexception.h"
 #include <concrt.h>
 
-class CYwsaException : public CYexception
+class CYWsaException : public CYException
 {
 public:
-	CYwsaException(wchar_t *pszAPI = L"unknownAPI", wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass");
+	CYWsaException(wchar_t *pszAPI = L"unknownAPI", wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass");
 	DWORD GetErrorCode();
 
 public:

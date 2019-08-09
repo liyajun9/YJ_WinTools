@@ -4,13 +4,13 @@
 #include <winsock.h>
 #include <wchar.h>
 
-CYwsaException::CYwsaException(wchar_t *pszAPI /*= L"unknownAPI"*/, wchar_t *pszMethod /*= L"unknownMethod"*/, wchar_t *pszClass /*= L"unknownClass"*/)
+CYWsaException::CYWsaException(wchar_t *pszAPI /*= L"unknownAPI"*/, wchar_t *pszMethod /*= L"unknownMethod"*/, wchar_t *pszClass /*= L"unknownClass"*/)
 {
 	m_sClass = pszClass;
 	m_sMethod = pszMethod;
 	m_sAPI = pszAPI;
 	m_errCode = WSAGetLastError();
-	m_sReason = CYwinException::TranslateErrCode(m_errCode);
+	m_sReason = CYWinException::TranslateErrCode(m_errCode);
 
 	wchar_t pszErrCode[MAX_LEN_ERRORCODE];
 	memset(pszErrCode, 0, MAX_LEN_ERRORCODE);
@@ -28,7 +28,7 @@ CYwsaException::CYwsaException(wchar_t *pszAPI /*= L"unknownAPI"*/, wchar_t *psz
 	m_sMsg.append(m_sAPI);
 }
 
-DWORD CYwsaException::GetErrorCode()
+DWORD CYWsaException::GetErrorCode()
 {
 	return m_errCode;
 }

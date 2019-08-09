@@ -4,7 +4,7 @@
 #include <wchar.h>
 
 using namespace std;
-CYwinException::CYwinException(wchar_t *pszAPI /*= L"unknownAPI"*/, wchar_t *pszMethod /*= L"unknownMethod"*/, wchar_t *pszClass /*= L"unknownClass"*/)
+CYWinException::CYWinException(wchar_t *pszAPI /*= L"unknownAPI"*/, wchar_t *pszMethod /*= L"unknownMethod"*/, wchar_t *pszClass /*= L"unknownClass"*/)
 {
 	m_sMethod = pszMethod;
 	m_sClass = pszClass;
@@ -28,12 +28,12 @@ CYwinException::CYwinException(wchar_t *pszAPI /*= L"unknownAPI"*/, wchar_t *psz
 	m_sMsg.append(m_sAPI);
 }
 
-DWORD CYwinException::GetErrorCode()
+DWORD CYWinException::GetErrorCode()
 {
 	return m_errCode;
 }
 
-std::wstring CYwinException::TranslateErrCode(DWORD errCode)
+std::wstring CYWinException::TranslateErrCode(DWORD errCode)
 {
 	LPVOID lpMsgBuf; 
 	if(!FormatMessageW( 

@@ -4,7 +4,7 @@
 #pragma once
 #include <string>
 
-class CYencodings{
+class CYEncodings{
 public:
 	//input: std::string or std::wstring
 	static std::string WCharToUtf8(const std::wstring& str);

@@ -14,10 +14,10 @@
 #define MAX_LEN_ERRORCODE 16
 
 
-class CYwinException : public CYexception
+class CYWinException : public CYException
 {
 public:
-	CYwinException(wchar_t *pszAPI = L"unknownAPI", wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass");
+	CYWinException(wchar_t *pszAPI = L"unknownAPI", wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass");
 	DWORD GetErrorCode();
 
 public:

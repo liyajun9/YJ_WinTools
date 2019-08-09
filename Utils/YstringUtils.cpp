@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <stdarg.h>
 
-std::string CYstringUtils::FormatToString(const char* lpszMsg, ...)
+std::string CYStringUtils::FormatToString(const char* lpszMsg, ...)
 {
     std::string sRes;
     va_list argList;
@@ -18,7 +18,7 @@ std::string CYstringUtils::FormatToString(const char* lpszMsg, ...)
     return sRes;
 }
 
-std::wstring CYstringUtils::FormatToString(const wchar_t* lpszMsg, ...)
+std::wstring CYStringUtils::FormatToString(const wchar_t* lpszMsg, ...)
 {
 	std::wstring sRes;
 	va_list argList;
@@ -33,13 +33,13 @@ std::wstring CYstringUtils::FormatToString(const wchar_t* lpszMsg, ...)
 	return sRes;
 }
 
-int CYstringUtils::CompareNoCase(const std::string& str1, const std::string str2)
+int CYStringUtils::CompareNoCase(const std::string& str1, const std::string str2)
 {
 	ToUpper(const_cast<std::string&>(str1));
 	return str1.compare(ToUpper(const_cast<std::string&>(str2)));
 }
 
-std::string& CYstringUtils::ToUpper(std::string& str)
+std::string& CYStringUtils::ToUpper(std::string& str)
 {
 	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
 	return str;

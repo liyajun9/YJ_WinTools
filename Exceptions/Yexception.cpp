@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Yexception.h"
 
-CYexception::CYexception(wchar_t *pszMethod /*= _T("unknownMethod")*/, wchar_t *pszClass/* = _T("unknownClass")*/, wchar_t *pszReason/* = _T("unknownReason")*/)
+CYException::CYException(wchar_t *pszMethod /*= _T("unknownMethod")*/, wchar_t *pszClass/* = _T("unknownClass")*/, wchar_t *pszReason/* = _T("unknownReason")*/)
 {
 	m_sReason = pszReason;
 	m_sClass = pszClass;
@@ -14,22 +14,22 @@ CYexception::CYexception(wchar_t *pszMethod /*= _T("unknownMethod")*/, wchar_t *
 	m_sMsg.append(m_sMethod);
 }
 
-std::wstring CYexception::GetMsg()
+std::wstring CYException::GetMsg()
 {
 	return m_sMsg;
 }
 
-std::wstring CYexception::GetReason()
+std::wstring CYException::GetReason()
 {
 	return m_sReason;
 }
 
-std::wstring CYexception::GetClass()
+std::wstring CYException::GetClass()
 {
 	return m_sClass;
 }
 
-std::wstring CYexception::GetMethod()
+std::wstring CYException::GetMethod()
 {
 	return m_sMethod;
 }

@@ -16,9 +16,9 @@
 #define TRACE_BUFFER_LEN 1024
 #define DATETIME_LEN 20
 
-class CYtrace{
+class CYTrace{
 public:
-	static void CYtrace::_trace(const char *format, ...)
+	static void CYTrace::_trace(const char *format, ...)
 	{
 		char buffer[TRACE_BUFFER_LEN];
 		memset(buffer, 0, TRACE_BUFFER_LEN);
@@ -43,7 +43,7 @@ public:
 		OutputDebugStringA("\r\n");
 	}
 
-	static void CYtrace::_trace(const wchar_t *format, ...)
+	static void CYTrace::_trace(const wchar_t *format, ...)
 	{
 		wchar_t buffer[TRACE_BUFFER_LEN];
 		memset(buffer, 0, TRACE_BUFFER_LEN);
@@ -69,7 +69,7 @@ public:
 	}
 
 private:
-	CYtrace::CTrace(){}
-	CYtrace::~CTrace(){}
+	CYTrace::CTrace(){}
+	CYTrace::~CTrace(){}
 };
 

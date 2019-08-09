@@ -4,7 +4,7 @@
 #pragma once
 #include <string>
 
-class CYstringUtils{
+class CYStringUtils{
 
 public:
 	//Format a string to std::string which don't have a format function

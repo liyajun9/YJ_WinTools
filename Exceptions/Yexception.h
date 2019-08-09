@@ -11,11 +11,11 @@
 #pragma once
 #include <string>
 
-class CYexception
+class CYException
 {
 public:
-	CYexception(wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass", wchar_t *pszReason = L"unknownReason");
-	virtual ~CYexception() {};
+	CYException(wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass", wchar_t *pszReason = L"unknownReason");
+	virtual ~CYException() {};
 
 public:
 	std::wstring GetMsg();

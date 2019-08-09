@@ -5,9 +5,9 @@
 #define DEFAULT_LENGTH_OF_BUFFER 128
 
 template <typename T>
-class CYbuffer{
+class CYBuffer{
 public:
-	CYbuffer(int nObjCount = DEFAULT_LENGTH_OF_BUFFER) {
+	CYBuffer(int nObjCount = DEFAULT_LENGTH_OF_BUFFER) {
 		if(nObjCount <= 0) 
 			nObjCount = DEFAULT_LENGTH_OF_BUFFER;
 
@@ -19,7 +19,7 @@ public:
 		m_pBufCurrent = m_pBufStart;
 	}
 
-	~CYbuffer() {
+	~CYBuffer() {
 		delete []m_pBufStart;
 		m_pBufStart = NULL;
 	}
