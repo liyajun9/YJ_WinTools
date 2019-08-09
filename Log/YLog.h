@@ -12,6 +12,7 @@
 #include "..\Utils\YTimeUtils.h"
 #include "..\Utils\YCriticalSectionLock.h"
 #include "..\Utils\Yencodings.h"
+#include <direct.h>
 
 class CYLogger{
 public:
@@ -35,6 +36,7 @@ public:
 	{
 		InitializeCriticalSection(&m_cs);
 		m_sCurrDate = CYTimeUtils::GetCurrDate(CYTimeUtils::Date_Format_3);
+		mkdir(sLogFileDirectory.c_str());
 		m_stream.open(m_sDirectory + "\\" + m_sCurrDate + ".log", std::ofstream::out|std::ofstream::app);
 	}
 
