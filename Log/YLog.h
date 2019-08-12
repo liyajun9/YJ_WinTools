@@ -31,13 +31,13 @@ public:
 	};
 
 public:
-	CYLogger(std::string sLogFileDirectory, int loggableItem = static_cast<int>(DateTime) | static_cast<int>(ThreadId), int nLogSavingDays = 3):
-	m_sDirectory(sLogFileDirectory),m_loggableItem(loggableItem), m_nLogSavingDays(nLogSavingDays)
+	CYLogger(std::string sLogFileDirectory, bool bAutoEndline = false,int loggableItem = static_cast<int>(DateTime) | static_cast<int>(ThreadId), int nLogSavingDays = 3):
+	m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nLogSavingDays(nLogSavingDays)
 	{
 		InitializeCriticalSection(&m_cs);
 		m_sCurrDate = CYTimeUtils::GetCurrDate(CYTimeUtils::Date_Format_3);
 		mkdir(sLogFileDirectory.c_str());
-		m_stream.open(m_sDirectory + "\\" + m_sCurrDate + ".log", std::ofstream::out|std::ofstream::app);
+		m_stream.open(m_sDirectory + "\\" + m_sCurrDate + ".log", std::ofstream::out|std::ofstream::app|std::ios::binary);
 	}
 
 	~CYLogger()
@@ -84,7 +84,7 @@ private:
 		std::string sCurrDate = CYTimeUtils::GetCurrDate(CYTimeUtils::Date_Format_3);
 		if(0 != m_sCurrDate.compare(sCurrDate)){
 			m_stream.close();
-			m_stream.open(m_sDirectory + "\\" + m_sCurrDate + ".log", std::ofstream::out|std::ofstream::app);
+			m_stream.open(m_sDirectory + "\\" + m_sCurrDate + ".log", std::ofstream::out|std::ofstream::app|std::ios::binary);
 			m_stream << "********************************New Log*********************************" << std::endl;
 
 			m_sCurrDate = sCurrDate;			
@@ -122,7 +122,11 @@ private:
 			m_stream<<"[INF]";
 			break;
 		}
-		m_stream<<" "<<pData<<std::endl;
+		if(m_bAutoEndline)
+			m_stream<<" "<<pData<<std::endl;
+		else
+			m_stream<<" "<<pData;
+		m_stream.flush();
 	}
 
 
@@ -130,6 +134,7 @@ private:
 private:
 	CRITICAL_SECTION m_cs;
 	
+	bool m_bAutoEndline;
 	int m_loggableItem;
 	int m_nLogSavingDays;
 	std::string m_sDirectory;
