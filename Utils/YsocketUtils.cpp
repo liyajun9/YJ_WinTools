@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "YsocketUtils.h"
 #include <ws2tcpip.h>
-#include "Yencodings.h"
+#include "YCharEncodings.h"
 #include <iptypes.h>
 #include <winsock.h>
 
@@ -31,7 +31,7 @@ std::wstring CYSocketUtils::GetIPFromAddr(SOCKADDR *pAddr)
 	inet_ntop(AF_INET, reinterpret_cast<PVOID>(&((SOCKADDR_IN*)pAddr)->sin_addr), pszIP, MAX_LEN_OF_IP);
 	std::string sIP(pszIP);
 
-	return	CYEncodings::MBToWChar(sIP);
+	return	CYCharEncodings::MBToWChar(sIP);
 }
 
 std::wstring CYSocketUtils::GetFirstHostAddr()
@@ -48,7 +48,7 @@ std::wstring CYSocketUtils::GetFirstHostAddr()
 	std::string sIP;
 	if(pHostent->h_addr_list[0] != 0){
 		addr.s_addr = *(u_long *)pHostent->h_addr_list[0];
-		sRet = CYEncodings::MBToWChar(inet_ntoa(addr));
+		sRet = CYCharEncodings::MBToWChar(inet_ntoa(addr));
 	}
 	return sRet;
 }
@@ -76,7 +76,7 @@ std::wstring CYSocketUtils::GetHostName()
 	char pszHostName[MAX_HOSTNAME_LEN];
 	memset(pszHostName, 0, MAX_HOSTNAME_LEN);
 	gethostname(pszHostName, MAX_HOSTNAME_LEN);
-	return CYEncodings::MBToWChar(std::string(pszHostName));
+	return CYCharEncodings::MBToWChar(std::string(pszHostName));
 }
 
 int CYSocketUtils::StringToIntPort(std::wstring& sPort)
@@ -104,7 +104,7 @@ int CYSocketUtils::_GetFirstAddrInfo(std::wstring& sIP, int nPort, int protocol,
 {
 	std::string sTmpIP("");
 	if(!sIP.empty())	
-		sTmpIP = CYEncodings::WCharToMB(sIP);
+		sTmpIP = CYCharEncodings::WCharToMB(sIP);
 
 	char pszPort[MAX_LEN_OF_PORT];
 	memset(pszPort, 0, MAX_LEN_OF_PORT);

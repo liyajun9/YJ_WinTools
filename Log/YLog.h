@@ -11,7 +11,7 @@
 #include <stdarg.h>
 #include "..\Utils\YTimeUtils.h"
 #include "..\Utils\YCriticalSectionLock.h"
-#include "..\Utils\Yencodings.h"
+#include "..\Utils\YCharEncodings.h"
 #include <direct.h>
 
 class CYLogger{
@@ -71,7 +71,7 @@ public:
 
 		vswprintf((wchar_t*)sData.data(), pwszData, argList);
 		va_end(argList);
-		std::string sDataTmp = CYEncodings::WCharToMB(sData);
+		std::string sDataTmp = CYCharEncodings::WCharToMB(sData);
 		write(sDataTmp.c_str(), logLevel);
 	}
 
