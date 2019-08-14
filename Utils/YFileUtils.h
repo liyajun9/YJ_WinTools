@@ -3,7 +3,7 @@
 
 class CYFileUtils{
 public:
-	static std::string GetCurrentModuleDirectory();
+	static std::wstring GetCurrentModuleDirectory();
 
 private:
 	CYFileUtils(){}

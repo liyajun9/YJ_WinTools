@@ -1,6 +1,7 @@
 #pragma once
 #include <time.h>
 #include <string>
+#include "..\Log\tstring.h"
 
 class CYTimeUtils{
 public:
@@ -20,8 +21,8 @@ public:
 	};
 
 public:
-	static std::string GetCurrDate(DATE_FORMAT dformat = Date_Format_0);
-	static std::string GetCurrTime(bool bMilliSeconds = false);
-	static std::string GetCurrDateTime(DATE_FORMAT dformat = Date_Format_0, bool bMilliSeconds = false);
-	static std::string GetAddedDate(int nAddedDays, DATE_FORMAT dformat = Date_Format_0);
+	static tstring GetCurrDate(DATE_FORMAT dformat = Date_Format_0);
+	static tstring GetCurrTime(bool bMilliSeconds = false);
+	static tstring GetCurrDateTime(DATE_FORMAT dformat = Date_Format_0, bool bMilliSeconds = false);
+	static tstring GetAddedDate(int nAddedDays, DATE_FORMAT dformat = Date_Format_0);
 };

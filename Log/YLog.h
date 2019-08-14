@@ -31,13 +31,13 @@ public:
 	};
 
 public:
-	CYLogger(std::string sLogFileDirectory, bool bAutoEndline = false,int loggableItem = static_cast<int>(DateTime) | static_cast<int>(ThreadId), int nLogSavingDays = 3):
+	CYLogger(tstring sLogFileDirectory, bool bAutoEndline = false,int loggableItem = static_cast<int>(DateTime) | static_cast<int>(ThreadId), int nLogSavingDays = 3):
 	m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nLogSavingDays(nLogSavingDays)
 	{
 		InitializeCriticalSection(&m_cs);
 		m_sCurrDate = CYTimeUtils::GetCurrDate(CYTimeUtils::Date_Format_3);
-		mkdir(sLogFileDirectory.c_str());
-		m_stream.open(m_sDirectory + "\\" + m_sCurrDate + ".log", std::ofstream::out|std::ofstream::app|std::ios::binary);
+		_tmkdir(sLogFileDirectory.c_str());
+		m_stream.open(m_sDirectory + _T("\\") + m_sCurrDate + _T(".log"), std::ofstream::out|std::ofstream::app|std::ios::binary);
 	}
 
 	~CYLogger()
@@ -57,7 +57,13 @@ public:
 
 		vsprintf((char*)sData.data(), pszData, argList);
 		va_end(argList);
+
+#if defined(UNICODE) || defined(_UNICODE)		
+		std::wstring sDataTmp = CYCharEncodings::MBToWChar(sData);
+		write(sDataTmp.c_str(), logLevel);
+#else
 		write(sData.c_str(), logLevel);
+#endif
 	}
 
 	void Log(LogLevel logLevel, const wchar_t* pwszData, ...)
@@ -71,29 +77,34 @@ public:
 
 		vswprintf((wchar_t*)sData.data(), pwszData, argList);
 		va_end(argList);
+		
+#if defined(UNICODE) || defined(_UNICODE)
+		write(sData.c_str(), logLevel);
+#else
 		std::string sDataTmp = CYCharEncodings::WCharToMB(sData);
 		write(sDataTmp.c_str(), logLevel);
+#endif
 	}
 
 private:
 
-	inline void write(const char* pData, LogLevel logLevel)
+	inline void write(const TCHAR* pData, LogLevel logLevel)
 	{
 		CYCriticalSectionLock(&m_cs, true);
 		static bool bIsNewOpen = true;
-		std::string sCurrDate = CYTimeUtils::GetCurrDate(CYTimeUtils::Date_Format_3);
+		tstring sCurrDate = CYTimeUtils::GetCurrDate(CYTimeUtils::Date_Format_3);
 		if(0 != m_sCurrDate.compare(sCurrDate)){
 			m_stream.close();
-			m_stream.open(m_sDirectory + "\\" + m_sCurrDate + ".log", std::ofstream::out|std::ofstream::app|std::ios::binary);
-			m_stream << "********************************New Log*********************************" << std::endl;
+			m_stream.open(m_sDirectory + _T("\\") + m_sCurrDate + _T(".log"), std::ofstream::out|std::ofstream::app|std::ios::binary);
+			m_stream << _T("********************************New Log*********************************") << std::endl;
 
 			m_sCurrDate = sCurrDate;			
 		}else{
 			if(bIsNewOpen){
-				std::string sExpireFileName = m_sDirectory + "\\" + CYTimeUtils::GetAddedDate(0 - m_nLogSavingDays, CYTimeUtils::Date_Format_3) + ".log";
-				remove(sExpireFileName.c_str());
+				tstring sExpireFileName = m_sDirectory + _T("\\") + CYTimeUtils::GetAddedDate(0 - m_nLogSavingDays, CYTimeUtils::Date_Format_3) + _T(".log");
+				_tremove(sExpireFileName.c_str());
 
-				m_stream << "********************************New Log*********************************" << std::endl;
+				m_stream << _T("********************************New Log*********************************") << std::endl;
 				bIsNewOpen = false;
 			}
 		}
@@ -102,30 +113,30 @@ private:
 			m_stream<<CYTimeUtils::GetCurrDateTime(CYTimeUtils::Date_Format_3, true);
 		}
 		if(m_loggableItem & static_cast<int>(ThreadId)){
-			m_stream<<"["<<GetCurrentThreadId()<<"]";
+			m_stream<<_T("[")<<GetCurrentThreadId()<<_T("]");
 		}
 		switch (logLevel)
 		{
 		case Info:
-			m_stream<<"[INF]";
+			m_stream<<_T("[INF]");
 			break;
 		case Debug:
-			m_stream<<"[DBG]";
+			m_stream<<_T("[DBG]");
 			break;
 		case Warn:
-			m_stream<<"[WRN]";
+			m_stream<<_T("[WRN]");
 			break;
 		case Error:
-			m_stream<<"[ERR]";
+			m_stream<<_T("[ERR]");
 			break;
 		default:
-			m_stream<<"[INF]";
+			m_stream<<_T("[INF]");
 			break;
 		}
 		if(m_bAutoEndline)
-			m_stream<<" "<<pData<<std::endl;
+			m_stream<<_T(" ")<<pData<<std::endl;
 		else
-			m_stream<<" "<<pData;
+			m_stream<<_T(" ")<<pData;
 		m_stream.flush();
 	}
 
@@ -137,8 +148,8 @@ private:
 	bool m_bAutoEndline;
 	int m_loggableItem;
 	int m_nLogSavingDays;
-	std::string m_sDirectory;
-	std::string m_sCurrDate;
+	tstring m_sDirectory;
+	tstring m_sCurrDate;
 
-	std::ofstream m_stream;
+	tofstream m_stream;
 };
