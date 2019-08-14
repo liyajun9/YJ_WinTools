@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "YFileUtils.h"
 
-std::wstring CYFileUtils::GetCurrentModuleDirectory()
+tstring CYFileUtils::GetCurrentModuleDirectory()
 {
-	wchar_t pszFileName[MAX_PATH]; memset(pszFileName, 0, MAX_PATH);
-	::GetModuleFileNameW(NULL, pszFileName, MAX_PATH);
-	::PathRemoveFileSpecW(pszFileName);
-	return std::wstring(pszFileName);
+	TCHAR pszFileName[MAX_PATH]; memset(pszFileName, 0, MAX_PATH);
+	::GetModuleFileName(NULL, pszFileName, MAX_PATH);
+	::PathRemoveFileSpec(pszFileName);
+	return tstring(pszFileName);
 }

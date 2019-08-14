@@ -11,17 +11,18 @@
 #pragma once
 #include "Yexception.h"
 #include <concrt.h>
+#include "..\Log\tstring.h"
 
 class CYWsaException : public CYException
 {
 public:
-	CYWsaException(wchar_t *pszAPI = L"unknownAPI", wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass");
+	CYWsaException(TCHAR *pszAPI = _T("unknownAPI"), TCHAR *pszMethod = _T("unknownMethod"), TCHAR *pszClass = _T("unknownClass"));
 	DWORD GetErrorCode();
 
 public:
-	static std::wstring GetLastErrorMsg(DWORD errcode);
+	static tstring GetLastErrorMsg(DWORD errcode);
 
 protected:
 	DWORD m_errCode;
-	std::wstring m_sAPI;
+	tstring m_sAPI;
 };

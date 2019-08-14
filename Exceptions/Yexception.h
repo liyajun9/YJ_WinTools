@@ -10,24 +10,25 @@
 
 #pragma once
 #include <string>
+#include "..\Log\tstring.h"
 
 class CYException
 {
 public:
-	CYException(wchar_t *pszReason, wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass");
+	CYException(TCHAR *pszReason, TCHAR *pszMethod = _T("unknownMethod"), TCHAR *pszClass = _T("unknownClass"));
 	virtual ~CYException() {};
 
 public:
-	std::wstring GetMsg();
-	std::wstring GetReason();	
-	std::wstring GetClass(); 
-	std::wstring GetMethod(); 
+	tstring GetMsg();
+	tstring GetReason();	
+	tstring GetClass(); 
+	tstring GetMethod(); 
 
 protected:
 	CYException();
-	std::wstring m_sReason;			
-	std::wstring m_sClass;		
-	std::wstring m_sMethod;		
-	std::wstring m_sMsg;				
+	tstring m_sReason;			
+	tstring m_sClass;		
+	tstring m_sMethod;		
+	tstring m_sMsg;				
 };
 

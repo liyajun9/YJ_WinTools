@@ -10,6 +10,7 @@
 #pragma once
 #include "Yexception.h"
 #include <concrt.h>
+#include "..\Log\tstring.h"
 
 #define MAX_LEN_ERRORCODE 16
 
@@ -17,13 +18,13 @@
 class CYWinException : public CYException
 {
 public:
-	CYWinException(wchar_t *pszAPI = L"unknownAPI", wchar_t *pszMethod = L"unknownMethod", wchar_t *pszClass = L"unknownClass");
+	CYWinException(TCHAR *pszAPI = _T("unknownAPI"), TCHAR *pszMethod = _T("unknownMethod"), TCHAR *pszClass = _T("unknownClass"));
 	DWORD GetErrorCode();
 
 public:
-	static std::wstring TranslateErrCode(DWORD errCode);
+	static tstring TranslateErrCode(DWORD errCode);
 
 protected:
 	DWORD m_errCode;
-	std::wstring m_sAPI;
+	tstring m_sAPI;
 };

@@ -4,7 +4,7 @@
 #include <wchar.h>
 
 using namespace std;
-CYWinException::CYWinException(wchar_t *pszAPI /*= L"unknownAPI"*/, wchar_t *pszMethod /*= L"unknownMethod"*/, wchar_t *pszClass /*= L"unknownClass"*/)
+CYWinException::CYWinException(TCHAR *pszAPI /*= _T("unknownAPI")*/, TCHAR *pszMethod /*= _T("unknownMethod")*/, TCHAR *pszClass /*= _T("unknownClass")*/)
 {
 	m_sMethod = pszMethod;
 	m_sClass = pszClass;
@@ -12,19 +12,19 @@ CYWinException::CYWinException(wchar_t *pszAPI /*= L"unknownAPI"*/, wchar_t *psz
 	m_errCode = GetLastError();
 	m_sReason = TranslateErrCode(m_errCode);
 
-	wchar_t pszErrCode[MAX_LEN_ERRORCODE];
+	TCHAR pszErrCode[MAX_LEN_ERRORCODE];
 	memset(pszErrCode, 0, MAX_LEN_ERRORCODE);
-	_itow(m_errCode, pszErrCode, 10);
+	_itot(m_errCode, pszErrCode, 10);
 
-	m_sMsg = L"Exception: reason(";
+	m_sMsg = _T("Exception: reason(");
 	m_sMsg.append(pszErrCode);
-	m_sMsg.append(L") : ");
+	m_sMsg.append(_T(") : "));
 	m_sMsg.append(m_sReason);
-	m_sMsg.append(L" at ");
+	m_sMsg.append(_T(" at "));
 	m_sMsg.append(m_sClass);
-	m_sMsg.append(L"::");
+	m_sMsg.append(_T("::"));
 	m_sMsg.append(m_sMethod);
-	m_sMsg.append(L"   api = ");
+	m_sMsg.append(_T("   api = "));
 	m_sMsg.append(m_sAPI);
 }
 
@@ -33,10 +33,10 @@ DWORD CYWinException::GetErrorCode()
 	return m_errCode;
 }
 
-std::wstring CYWinException::TranslateErrCode(DWORD errCode)
+tstring CYWinException::TranslateErrCode(DWORD errCode)
 {
 	LPVOID lpMsgBuf; 
-	if(!FormatMessageW( 
+	if(!FormatMessage( 
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | 
 		FORMAT_MESSAGE_FROM_SYSTEM | 
 		FORMAT_MESSAGE_IGNORE_INSERTS, 
@@ -49,7 +49,7 @@ std::wstring CYWinException::TranslateErrCode(DWORD errCode)
 		)){
 			return TranslateErrCode(GetLastError());
 	}
-	std::wstring sRet = (LPTSTR) lpMsgBuf;
+	tstring sRet = (LPTSTR) lpMsgBuf;
 	LocalFree(lpMsgBuf);
 	return sRet;
 }

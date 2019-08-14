@@ -6,16 +6,16 @@ CYException::CYException()
 
 }
 
-CYException::CYException(wchar_t *pszReason, wchar_t *pszMethod /*= L"unknownMethod"*/, wchar_t *pszClass /*= L"unknownClass"*/)
+CYException::CYException(TCHAR *pszReason, TCHAR *pszMethod /*= L"unknownMethod"*/, TCHAR *pszClass /*= L"unknownClass"*/)
 {
 	m_sReason = pszReason;
 	m_sClass = pszClass;
 	m_sMethod = pszMethod;
-	m_sMsg = L"Exception: reason(" ;
+	m_sMsg = _T("Exception: reason(") ;
 	m_sMsg.append(m_sReason); 
-	m_sMsg.append(L") at ");
+	m_sMsg.append(_T(") at "));
 	m_sMsg.append(m_sClass); 
-	m_sMsg.append(L"::"); 
+	m_sMsg.append(_T("::")); 
 	m_sMsg.append(m_sMethod);
 }
 

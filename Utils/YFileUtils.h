@@ -1,9 +1,10 @@
 #pragma once
 #include <Shlwapi.h>
+#include "..\Log\tstring.h"
 
 class CYFileUtils{
 public:
-	static std::wstring GetCurrentModuleDirectory();
+	static tstring GetCurrentModuleDirectory();
 
 private:
 	CYFileUtils(){}
