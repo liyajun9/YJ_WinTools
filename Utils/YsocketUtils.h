@@ -4,28 +4,29 @@
 #pragma once
 #include <vector>
 #include <winsock.h>
+#include "..\Log\tstring.h"
 
 class CYSocketUtils
 {
 public:	
 	//get addresses
-	static std::wstring GetHostName();
-	static int GetHostAddrList(std::vector<std::string>& sIPlist);
-	static std::wstring GetFirstHostAddr();
+	static tstring GetHostName();
+	static int GetHostAddrList(std::vector<tstring>& sIPlist);
+	static tstring GetFirstHostAddr();
 	static int GetWildcardAddr(int nPort, SOCKADDR *pAddr);
 
 	//parse ip, port from SOCKADDR
-	static std::wstring GetIPFromAddr(SOCKADDR *pAddr);
+	static tstring GetIPFromAddr(SOCKADDR *pAddr);
 	static int GetPortFromAddr(SOCKADDR *pAddr);
 
 	//ip, port conversions
-	static int StringToAddr(std::wstring& sIP, int nPort, SOCKADDR *pAddr);
-	static int StringToIntPort(std::wstring& sPort);	
-	static std::wstring IntPortToWString(int nPort); 
-	static std::string IntPortToString(int nPort);  
+	static int StringToAddr(tstring& sIP, int nPort, SOCKADDR *pAddr);
+	static int StringToIntPort(tstring& sPort);	
+	static tstring IntPortToWString(int nPort); 
+	static tstring IntPortToString(int nPort);  
 
 private:
-	static int _GetFirstAddrInfo(std::wstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags,  SOCKADDR *pAddr);//return NO_ERROR(0) on success
+	static int _GetFirstAddrInfo(tstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags,  SOCKADDR *pAddr);//return NO_ERROR(0) on success
 
 private:
 	CYSocketUtils(void){}

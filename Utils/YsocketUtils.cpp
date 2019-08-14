@@ -11,7 +11,7 @@
 
 int CYSocketUtils::GetWildcardAddr(int nPort, SOCKADDR *pAddr)
 {
-	return _GetFirstAddrInfo(std::wstring(L""), nPort, 0, AF_INET, 0, AI_PASSIVE|AI_NUMERICSERV, pAddr);
+	return _GetFirstAddrInfo(tstring(_T("")), nPort, 0, AF_INET, 0, AI_PASSIVE|AI_NUMERICSERV, pAddr);
 }
 
 int CYSocketUtils::StringToAddr(std::wstring& sIP, int nPort, SOCKADDR *pAddr)
@@ -24,19 +24,20 @@ int CYSocketUtils::GetPortFromAddr(SOCKADDR *pAddr)
 	return ntohs(((SOCKADDR_IN*)pAddr)->sin_port);
 }
 
-std::wstring CYSocketUtils::GetIPFromAddr(SOCKADDR *pAddr)
+tstring CYSocketUtils::GetIPFromAddr(SOCKADDR *pAddr)
 {
-	char pszIP[MAX_LEN_OF_IP];
+	TCHAR pszIP[MAX_LEN_OF_IP];
 	memset(pszIP, 0, MAX_LEN_OF_IP);
-	inet_ntop(AF_INET, reinterpret_cast<PVOID>(&((SOCKADDR_IN*)pAddr)->sin_addr), pszIP, MAX_LEN_OF_IP);
-	std::string sIP(pszIP);
+	InetNtop(AF_INET, reinterpret_cast<PVOID>(&((SOCKADDR_IN*)pAddr)->sin_addr),pszIP, MAX_LEN_OF_IP);
+	//inet_ntop(AF_INET, reinterpret_cast<PVOID>(&((SOCKADDR_IN*)pAddr)->sin_addr), pszIP, MAX_LEN_OF_IP);
 
-	return	CYCharEncodings::MBToWChar(sIP);
+	return	tstring(pszIP);
 }
 
-std::wstring CYSocketUtils::GetFirstHostAddr()
+tstring CYSocketUtils::GetFirstHostAddr()
 {
-	std::wstring sRet(L"");
+	tstring sRet(_T(""));
+
 	char pszHostName[MAX_HOSTNAME_LEN];
 	memset(pszHostName, 0, MAX_HOSTNAME_LEN);
 	int nRet = gethostname(pszHostName, MAX_HOSTNAME_LEN);
@@ -45,15 +46,18 @@ std::wstring CYSocketUtils::GetFirstHostAddr()
 
 	hostent *pHostent = gethostbyname(pszHostName);
 	in_addr addr;
-	std::string sIP;
 	if(pHostent->h_addr_list[0] != 0){
 		addr.s_addr = *(u_long *)pHostent->h_addr_list[0];
+#if defined(_UNICODE)||defined(UNICODE)
 		sRet = CYCharEncodings::MBToWChar(inet_ntoa(addr));
+#else
+		sRet = inet_ntoa(addr);
+#endif
 	}
 	return sRet;
 }
 
-int CYSocketUtils::GetHostAddrList(std::vector<std::string>& sIPlist)
+int CYSocketUtils::GetHostAddrList(std::vector<tstring>& sIPlist)
 {
 	char pszHostName[MAX_HOSTNAME_LEN];
 	memset(pszHostName, 0, MAX_HOSTNAME_LEN);
@@ -66,45 +70,57 @@ int CYSocketUtils::GetHostAddrList(std::vector<std::string>& sIPlist)
 	int i(0);
 	while(pHostent->h_addr_list[i] != 0){
 		addr.s_addr = *(u_long *)pHostent->h_addr_list[i++];
-		sIPlist.push_back(inet_ntoa(addr));		
+#if defined(_UNICODE)||defined(UNICODE)
+		sIPlist.push_back(CYCharEncodings::MBToWChar(inet_ntoa(addr)));
+#else
+		sIPlist.push_back(inet_ntoa(addr));
+#endif	
 	}
 	return NO_ERROR;
 }
 
-std::wstring CYSocketUtils::GetHostName()
+tstring CYSocketUtils::GetHostName()
 {
 	char pszHostName[MAX_HOSTNAME_LEN];
 	memset(pszHostName, 0, MAX_HOSTNAME_LEN);
 	gethostname(pszHostName, MAX_HOSTNAME_LEN);
+#if defined(_UNICODE)||defined(UNICODE)
 	return CYCharEncodings::MBToWChar(std::string(pszHostName));
+#else
+	return std::string(pszHostName);
+#endif
 }
 
-int CYSocketUtils::StringToIntPort(std::wstring& sPort)
+int CYSocketUtils::StringToIntPort(tstring& sPort)
 {
-	return _wtoi(sPort.c_str());
+	return _ttoi(sPort.c_str());
 }
 
-std::wstring CYSocketUtils::IntPortToWString(int nPort)
+tstring CYSocketUtils::IntPortToWString(int nPort)
 {
-	wchar_t pszPort[MAX_LEN_OF_PORT];
+	TCHAR pszPort[MAX_LEN_OF_PORT];
 	memset(pszPort, 0, MAX_LEN_OF_PORT);
-	_itow(nPort, pszPort, RADIX_DECIMAL);
-	return std::wstring(pszPort);
+	_itot_s(nPort, pszPort, RADIX_DECIMAL);
+	return tstring(pszPort);
 }
 
-std::string  CYSocketUtils::IntPortToString(int nPort)
+tstring  CYSocketUtils::IntPortToString(int nPort)
 {
-	char pszPort[MAX_LEN_OF_PORT];
+	TCHAR pszPort[MAX_LEN_OF_PORT];
 	memset(pszPort, 0, MAX_LEN_OF_PORT);
-	_itoa_s(nPort, pszPort, RADIX_DECIMAL);
-	return std::string(pszPort);
+	_itot_s(nPort, pszPort, RADIX_DECIMAL);
+	return tstring(pszPort);
 }
 
-int CYSocketUtils::_GetFirstAddrInfo(std::wstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags, SOCKADDR *pAddr)
+int CYSocketUtils::_GetFirstAddrInfo(tstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags, SOCKADDR *pAddr)
 {
 	std::string sTmpIP("");
 	if(!sIP.empty())	
+#if defined(_UNICODE)||defined(UNICODE)
 		sTmpIP = CYCharEncodings::WCharToMB(sIP);
+#else
+		sTmpIP = sIP;
+#endif
 
 	char pszPort[MAX_LEN_OF_PORT];
 	memset(pszPort, 0, MAX_LEN_OF_PORT);
