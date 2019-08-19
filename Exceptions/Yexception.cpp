@@ -19,22 +19,22 @@ CYException::CYException(TCHAR *pszReason, TCHAR *pszMethod /*= L"unknownMethod"
 	m_sMsg.append(m_sMethod);
 }
 
-std::wstring CYException::GetMsg()
+tstring CYException::GetMsg()
 {
 	return m_sMsg;
 }
 
-std::wstring CYException::GetReason()
+tstring CYException::GetReason()
 {
 	return m_sReason;
 }
 
-std::wstring CYException::GetClass()
+tstring CYException::GetClass()
 {
 	return m_sClass;
 }
 
-std::wstring CYException::GetMethod()
+tstring CYException::GetMethod()
 {
 	return m_sMethod;
 }

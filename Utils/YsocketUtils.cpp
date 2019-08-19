@@ -14,7 +14,7 @@ int CYSocketUtils::GetWildcardAddr(int nPort, SOCKADDR *pAddr)
 	return _GetFirstAddrInfo(tstring(_T("")), nPort, 0, AF_INET, 0, AI_PASSIVE|AI_NUMERICSERV, pAddr);
 }
 
-int CYSocketUtils::StringToAddr(std::wstring& sIP, int nPort, SOCKADDR *pAddr)
+int CYSocketUtils::StringToAddr(tstring& sIP, int nPort, SOCKADDR *pAddr)
 {
 	return _GetFirstAddrInfo(sIP, nPort, 0, AF_INET, 0, AI_NUMERICSERV, pAddr);
 }

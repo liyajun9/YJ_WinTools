@@ -1,6 +1,9 @@
 //  Logger
 //	Usage:
-//
+//		CYLogger logger(_T(".\\ABC"),true);
+//		logger.Log(CYLogger::Info, "abcde:附件里的撒娇了健康减肥的卡我");
+
+//Note: character encodings of log files is GB2312
 // author:liyajun
 
 #pragma once
@@ -13,6 +16,9 @@
 #include "..\Utils\YCriticalSectionLock.h"
 #include "..\Utils\YCharEncodings.h"
 #include <direct.h>
+#include <xlocale>
+#include <wchar.h>
+#include <system_error>
 
 class CYLogger{
 public:
@@ -104,8 +110,11 @@ private:
 				tstring sExpireFileName = m_sDirectory + _T("\\") + CYTimeUtils::GetAddedDate(0 - m_nLogSavingDays, CYTimeUtils::Date_Format_3) + _T(".log");
 				_tremove(sExpireFileName.c_str());
 
+				const std::locale cn_loc("chs");
+				m_stream.imbue(cn_loc);
+
 				m_stream << _T("********************************New Log*********************************") << std::endl;
-				bIsNewOpen = false;
+				bIsNewOpen = false;	
 			}
 		}
 
