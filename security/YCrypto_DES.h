@@ -19,13 +19,22 @@ enum des_block_mode{
 
 class CYCrypto_DES{	
 public:
-	static void DES64_CBC_JavaLike(const std::string& sKey, const std::string& sIv,const std::string& sInData, std::string& sOutData, bool bEncrypt);
-
+	static void DES64_ECB(const std::string& sKey, const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
 	static void DES_ECB(const std::string& sKey, const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
 	static void DES_ECB(DES_cblock* pKey, const void* pInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
 
+	static void DES64_CBC_JavaLike(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt);
+	static void DES64_CBC(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
 	static void DES_CBC(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
 	static void DES_CBC(DES_cblock* pKey, DES_cblock* pIv,const void* pInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
+
+	/*static void DES64_CFB(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
+	static void DES_CFB(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
+	static void DES_CFB(DES_cblock* pKey, DES_cblock* pIv,const void* pInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
+
+	static void DES64_OFB(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
+	static void DES_OFB(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
+	static void DES_OFB(DES_cblock* pKey, DES_cblock* pIv,const void* pInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);*/
 
 public:
 	static std::string DESKeyToHexString(const DES_cblock* pKey, bool isToUpperCase);

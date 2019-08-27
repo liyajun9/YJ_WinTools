@@ -34,7 +34,7 @@ void CYCrypto_DES::GenerateKeyLikeJava(const std::string& sKey, DES_cblock* pKey
 	DES_set_odd_parity(pKey);
 }
 
-void CYCrypto_DES::DES64_CBC_JavaLike(const std::string& sKey, const std::string& sIv,const std::string& sInData, std::string& sOutData, bool bEncrypt)
+void CYCrypto_DES::DES64_CBC_JavaLike(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt)
 {
 	if(sKey.length() < 8 || sIv.length() < 8) return;
 
@@ -44,7 +44,25 @@ void CYCrypto_DES::DES64_CBC_JavaLike(const std::string& sKey, const std::string
 
 	std::string sResult;
 	if(bEncrypt){
-		DES_CBC(&key, &iv, reinterpret_cast<const void*>(sInData.c_str()), static_cast<unsigned int>(sInData.length()), sResult, bEncrypt, padding_pkcs5);
+		DES_CBC(&key, &iv, reinterpret_cast<const void*>(sInData.c_str()), nCbLen, sResult, bEncrypt, padding_pkcs5);
+		CYEncodings::Base64_Encode(sResult, sOutData);
+	}else{
+		CYEncodings::Base64_Decode(sInData, sResult);
+		DES_CBC(&key, &iv, reinterpret_cast<const void*>(sResult.c_str()), static_cast<unsigned int>(sResult.length()), sOutData, bEncrypt, padding_pkcs5);
+	}
+}
+
+void CYCrypto_DES::DES64_CBC(const std::string& sKey, const std::string& sIv, const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme)
+{
+	if(sKey.length() < 8 || sIv.length() < 8) return;
+
+	DES_cblock key, iv;
+	memcpy(&key, sKey.c_str(), 8);
+	memcpy(&iv, sIv.c_str(), 8);
+
+	std::string sResult;
+	if(bEncrypt){
+		DES_CBC(&key, &iv, reinterpret_cast<const void*>(sInData.c_str()), nCbLen, sResult, bEncrypt, padding_pkcs5);
 		CYEncodings::Base64_Encode(sResult, sOutData);
 	}else{
 		CYEncodings::Base64_Decode(sInData, sResult);
@@ -97,6 +115,23 @@ void CYCrypto_DES::DES_CBC(DES_cblock* pKey, DES_cblock* pIv,const void* pInData
 		delete []pInput;
 	if(pOutput)
 		delete []pOutput;	
+}
+
+void CYCrypto_DES::DES64_ECB(const std::string& sKey, const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme)
+{
+	if(sKey.length() < 8) return;
+
+	DES_cblock key;
+	memcpy(&key, sKey.c_str(), 8);
+
+	std::string sResult;
+	if(bEncrypt){
+		DES_ECB(&key, reinterpret_cast<const char*>(sInData.c_str()), nCbLen, sResult, bEncrypt, paddingScheme);
+		CYEncodings::Base64_Encode(sResult, sOutData);
+	}else{
+		CYEncodings::Base64_Decode(sInData, sResult);
+		DES_ECB(&key, reinterpret_cast<const char*>(sResult.c_str()), static_cast<unsigned int>(sResult.length()), sOutData, bEncrypt, paddingScheme);
+	}
 }
 
 void CYCrypto_DES::DES_ECB(const std::string& sKey, const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme)
