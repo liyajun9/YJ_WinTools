@@ -4051,21 +4051,27 @@ Writer::~Writer() {}
 // //////////////////////////////////////////////////////////////////
 
 FastWriter::FastWriter()
-    : yamlCompatiblityEnabled_(false) {}
+    : yamlCompatiblityEnabled_(false),omitEndingLineFeed_(false),dropNullPlaceholders_(false) {}
 
 void FastWriter::enableYAMLCompatibility() { yamlCompatiblityEnabled_ = true; }
+
+void FastWriter::omitEndingLineFeed() { omitEndingLineFeed_ = true; }
+
+void FastWriter::dropNullPlaceholders() { dropNullPlaceholders_ = true; }
 
 std::string FastWriter::write(const Value& root) {
   document_ = "";
   writeValue(root);
-  document_ += "\n";
+  if(!omitEndingLineFeed_)
+	document_ += "\n";
   return document_;
 }
 
 void FastWriter::writeValue(const Value& value) {
   switch (value.type()) {
   case nullValue:
-    document_ += "null";
+	if(!dropNullPlaceholders_)
+		document_ += "null";
     break;
   case intValue:
     document_ += valueToString(value.asLargestInt());

@@ -1759,6 +1759,8 @@ public:
   virtual ~FastWriter() {}
 
   void enableYAMLCompatibility();
+  void omitEndingLineFeed();
+  void dropNullPlaceholders();
 
 public: // overridden from Writer
   virtual std::string write(const Value& root);
@@ -1768,6 +1770,8 @@ private:
 
   std::string document_;
   bool yamlCompatiblityEnabled_;
+  bool omitEndingLineFeed_;
+  bool dropNullPlaceholders_;
 };
 
 /** \brief Writes a Value in <a HREF="http://www.json.org">JSON</a> format in a
