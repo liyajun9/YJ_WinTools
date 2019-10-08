@@ -9,13 +9,19 @@ m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(logg
 {
 	InitializeCriticalSection(&m_cs);
 	m_sCurrDate = CYTimeUtils::GetCurrDate(CYTimeUtils::Date_Format_3);
+	tstring sPath;
 
-	if(sLogFileDirectory.empty()){
-		m_stream.open(m_sCurrDate + _T(".log"), std::ofstream::out|std::ofstream::app|std::ios::binary);
+	if(m_sDirectory.empty()){
+		sPath = m_sCurrDate + _T(".log");
 	}else{
-		_tmkdir(sLogFileDirectory.c_str());
-		m_stream.open(m_sDirectory + _T("\\") + m_sCurrDate + _T(".log"), std::ofstream::out|std::ofstream::app|std::ios::binary);
+		_tmkdir(m_sDirectory.c_str());
+		sPath = m_sDirectory + _T("\\") + m_sCurrDate + _T(".log");
 	}
+#if defined(UNICODE) || defined(_UNICODE)		
+	m_stream.open((CYCharEncodings::WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
+#else
+	m_stream.open(sPath, std::ofstream::out|std::ofstream::app|std::ios::binary);
+#endif
 }
 
 CYLogger::~CYLogger()
@@ -38,7 +44,7 @@ void CYLogger::Log(const char* pszData, ...)
 
 #if defined(UNICODE) || defined(_UNICODE)		
 	std::wstring sDataTmp = CYCharEncodings::MBToWChar(sData);
-	write(sDataTmp.c_str(), logLevel);
+	write(sDataTmp.c_str(), LogLevel::Info);
 #else
 	write(sData.c_str(), LogLevel::Info);
 #endif
@@ -77,7 +83,7 @@ void CYLogger::Log(const wchar_t* pwszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), logLevel);
+	write(sData.c_str(), LogLevel::Info);
 #else
 	std::string sDataTmp = CYCharEncodings::WCharToMB(sData);
 	write(sDataTmp.c_str(), LogLevel::Info);
@@ -111,7 +117,13 @@ void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
 	tstring sCurrDate = CYTimeUtils::GetCurrDate(CYTimeUtils::Date_Format_3);
 	if(0 != m_sCurrDate.compare(sCurrDate)){
 		m_stream.close();
-		m_stream.open(m_sDirectory + _T("\\") + m_sCurrDate + _T(".log"), std::ofstream::out|std::ofstream::app|std::ios::binary);
+		tstring sPath;
+		sPath = m_sDirectory + _T("\\") + m_sCurrDate + _T(".log");
+#if defined(UNICODE) || defined(_UNICODE)		
+		m_stream.open((CYCharEncodings::WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
+#else
+		m_stream.open(sPath, std::ofstream::out|std::ofstream::app|std::ios::binary);
+#endif
 		m_stream << _T("\r\n********************************New Log*********************************") << std::endl;
 
 		m_sCurrDate = sCurrDate;			

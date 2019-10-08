@@ -18,7 +18,6 @@
 #include <direct.h>
 #include <xlocale>
 #include <wchar.h>
-#include <system_error>
 
 #define LOG_OUT theLogger.Log
 
