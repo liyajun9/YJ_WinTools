@@ -24,7 +24,7 @@ std::string CYCrypto_DES::DESKeyToString(const DES_cblock* pKey)
 	return std::string(key);
 }
 
-void CYCrypto_DES::GenerateKeyLikeJava(const std::string& sKey, DES_cblock* pKey)
+void CYCrypto_DES::GetMD5AsKey(const std::string& sKey, DES_cblock* pKey)
 {
 	char MD5[33]; memset(MD5, 0, 33);
 	CYHash::CalcMD5(sKey.c_str(), static_cast<unsigned int>(sKey.length()), MD5, 33, true);
@@ -34,12 +34,12 @@ void CYCrypto_DES::GenerateKeyLikeJava(const std::string& sKey, DES_cblock* pKey
 	DES_set_odd_parity(pKey);
 }
 
-void CYCrypto_DES::DES64_CBC_JavaLike(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt)
+void CYCrypto_DES::DES64_CBC_MD5AsKey(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt)
 {
 	if(sKey.length() < 8 || sIv.length() < 8) return;
 
 	DES_cblock key, iv;
-	GenerateKeyLikeJava(sKey, &key);
+	GetMD5AsKey(sKey, &key);
 	memcpy(&iv, sIv.c_str(), 8);
 
 	std::string sResult;

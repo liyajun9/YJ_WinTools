@@ -23,7 +23,7 @@ public:
 	static void DES_ECB(const std::string& sKey, const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
 	static void DES_ECB(DES_cblock* pKey, const void* pInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
 
-	static void DES64_CBC_JavaLike(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt);
+	static void DES64_CBC_MD5AsKey(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt);
 	static void DES64_CBC(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
 	static void DES_CBC(const std::string& sKey, const std::string& sIv,const std::string& sInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
 	static void DES_CBC(DES_cblock* pKey, DES_cblock* pIv,const void* pInData, unsigned int nCbLen, std::string& sOutData, bool bEncrypt, int paddingScheme);
@@ -43,7 +43,7 @@ public:
 	static std::string DESKeyToString(const DES_cblock* pKey);
 
 public:
-	static void GenerateKeyLikeJava(const std::string& sKey, DES_cblock* pKey);//calc MD5 of key, and set parity to odd
+	static void GetMD5AsKey(const std::string& sKey, DES_cblock* pKey);//calc MD5 of key, and set parity to odd
 
 private:
 	CYCrypto_DES(){}
