@@ -4,7 +4,7 @@
 
 int Padding(const void *pIn, unsigned int nCbLen, void *pOut, unsigned int nCbOutLen, unsigned int nCbBlockSize, int paddingScheme)
 {
-	if(nCbBlockSize == 0 || nCbBlockSize > 255) return 0;
+	if(nCbBlockSize == 0 || nCbBlockSize > MAX_BLOCK_SIZE) return 0;
 	if(paddingScheme < padding_Zero || paddingScheme > padding_pkcs7) return 0;
 	if(paddingScheme == padding_pkcs5 && nCbBlockSize != 8) return 0;
 
@@ -95,13 +95,19 @@ std::string CharToHexString(const void *pSrc, unsigned int nLen, bool isToUpperC
 
 void HexStringToChar(std::string sSrc, bool isUpperCase, char *pDst, unsigned int nCbLen)
 {
+	memset(pDst, 0, nCbLen);
 	char higher, lower;
 	char charA = isUpperCase ? 'A' : 'a';
 	unsigned int nSrcLen = static_cast<unsigned int>(sSrc.length());
 	unsigned int nLen = nSrcLen < nCbLen ? nSrcLen : nCbLen;
 	for(unsigned int i=0; i<nLen; i++){
-		higher = sSrc[i*2] <= '9' ? sSrc[i*2] - '0' : sSrc[i*2] + 10 - charA;
-		lower = sSrc[i*2 + 1] <= '9' ? sSrc[i*2+1] - '0' : sSrc[i*2 + 1] + 10 - charA;
-		pDst[i] = (higher << 4) + lower;
+		if(sSrc[i*2] < '0' || sSrc[i*2 ] > 'F' || sSrc[i*2] > '9' && sSrc[i*2] < 'A' ||
+				sSrc[i*2 + 1] < '0' || sSrc[i*2 + 1] > 'F' || sSrc[i*2 + 1] > '9' && sSrc[i*2 + 1] < 'A')
+			pDst[i] = '\0';
+		else{
+			higher = sSrc[i*2] <= '9' ? sSrc[i*2] - '0' : sSrc[i*2] + 10 - charA;
+			lower = sSrc[i*2 + 1] <= '9' ? sSrc[i*2+1] - '0' : sSrc[i*2 + 1] + 10 - charA;
+			pDst[i] = (higher << 4) + lower;
+		}
 	}
 }
