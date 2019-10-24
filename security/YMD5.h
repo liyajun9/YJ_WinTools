@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+#define MD5_BUFFER_SIZE 33
+
 class CYMD5{
 public:
 	static std::string Update(const std::string& sIn, size_t nLen, bool isToUpperCase);

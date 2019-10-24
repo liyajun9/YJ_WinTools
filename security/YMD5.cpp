@@ -15,9 +15,9 @@ std::string CYMD5::Update(const std::string& sIn, size_t nLen, bool isToUpperCas
 	MD5_Update(&ctx, sIn.c_str(), nLen);
 	MD5_Final(MD, &ctx);
 
-	char szTmp[33]; memset(szTmp, 0, 33);
+	char szTmp[MD5_BUFFER_SIZE]; memset(szTmp, 0, MD5_BUFFER_SIZE);
 	const char *fmt = isToUpperCase ? "%02X" : "%02x";
-	for (unsigned int i = 0; i < 16; i++){
+	for (unsigned int i = 0; i < MD5_BUFFER_SIZE/2; i++){
 		sprintf(szTmp + i * 2, fmt, MD[i]);
 	}
 	string sOut = szTmp;
@@ -31,9 +31,9 @@ void CYMD5::Update(const std::string& sIn, size_t nLen, std::string& sOut,  bool
 	MD5_Update(&ctx, sIn.c_str(), nLen);
 	MD5_Final(MD, &ctx);
 
-	char szTmp[33]; memset(szTmp, 0, 33);
+	char szTmp[MD5_BUFFER_SIZE]; memset(szTmp, 0, MD5_BUFFER_SIZE);
 	const char *fmt = isToUpperCase ? "%02X" : "%02x";
-	for (unsigned int  i = 0; i < 16; i++){
+	for (unsigned int  i = 0; i < MD5_BUFFER_SIZE/2; i++){
 		sprintf(szTmp + i * 2, fmt, MD[i]);
 	}
 	sOut = szTmp;
@@ -41,7 +41,7 @@ void CYMD5::Update(const std::string& sIn, size_t nLen, std::string& sOut,  bool
 
 void CYMD5::Update(const void* pIn, unsigned int nCbLen, char* pszOut, unsigned int nCbOutLen, bool isToUpperCase)
 {
-	if(nCbOutLen < 33)	return;
+	if(nCbOutLen < MD5_BUFFER_SIZE)	return;
 
 	unsigned char MD[MD5_DIGEST_LENGTH]; memset(&MD, 0, MD5_DIGEST_LENGTH);
 	MD5_CTX ctx = {0};
@@ -50,7 +50,7 @@ void CYMD5::Update(const void* pIn, unsigned int nCbLen, char* pszOut, unsigned 
 	MD5_Final(MD, &ctx);
 
 	const char *fmt = isToUpperCase ? "%02X" : "%02x";
-	for (unsigned int  i = 0; i < 16; i++){
+	for (unsigned int  i = 0; i < MD5_BUFFER_SIZE/2; i++){
 		sprintf(pszOut + i * 2, fmt, MD[i]);
 	}
 }

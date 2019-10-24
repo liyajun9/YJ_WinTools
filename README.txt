@@ -28,4 +28,9 @@ CYexception 方便Win32 API调用异常的统一处理，避免大量if else
 
  *CYbuffer: 一个方便使用buffer的
 
+ *security: 使用时请在应用程序中添加平台粘合文件
+ extern "C"{
+#include "openssl/applink.c"
+};
+
 
