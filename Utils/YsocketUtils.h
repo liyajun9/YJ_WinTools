@@ -6,29 +6,23 @@
 #include <winsock.h>
 #include "..\Log\tstring.h"
 
-class CYSocketUtils
+namespace NS_Yutils
 {
-public:	
-	//get addresses
-	static tstring GetHostName();
-	static int GetHostAddrList(std::vector<tstring>& sIPlist);
-	static tstring GetFirstHostAddr();
-	static int GetWildcardAddr(int nPort, SOCKADDR *pAddr);
+//get addresses
+tstring GetHostName();
+int GetHostAddrList(std::vector<tstring>& sIPlist);
+tstring GetFirstHostAddr();
+int GetWildcardAddr(int nPort, SOCKADDR *pAddr);
 
-	//parse ip, port from SOCKADDR
-	static tstring GetIPFromAddr(SOCKADDR *pAddr);
-	static int GetPortFromAddr(SOCKADDR *pAddr);
+//parse ip, port from SOCKADDR
+tstring GetIPFromAddr(SOCKADDR *pAddr);
+int GetPortFromAddr(SOCKADDR *pAddr);
 
-	//ip, port conversions
-	static int StringToAddr(tstring& sIP, int nPort, SOCKADDR *pAddr);
-	static int StringToIntPort(tstring& sPort);	
-	static tstring IntPortToWString(int nPort); 
-	static tstring IntPortToString(int nPort);  
+//ip, port conversions
+int StringToAddr(tstring& sIP, int nPort, SOCKADDR *pAddr);
+int StringToIntPort(tstring& sPort);	
+tstring IntPortToWString(int nPort); 
+tstring IntPortToString(int nPort);  
 
-private:
-	static int _GetFirstAddrInfo(tstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags,  SOCKADDR *pAddr);//return NO_ERROR(0) on success
-
-private:
-	CYSocketUtils(void){}
-	~CYSocketUtils(void){}
+int _GetFirstAddrInfo(tstring& sIP, int nPort, int protocol, int addr_family, int sock_type, int nflags,  SOCKADDR *pAddr);//return NO_ERROR(0) on success
 };

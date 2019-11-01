@@ -2,11 +2,9 @@
 #include <Shlwapi.h>
 #include "..\Log\tstring.h"
 
-class CYFileUtils{
-public:
-	static tstring GetCurrentModuleDirectory();
+namespace NS_Yutils{
 
-private:
-	CYFileUtils(){}
-	~CYFileUtils(){}
+tstring GetCurrentModuleDirectory();
+
+
 };

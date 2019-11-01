@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "YLog.h"
 
+using namespace NS_Yutils;
+
 //Creat a global instance
 CYLogger theLogger(_T(""), false,  static_cast<int>(CYLogger::LogItem::DateTime) | static_cast<int>(CYLogger::LogItem::ThreadId), 3);
 
@@ -8,7 +10,7 @@ CYLogger::CYLogger(tstring sLogFileDirectory, bool bAutoEndline ,int loggableIte
 m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nLogSavingDays(nLogSavingDays)
 {
 	InitializeCriticalSection(&m_cs);
-	m_sCurrDate = CYTimeUtils::GetCurrDate(CYTimeUtils::Date_Format_3);
+	m_sCurrDate = GetCurrDate(Date_Format_3);
 	tstring sPath;
 
 	if(m_sDirectory.empty()){
@@ -18,7 +20,7 @@ m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(logg
 		sPath = m_sDirectory + _T("\\") + m_sCurrDate + _T(".log");
 	}
 #if defined(UNICODE) || defined(_UNICODE)		
-	m_stream.open((CYCharEncodings::WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
+	m_stream.open((WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
 #else
 	m_stream.open(sPath, std::ofstream::out|std::ofstream::app|std::ios::binary);
 #endif
@@ -43,7 +45,7 @@ void CYLogger::Log(const char* pszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = CYCharEncodings::MBToWChar(sData);
+	std::wstring sDataTmp = MBToWChar(sData);
 	write(sDataTmp.c_str(), LogLevel::Info);
 #else
 	write(sData.c_str(), LogLevel::Info);
@@ -63,7 +65,7 @@ void CYLogger::Log(LogLevel logLevel, const char* pszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = CYCharEncodings::MBToWChar(sData);
+	std::wstring sDataTmp = MBToWChar(sData);
 	write(sDataTmp.c_str(), logLevel);
 #else
 	write(sData.c_str(), logLevel);
@@ -85,7 +87,7 @@ void CYLogger::Log(const wchar_t* pwszData, ...)
 #if defined(UNICODE) || defined(_UNICODE)
 	write(sData.c_str(), LogLevel::Info);
 #else
-	std::string sDataTmp = CYCharEncodings::WCharToMB(sData);
+	std::string sDataTmp = WCharToMB(sData);
 	write(sDataTmp.c_str(), LogLevel::Info);
 #endif
 }
@@ -105,7 +107,7 @@ void CYLogger::Log(LogLevel logLevel, const wchar_t* pwszData, ...)
 #if defined(UNICODE) || defined(_UNICODE)
 	write(sData.c_str(), logLevel);
 #else
-	std::string sDataTmp = CYCharEncodings::WCharToMB(sData);
+	std::string sDataTmp = WCharToMB(sData);
 	write(sDataTmp.c_str(), logLevel);
 #endif
 }
@@ -114,13 +116,13 @@ void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
 {
 	CYCriticalSectionLock(&m_cs, true);
 	static bool bIsNewOpen = true;
-	tstring sCurrDate = CYTimeUtils::GetCurrDate(CYTimeUtils::Date_Format_3);
+	tstring sCurrDate = GetCurrDate(Date_Format_3);
 	if(0 != m_sCurrDate.compare(sCurrDate)){
 		m_stream.close();
 		tstring sPath;
 		sPath = m_sDirectory + _T("\\") + m_sCurrDate + _T(".log");
 #if defined(UNICODE) || defined(_UNICODE)		
-		m_stream.open((CYCharEncodings::WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
+		m_stream.open((WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
 #else
 		m_stream.open(sPath, std::ofstream::out|std::ofstream::app|std::ios::binary);
 #endif
@@ -129,7 +131,7 @@ void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
 		m_sCurrDate = sCurrDate;			
 	}else{
 		if(bIsNewOpen){
-			tstring sExpireFileName = m_sDirectory + _T("\\") + CYTimeUtils::GetAddedDate(0 - m_nLogSavingDays, CYTimeUtils::Date_Format_3) + _T(".log");
+			tstring sExpireFileName = m_sDirectory + _T("\\") + GetAddedDate(0 - m_nLogSavingDays, Date_Format_3) + _T(".log");
 			_tremove(sExpireFileName.c_str());
 
 			const std::locale cn_loc("chs");
@@ -141,7 +143,7 @@ void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
 	}
 
 	if(m_loggableItem & static_cast<int>(DateTime)){
-		m_stream<<CYTimeUtils::GetCurrDateTime(CYTimeUtils::Date_Format_3, true);
+		m_stream<<GetCurrDateTime(Date_Format_3, true);
 	}
 	if(m_loggableItem & static_cast<int>(ThreadId)){
 		m_stream<<_T("[")<<GetCurrentThreadId()<<_T("]");

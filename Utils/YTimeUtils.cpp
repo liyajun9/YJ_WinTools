@@ -5,7 +5,7 @@
 #include <tchar.h>
 #pragma warning(disable:4996)
 
-tstring CYTimeUtils::GetCurrDate(DATE_FORMAT dformat)
+tstring NS_Yutils::GetCurrDate(DATE_FORMAT dformat)
 {
 	time_t t(0);
 	time(&t);
@@ -56,7 +56,7 @@ tstring CYTimeUtils::GetCurrDate(DATE_FORMAT dformat)
 	return tstring(pszTmp);
 }
 
-tstring CYTimeUtils::GetCurrTime(bool bMilliSeconds)
+tstring NS_Yutils::GetCurrTime(bool bMilliSeconds)
 {
 	timeb tb;
 	ftime(&tb);
@@ -72,12 +72,12 @@ tstring CYTimeUtils::GetCurrTime(bool bMilliSeconds)
 	return tstring(pszTmp);
 }
 
-tstring CYTimeUtils::GetCurrDateTime(DATE_FORMAT dformat, bool bMilliSeconds)
+tstring NS_Yutils::GetCurrDateTime(DATE_FORMAT dformat, bool bMilliSeconds)
 {
 	return GetCurrDate(dformat) + _T(" ") + GetCurrTime(bMilliSeconds);
 }
 
-tstring CYTimeUtils::GetAddedDate(int nAddedDays, DATE_FORMAT dformat)
+tstring NS_Yutils::GetAddedDate(int nAddedDays, DATE_FORMAT dformat)
 {
 	time_t t(0);
 	time(&t);

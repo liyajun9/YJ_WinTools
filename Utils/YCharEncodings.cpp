@@ -2,7 +2,7 @@
 #include "YCharEncodings.h"
 #include <Windows.h>
 
-std::string CYCharEncodings::WCharToUtf8(const std::wstring& str)
+std::string NS_Yutils::WCharToUtf8(const std::wstring& str)
 {
 	std::string sRet = "";
 	do 
@@ -21,7 +21,7 @@ std::string CYCharEncodings::WCharToUtf8(const std::wstring& str)
 	return sRet;
 }
 
-std::wstring CYCharEncodings::Utf8ToWChar(const std::string& str)
+std::wstring NS_Yutils::Utf8ToWChar(const std::string& str)
 {
 	std::wstring sRet = L"";
 	do 
@@ -40,21 +40,21 @@ std::wstring CYCharEncodings::Utf8ToWChar(const std::string& str)
 	return sRet;
 }
 
-std::string CYCharEncodings::MBToUtf8(const std::string& str)
+std::string NS_Yutils::MBToUtf8(const std::string& str)
 {
 	std::wstring wsStr = MBToWChar(str);
 	if(wsStr.size()<=0) return "";
 	return WCharToUtf8(wsStr);
 }
 
-std::string CYCharEncodings::Utf8ToMB(const std::string& str)
+std::string NS_Yutils::Utf8ToMB(const std::string& str)
 {
 	std::wstring wsStr = Utf8ToWChar(str);
 	if(wsStr.size()<=0) return "";
 	return WCharToMB(wsStr);
 }
 
-std::wstring CYCharEncodings::MBToWChar(const std::string& str)
+std::wstring NS_Yutils::MBToWChar(const std::string& str)
 {
 	std::wstring sRet = L"";
 	do 
@@ -73,7 +73,7 @@ std::wstring CYCharEncodings::MBToWChar(const std::string& str)
 	return sRet;
 }
 
-std::string CYCharEncodings::WCharToMB(const std::wstring& str)
+std::string NS_Yutils::WCharToMB(const std::wstring& str)
 {
 	std::string sRet = "";
 	do 
@@ -92,7 +92,7 @@ std::string CYCharEncodings::WCharToMB(const std::wstring& str)
 	return sRet;
 }
 
-int CYCharEncodings::WCharToUtf8(const wchar_t *pWChar, int nCchWChar, char *pUtf8, int nCbUtf8)
+int NS_Yutils::WCharToUtf8(const wchar_t *pWChar, int nCchWChar, char *pUtf8, int nCbUtf8)
 {
 	int nRet(0);
 	do 
@@ -111,7 +111,7 @@ int CYCharEncodings::WCharToUtf8(const wchar_t *pWChar, int nCchWChar, char *pUt
 	return nRet;
 }
 
-int CYCharEncodings::WCharToMB(const wchar_t *pWChar, int nCchWChar, char *pMB, int nCbMB)
+int NS_Yutils::WCharToMB(const wchar_t *pWChar, int nCchWChar, char *pMB, int nCbMB)
 {
 	int nRet(0);
 	do 
@@ -130,7 +130,7 @@ int CYCharEncodings::WCharToMB(const wchar_t *pWChar, int nCchWChar, char *pMB, 
 	return nRet;
 }
 
-int CYCharEncodings::MBToUtf8(const char *pMB, int nCbMB, char *pUtf, int nCbUtf)
+int NS_Yutils::MBToUtf8(const char *pMB, int nCbMB, char *pUtf, int nCbUtf)
 {
 	int nRet(0);
 	do 
@@ -156,7 +156,7 @@ int CYCharEncodings::MBToUtf8(const char *pMB, int nCbMB, char *pUtf, int nCbUtf
 	return nRet;
 }
 
-int CYCharEncodings::MBToWChar(const char *pMB, int nCbMB, wchar_t *pWChar, int nCchWChar)
+int NS_Yutils::MBToWChar(const char *pMB, int nCbMB, wchar_t *pWChar, int nCchWChar)
 {
 	int nRet(0);
 	do 
@@ -174,7 +174,7 @@ int CYCharEncodings::MBToWChar(const char *pMB, int nCbMB, wchar_t *pWChar, int 
 	return nRet;
 }
 
-int CYCharEncodings::Utf8ToWChar(const char *pUtf, int nCbUtf, wchar_t *pWChar, int nCchWChar)
+int NS_Yutils::Utf8ToWChar(const char *pUtf, int nCbUtf, wchar_t *pWChar, int nCchWChar)
 {
 	int nRet(0);
 	do 
@@ -192,7 +192,7 @@ int CYCharEncodings::Utf8ToWChar(const char *pUtf, int nCbUtf, wchar_t *pWChar, 
 	return nRet;
 }
 
-int CYCharEncodings::Utf8ToMB(const char *pUTF, int nCbUtf, char *pMB, int nCbMB)
+int NS_Yutils::Utf8ToMB(const char *pUTF, int nCbUtf, char *pMB, int nCbMB)
 {
 	int nRet(0);
 	do 
@@ -217,3 +217,7 @@ int CYCharEncodings::Utf8ToMB(const char *pUTF, int nCbUtf, char *pMB, int nCbMB
 
 	return nRet;
 }
+
+char NS_Yutils::CharToHex(unsigned char x) {
+	return x > 9 ? x + 55 : x + 48;
+}	

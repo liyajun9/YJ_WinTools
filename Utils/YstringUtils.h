@@ -4,16 +4,15 @@
 #pragma once
 #include <string>
 
-class CYStringUtils{
+class NS_Yutils{
 
-public:
-	//Format a string to std::string which don't have a format function
-    static std::string FormatToString(const char* lpszMsg, ...);
-	static std::wstring FormatToString(const wchar_t* lpszMsg, ...);
+//Format a string to std::string which don't have a format function
+std::string FormatToString(const char* lpszMsg, ...);
+std::wstring FormatToString(const wchar_t* lpszMsg, ...);
 
-	//Compare in case insensitive way
-	static int CompareNoCase(const std::string& str1, const std::string str2);
+//Compare in case insensitive way
+int CompareNoCase(const std::string& str1, const std::string str2);
 
-	//Tranform to uppercase or lowercase
-	static std::string& ToUpper(std::string& str);
+//Tranform to uppercase or lowercase
+std::string& ToUpper(std::string& str);
 };

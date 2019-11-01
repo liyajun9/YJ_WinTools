@@ -3,8 +3,8 @@
 #include <string>
 #include "..\Log\tstring.h"
 
-class CYTimeUtils{
-public:
+namespace NS_Yutils{
+
 	enum DATE_FORMAT{
 		Date_Format_0,	//yyyy-mm-dd
 		Date_Format_1,	//yy-mm-dd
@@ -20,9 +20,8 @@ public:
 		Date_Format_11	//dd/mm/yy
 	};
 
-public:
-	static tstring GetCurrDate(DATE_FORMAT dformat = Date_Format_0);
-	static tstring GetCurrTime(bool bMilliSeconds = false);
-	static tstring GetCurrDateTime(DATE_FORMAT dformat = Date_Format_0, bool bMilliSeconds = false);
-	static tstring GetAddedDate(int nAddedDays, DATE_FORMAT dformat = Date_Format_0);
+	tstring GetCurrDate(DATE_FORMAT dformat = Date_Format_0);
+	tstring GetCurrTime(bool bMilliSeconds = false);
+	tstring GetCurrDateTime(DATE_FORMAT dformat = Date_Format_0, bool bMilliSeconds = false);
+	tstring GetAddedDate(int nAddedDays, DATE_FORMAT dformat = Date_Format_0);
 };
