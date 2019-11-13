@@ -4,7 +4,7 @@
 #pragma once
 #include <string>
 
-class NS_Yutils{
+namespace NS_Yutils{
 
 //Format a string to std::string which don't have a format function
 std::string FormatToString(const char* lpszMsg, ...);
