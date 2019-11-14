@@ -3,6 +3,8 @@
 #include <openssl/pem.h>
 #include "YBase64.h"
 
+#pragma warning(disable:4996)
+
 bool CYCrypto_RSA::PubKey_Encrypt64(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
 {
 	std::string sTmp;

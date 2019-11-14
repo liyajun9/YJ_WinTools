@@ -52,7 +52,7 @@ public:
 
 private:
 	CYLogger();
-	inline void write(const TCHAR* pData, LogLevel logLevel);
+	void write(const TCHAR* pData, LogLevel logLevel);
 
 private:
 	CRITICAL_SECTION m_cs;

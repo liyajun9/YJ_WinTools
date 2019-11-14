@@ -4,6 +4,8 @@
 #include <winsock.h>
 #include <wchar.h>
 
+#pragma warning(disable:4996)
+
 CYWsaException::CYWsaException(TCHAR *pszAPI /*= _T("unknownAPI")*/, TCHAR *pszMethod /*= _T("unknownMethod")*/, TCHAR *pszClass /*= _T("unknownClass")*/)
 {
 	m_sClass = pszClass;

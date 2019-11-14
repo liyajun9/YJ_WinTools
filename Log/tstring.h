@@ -23,3 +23,5 @@
 #define tfstream std::fstream
 
 #endif
+
+#define ASSERT_STRINGTYPE(T)  static_assert(std::is_same<T, std::string>::value||std::is_same<T, std::wstring>::value, "type must be string or wstring")

@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "YLog.h"
 
+#pragma warning(disable:4482)
+#pragma warning(disable:4996)
+
 using namespace NS_Yutils;
 
 //Creat a global instance

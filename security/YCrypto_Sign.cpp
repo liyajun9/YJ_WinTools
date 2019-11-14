@@ -4,6 +4,8 @@
 #include "YMD5.h"
 #include "YBase64.h"
 
+#pragma warning(disable:4996)
+
 int CYCrypto_Sign::RSA_MD5_Sign(const std::string& sPEMFilePath, const std::string& sMsg, std::string& sSign)
 {
 	return RSA_MD5_Sign(sPEMFilePath, reinterpret_cast<const unsigned char*>(sMsg.data()), sMsg.length(), sSign);

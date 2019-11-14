@@ -3,6 +3,7 @@
 #include <openssl/aes.h>
 #include "YCryptoUtils.h"
 
+#pragma warning(disable:4482)
 typedef unsigned char AES_cblock[16];
 
 class CYCrypto_AES{
