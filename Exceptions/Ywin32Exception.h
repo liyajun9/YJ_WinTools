@@ -1,16 +1,16 @@
-#pragma once
-#include <concrt.h>
+﻿#pragma once
 #include "..\Log\tstring.h"
 #include <exception>
+#include <concrt.h>
 
-class CYWSAException : public std::exception
+class CYWin32Exception : public std::exception
 {
 public:
-	CYWSAException(const char* file, const char* func, int line) throw();
-	CYWSAException(const char* file, const char* func) throw();
-	CYWSAException(const char* file) throw();
-	CYWSAException() throw();
-	virtual ~CYWSAException(){}
+	CYWin32Exception(const char* file, const char* func, int line) throw();
+	CYWin32Exception(const char* file, const char* func) throw();
+	CYWin32Exception(const char* file) throw();
+	CYWin32Exception() throw();
+	virtual ~CYWin32Exception(){}
 
 public:
 	DWORD GetErrorCode() const;

@@ -1,34 +1,31 @@
-// Exception
-// Example:
-//	try{
-//			...
-//			throw CYException(L"method",L"class",L"reason");
-//		}catch(CYException e){
-//			...handle
-//		}
-// author:liyajun
-
 #pragma once
 #include <string>
 #include "..\Log\tstring.h"
 
-class CYException
+class CYExceptionBase : public std::exception
 {
 public:
-	CYException(TCHAR *pszReason, TCHAR *pszMethod = _T("unknownMethod"), TCHAR *pszClass = _T("unknownClass"));
-	virtual ~CYException() {};
+	CYExceptionBase(const char* message, const char* file, const char* func, int line) throw();
+	CYExceptionBase(const char* message, const char* file, const char* func) throw();
+	CYExceptionBase(const char* message, const char* file) throw();
+	CYExceptionBase(const char* message) throw();
+	virtual ~CYExceptionBase() {};
 
 public:
-	tstring GetMsg();
-	tstring GetReason();	
-	tstring GetClass(); 
-	tstring GetMethod(); 
+	void Init(const char* file, const char* func, int line);
+
+	virtual std::string GetClassName() const;
+	std::string GetMessage() const;
+	const char* what() const throw();			
+	const std::string& ToString() const;
 
 protected:
-	CYException();
-	tstring m_sReason;			
-	tstring m_sClass;		
-	tstring m_sMethod;		
-	tstring m_sMsg;				
+	std::string m_sMessage;
+	const char* m_szFile;
+	const char* m_szFunc;
+	int m_nLine;
+
+private:
+	mutable std::string m_sWhat; 
 };
 

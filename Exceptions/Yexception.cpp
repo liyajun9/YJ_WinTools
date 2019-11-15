@@ -1,40 +1,71 @@
 #include "stdafx.h"
 #include "Yexception.h"
+#include <sstream>
 
-CYException::CYException()
+using namespace std;
+
+CYExceptionBase::CYExceptionBase(const char* message, const char* file, const char* func, int line) throw()
+	: std::exception()
+	,m_sMessage(message)
+	,m_szFile(file)
+	,m_szFunc(func)
+	,m_nLine(line)
 {
-
 }
 
-CYException::CYException(TCHAR *pszReason, TCHAR *pszMethod /*= L"unknownMethod"*/, TCHAR *pszClass /*= L"unknownClass"*/)
+CYExceptionBase::CYExceptionBase(const char* message, const char* file, const char* func) throw()
+	: std::exception()
+	,m_sMessage(message)
+	,m_szFile(file)
+	,m_szFunc(func)
+	,m_nLine(-1)
 {
-	m_sReason = pszReason;
-	m_sClass = pszClass;
-	m_sMethod = pszMethod;
-	m_sMsg = _T("Exception: reason(") ;
-	m_sMsg.append(m_sReason); 
-	m_sMsg.append(_T(") at "));
-	m_sMsg.append(m_sClass); 
-	m_sMsg.append(_T("::")); 
-	m_sMsg.append(m_sMethod);
 }
 
-tstring CYException::GetMsg()
+CYExceptionBase::CYExceptionBase(const char* message, const char* file) throw()
+	: std::exception()
+	,m_sMessage(message)
+	,m_szFile(file)
+	,m_szFunc("<unknown func>")
+	,m_nLine(-1)
 {
-	return m_sMsg;
 }
 
-tstring CYException::GetReason()
+CYExceptionBase::CYExceptionBase(const char* message) throw()
+	: std::exception()
+	,m_sMessage(message)
+	,m_szFile("<unknown file>")
+	,m_szFunc("<unknown func>")
+	,m_nLine(-1)
 {
-	return m_sReason;
 }
 
-tstring CYException::GetClass()
+std::string CYExceptionBase::GetMessage() const
 {
-	return m_sClass;
+	return m_sMessage;
 }
 
-tstring CYException::GetMethod()
+const char* CYExceptionBase::what() const throw()
 {
-	return m_sMethod;
+	return ToString().c_str();
+}
+
+const std::string& CYExceptionBase::ToString() const
+{
+	if(m_sWhat.empty()){
+		stringstream sstr;
+		sstr << GetClassName() << "-> ";
+		if(m_nLine > 0){
+			sstr << m_szFile << "(" << m_nLine << ")";
+		}
+		sstr << ": " << m_szFunc << ": " << m_sMessage;
+
+		m_sWhat = sstr.str();
+	}
+	return m_sWhat;
+}
+
+std::string CYExceptionBase::GetClassName() const
+{
+	return "CYExceptionBase";
 }
