@@ -4,7 +4,7 @@
 
 namespace NS_Yutils{
 
-tstring GetCurrentModuleDirectory();
-
+tstring GetModuleFilePath(HINSTANCE hModule = 0); 
+tstring GetModuleFilePathWithSlash(HINSTANCE hModule = 0); 
 
 };
