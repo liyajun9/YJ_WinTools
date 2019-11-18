@@ -3,8 +3,43 @@
 // author:liyajun
 #pragma once
 #include <string>
+#include "..\Log\tstring.h"
+
+#if defined(_UNICODE) || defined(UNICODE)
+#define MBToTString			NS_Yutils::MBToWChar
+#define	WCharToTString	    NS_Yutils::WCharToWChar
+#define Utf8ToTString			NS_Yutils::Utf8ToWChar
+#define TStringToMB			NS_Yutils::WCharToMB
+#define TStringToWChar		NS_Yutils::WCharToWChar
+#define TStringToUtf8			NS_Yutils::WCharToUtf8	
+#define MBToTChar				NS_Yutils::MBToWChar
+#define WCharToTChar		NS_Yutils::WCharToWChar			
+#define Utf8ToTChar			NS_Yutils::Utf8ToWChar
+#define TCharToMB				NS_Yutils::WCharToMB
+#define TCharToWChar		NS_Yutils::WCharToWChar
+#define TCharToUtf8			NS_Yutils::WCharToUtf8
+#else
+#define MBToTString			NS_Yutils::MBToMB
+#define	WCharToTString		NS_Yutils::WCharToMB
+#define Utf8ToTString			NS_Yutils::Utf8ToMB
+#define TStringToMB			NS_Yutils::MBToMB
+#define TStringToWChar		NS_Yutils::MBToWChar
+#define TStringToUtf8			NS_Yutils::WCharToUtf8
+#define MBToTChar				NS_Yutils::MBToMB			
+#define WCharToTChar		NS_Yutils::WCharToMB
+#define Utf8ToTChar			NS_Yutils::Utf8ToMB
+#define TCharToMB				NS_Yutils::MBToMB
+#define TCharToWChar		NS_Yutils::MBToWChar
+#define TCharToUtf8			NS_Yutils::MBToUtf8
+#endif
+
 
 namespace NS_Yutils{
+//Compatible functions
+std::wstring& WCharToWChar(std::wstring& str);
+std::string& MBToMB(std::string& str);
+int WCharToWChar(const wchar_t *pWChar, int nCchWChar, wchar_t *pOut, int nCchOut);
+int MBToMB(const char *pMB, int nCchMB, char *pOut, int nCchOut);
 
 //input: std::string or std::wstring
 std::string WCharToUtf8(const std::wstring& str);

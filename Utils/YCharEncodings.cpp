@@ -2,6 +2,38 @@
 #include "YCharEncodings.h"
 #include <Windows.h>
 
+std::wstring& NS_Yutils::WCharToWChar(std::wstring& str)
+{
+	return str;
+}
+
+std::string& NS_Yutils::MBToMB(std::string& str)
+{
+	return str;
+}
+
+int NS_Yutils::WCharToWChar(const wchar_t *pWChar, int nCchWChar, wchar_t *pOut, int nCchOut)
+{
+	if(!pWChar || !pOut || nCchWChar <= 0 || nCchOut <= 0 || nCchOut < nCchWChar)
+		return 0;
+
+	memset(pOut, 0, nCchOut * sizeof(wchar_t));
+	int nLen = nCchWChar * sizeof(wchar_t);
+	memcpy(pOut, pWChar, nLen);
+	return nLen;
+}
+
+int NS_Yutils::MBToMB(const char *pMB, int nCchMB, char *pOut, int nCchOut)
+{
+	if(!pMB || !pOut || nCchMB <= 0 || nCchOut <= 0 || nCchOut < nCchMB)
+		return 0;
+
+	memset(pOut, 0, nCchOut * sizeof(char));
+	int nLen = nCchMB * sizeof(char);
+	memcpy(pOut, pMB, nLen);
+	return nLen;
+}
+
 std::string NS_Yutils::WCharToUtf8(const std::wstring& str)
 {
 	std::string sRet = "";
