@@ -25,7 +25,7 @@ m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(logg
 #if defined(UNICODE) || defined(_UNICODE)		
 	m_stream.open((WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
 #else
-	m_stream.open(sPath, std::ofstream::out|std::ofstream::app|std::ios::binary);
+	m_stream.open(sPath.c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
 #endif
 }
 
@@ -256,7 +256,7 @@ void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
 #if defined(UNICODE) || defined(_UNICODE)		
 		m_stream.open((WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
 #else
-		m_stream.open(sPath, std::ofstream::out|std::ofstream::app|std::ios::binary);
+		m_stream.open(sPath.c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
 #endif
 		const std::locale cn_loc("chs");
 		m_stream.imbue(cn_loc);
