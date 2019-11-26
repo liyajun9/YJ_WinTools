@@ -7,10 +7,10 @@
 using namespace NS_Yutils;
 
 //Creat a global instance
-CYLogger theLogger(_T(""), false,  static_cast<int>(CYLogger::LogItem::DateTime) | static_cast<int>(CYLogger::LogItem::ThreadId), 3);
+CYLogger theLogger(_T("Logs"), false,  static_cast<int>(CYLogger::LogItem::DateTime) | static_cast<int>(CYLogger::LogItem::ThreadId), 3);
 
-CYLogger::CYLogger(tstring sLogFileDirectory, bool bAutoEndline ,int loggableItem, int nLogSavingDays):
-m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nLogSavingDays(nLogSavingDays)
+CYLogger::CYLogger(tstring sLogFileDirectory, bool bAutoEndline ,int loggableItem, int nExpireLogDays):
+m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nExpireLogDays(nExpireLogDays)
 {
 	InitializeCriticalSection(&m_cs);
 	m_sCurrDate = GetCurrDate(Date_Format_3);
@@ -237,10 +237,19 @@ void CYLogger::Log(LogLevel logLevel, const wchar_t* pwszData, ...)
 
 void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
 {
-	CYCriticalSectionLock(&m_cs, true);
-	static bool bIsNewOpen = true;
+	static bool bIsFirstRun = true;
+	bool bIsNewDay = false;
+
 	tstring sCurrDate = GetCurrDate(Date_Format_3);
-	if(0 != m_sCurrDate.compare(sCurrDate)){
+	 bIsNewDay = m_sCurrDate.compare(sCurrDate)!=0;
+
+	 CYCriticalSectionLock(&m_cs, true);
+	if(bIsFirstRun || bIsNewDay){//delete expired log files
+		DeleteExpiredOrInvalidLog();
+	}
+
+	if(bIsNewDay){ //refresh m_stream
+		m_sCurrDate = sCurrDate;
 		m_stream.close();
 		tstring sPath;
 		sPath = m_sDirectory + _T("\\") + m_sCurrDate + _T(".log");
@@ -249,21 +258,14 @@ void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
 #else
 		m_stream.open(sPath, std::ofstream::out|std::ofstream::app|std::ios::binary);
 #endif
-		m_stream << _T("\r\n********************************New Log*********************************") << std::endl;
-
-		m_sCurrDate = sCurrDate;			
-	}else{
-		if(bIsNewOpen){
-			tstring sExpireFileName = m_sDirectory + _T("\\") + GetAddedDate(0 - m_nLogSavingDays, Date_Format_3) + _T(".log");
-			_tremove(sExpireFileName.c_str());
-
-			const std::locale cn_loc("chs");
-			m_stream.imbue(cn_loc);
-
-			m_stream << _T("\r\n********************************New Log*********************************") << std::endl;
-			bIsNewOpen = false;	
-		}
+		const std::locale cn_loc("chs");
+		m_stream.imbue(cn_loc);
 	}
+
+	if(bIsFirstRun){ //write header
+		m_stream << _T("\r\n********************************New Log*********************************") << std::endl;
+		bIsFirstRun = false;
+	}	
 
 	if(m_loggableItem & static_cast<int>(DateTime)){
 		m_stream<<GetCurrDateTime(Date_Format_3, true);
@@ -294,4 +296,55 @@ void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
 	else
 		m_stream<<_T(" ")<<pData;
 	m_stream.flush();
+}
+
+void CYLogger::DeleteExpiredOrInvalidLog()
+{
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	WIN32_FIND_DATA ffd;
+
+	tstring sWildcard = m_sDirectory;
+	sWildcard.append(_T("\\*.*"));
+	hFind = FindFirstFile(sWildcard.c_str(), &ffd);
+	if(hFind == INVALID_HANDLE_VALUE)
+		return;
+
+	TCHAR pszFile[MAX_PATH];
+	tstring::size_type nLen = m_sDirectory.length();
+	memset(pszFile, 0, MAX_PATH);
+	memcpy(pszFile, m_sDirectory.c_str(),nLen);
+	do{
+		if(_tcscmp(ffd.cFileName, _T(".")) != 0 && _tcscmp(ffd.cFileName, _T("..")) != 0){
+			if(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY){
+				continue;
+			}else{
+				if(!IsFreshValidLog(ffd.cFileName)){
+					memset(pszFile + nLen, 0, MAX_PATH - nLen);
+					memcpy(pszFile + nLen, _T("\\"), 1);
+					memcpy(pszFile + nLen + 1, ffd.cFileName, _tcslen(ffd.cFileName));
+					_tremove(pszFile);
+				}
+			}
+		}
+	}while(FindNextFile(hFind, &ffd) != 0);
+
+	FindClose(hFind);
+	hFind = INVALID_HANDLE_VALUE;
+}
+
+bool CYLogger::IsFreshValidLog(tstring sFileName)
+{
+	tstring::size_type nPos = sFileName.find_last_of(_T('.'));
+	if(nPos != tstring::npos){
+		sFileName = sFileName.substr(0,nPos);
+	}
+
+	if(sFileName.length() == 6){
+		if(sFileName.find_first_not_of(_T("0123456789")) == tstring::npos){
+			tstring sExpireDate = GetAddedDate(0 - m_nExpireLogDays, Date_Format_3);
+			if(sFileName.compare(sExpireDate) > 0)
+				return true;
+		}
+	}
+	 return false;
 }

@@ -1,8 +1,4 @@
 //  Logger
-//	Usage:
-//		CYLogger logger(_T(".\\ABC"),true);
-//		logger.Log(CYLogger::Info, "abcde:附件里的撒娇了健康减肥的卡我");
-
 //Note: character encodings of log files is GB2312
 // author:liyajun
 
@@ -44,7 +40,7 @@ public:
 	CYLogger(tstring sLogFileDirectory,		// log directory. support only one sub-directory. empty indicates current path.
 						bool bAutoEndline = false,	// whether auto add end of line
 						int loggableItem = static_cast<int>(DateTime) | static_cast<int>(ThreadId), //prefix of each line includings
-						int nLogSavingDays = 3);			// saving log for days
+						int nExpireLogDays = 7);			// saving log for days
 	~CYLogger();
 
 	void LogInfo(const char* pszData, ...); 
@@ -62,13 +58,15 @@ public:
 private:
 	CYLogger();
 	void write(const TCHAR* pData, LogLevel logLevel);
+	void DeleteExpiredOrInvalidLog();
+	bool IsFreshValidLog(tstring sFileName);
 
 private:
 	CRITICAL_SECTION m_cs;
 	
 	bool m_bAutoEndline;
 	int m_loggableItem;
-	int m_nLogSavingDays;
+	int m_nExpireLogDays;
 	tstring m_sDirectory;
 	tstring m_sCurrDate;
 
