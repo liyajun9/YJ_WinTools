@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "Ywin32Exception.h"
+#include "Win32Exception.h"
 #include <winbase.h>
 #include <wchar.h>
 #include <sstream>
@@ -28,7 +28,7 @@ std::string TranslateErrCode(DWORD errCode)
 	return sRet;
 }
 
-CYWin32Exception::CYWin32Exception(const char* file, const char* func, int line) throw()
+CWin32Exception::CWin32Exception(const char* file, const char* func, int line) throw()
 	:m_szFile(file)
 	,m_szFunc(func)
 	,m_nLine(line)
@@ -37,7 +37,7 @@ CYWin32Exception::CYWin32Exception(const char* file, const char* func, int line)
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CYWin32Exception::CYWin32Exception(const char* file, const char* func) throw()
+CWin32Exception::CWin32Exception(const char* file, const char* func) throw()
 	:m_szFile(file)
 	,m_szFunc(func)
 	,m_nLine(-1)
@@ -46,7 +46,7 @@ CYWin32Exception::CYWin32Exception(const char* file, const char* func) throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CYWin32Exception::CYWin32Exception(const char* file) throw()
+CWin32Exception::CWin32Exception(const char* file) throw()
 	:m_szFile(file)
 	,m_szFunc("<unknown func>")
 	,m_nLine(-1)
@@ -55,7 +55,7 @@ CYWin32Exception::CYWin32Exception(const char* file) throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CYWin32Exception::CYWin32Exception() throw()
+CWin32Exception::CWin32Exception() throw()
 	:m_szFile("<unknown file>")
 	,m_szFunc("<unknown func>")
 	,m_nLine(-1)
@@ -64,35 +64,36 @@ CYWin32Exception::CYWin32Exception() throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-DWORD CYWin32Exception::GetErrorCode() const
+DWORD CWin32Exception::GetErrorCode() const
 {
 	return m_dwErrorCode;
 }
 
-std::string CYWin32Exception::GetMessage() const
+std::string CWin32Exception::GetMessage() const
 {
 	return m_sMessage;
 }
 
-const char* CYWin32Exception::GetClassName() const
+const char* CWin32Exception::GetClassName() const
 {
-	return "Win32Exception";
+	return "CWin32Exception";
 }
 
-const char* CYWin32Exception::what() const throw()
+const char* CWin32Exception::what() const throw()
 {
 	return ToString().c_str();
 }
 
-const std::string& CYWin32Exception::ToString() const
+const std::string& CWin32Exception::ToString() const
 {
 	if(m_sWhat.empty()){
 		stringstream sstr;
-		sstr << GetClassName() << "-> ";
-		if(m_nLine > 0){
-			sstr << m_szFile << "(" << m_nLine << ")";
-		}
-		sstr << ": " << m_szFunc << ": (" << m_dwErrorCode << ")" <<m_sMessage;
+		sstr << GetClassName() 
+			<< ":: "<< m_szFile 
+			<< "(" << m_nLine << ")"
+			<< "-> " << m_szFunc 
+			<< "(" << m_dwErrorCode << ")"
+			<< ": " << m_sMessage;
 
 		m_sWhat = sstr.str();
 	}

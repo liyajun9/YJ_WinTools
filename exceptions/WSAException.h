@@ -3,14 +3,14 @@
 #include "..\Log\tstring.h"
 #include <exception>
 
-class CYWSAException : public std::exception
+class CWSAException : public std::exception
 {
 public:
-	CYWSAException(const char* file, const char* func, int line) throw();
-	CYWSAException(const char* file, const char* func) throw();
-	CYWSAException(const char* file) throw();
-	CYWSAException() throw();
-	virtual ~CYWSAException(){}
+	CWSAException(const char* file, const char* func, int line) throw();
+	CWSAException(const char* file, const char* func) throw();
+	CWSAException(const char* file) throw();
+	CWSAException() throw();
+	virtual ~CWSAException(){}
 
 public:
 	DWORD GetErrorCode() const;

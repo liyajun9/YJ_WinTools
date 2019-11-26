@@ -19,7 +19,10 @@
 #include <xlocale>
 #include <wchar.h>
 
-#define LOG_OUT theLogger.Log
+#define LOG_INFO theLogger.LogInfo
+#define LOG_DEBUG theLogger.LogDebug
+#define LOG_WARN theLogger.LogWarn
+#define LOG_ERROR theLogger.LogError
 
 class CYLogger{
 public:
@@ -44,10 +47,16 @@ public:
 						int nLogSavingDays = 3);			// saving log for days
 	~CYLogger();
 
-	void Log( const char* pszData, ...); //loglevel is info by default
-	void Log(LogLevel logLevel, const char* pszData, ...);	
+	void LogInfo(const char* pszData, ...); 
+	void LogInfo(const wchar_t* pwszData, ...);
+	void LogDebug(const char* pszData, ...); 
+	void LogDebug(const wchar_t* pwszData, ...);
+	void LogWarn(const char* pszData, ...); 
+	void LogWarn(const wchar_t* pwszData, ...);
+	void LogError(const char* pszData, ...); 
+	void LogError(const wchar_t* pwszData, ...);
 
-	void Log(const wchar_t* pwszData, ...);
+	void Log(LogLevel logLevel, const char* pszData, ...);	
 	void Log(LogLevel logLevel, const wchar_t* pwszData, ...);
 
 private:

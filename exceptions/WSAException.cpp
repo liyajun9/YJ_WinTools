@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "YwsaException.h"
+#include "WSAException.h"
 #include <winsock.h>
 #include <wchar.h>
 #include <sstream>
@@ -9,7 +9,7 @@ using namespace std;
 
 std::string TranslateErrCode(DWORD errCode);
 
-CYWSAException::CYWSAException(const char* file, const char* func, int line) throw()
+CWSAException::CWSAException(const char* file, const char* func, int line) throw()
 	:m_szFile(file)
 	,m_szFunc(func)
 	,m_nLine(line)
@@ -18,7 +18,7 @@ CYWSAException::CYWSAException(const char* file, const char* func, int line) thr
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CYWSAException::CYWSAException(const char* file, const char* func) throw()
+CWSAException::CWSAException(const char* file, const char* func) throw()
 	:m_szFile(file)
 	,m_szFunc(func)
 	,m_nLine(-1)
@@ -27,7 +27,7 @@ CYWSAException::CYWSAException(const char* file, const char* func) throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CYWSAException::CYWSAException(const char* file) throw()
+CWSAException::CWSAException(const char* file) throw()
 	:m_szFile(file)
 	,m_szFunc("<unknown func>")
 	,m_nLine(-1)
@@ -36,7 +36,7 @@ CYWSAException::CYWSAException(const char* file) throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CYWSAException::CYWSAException() throw()
+CWSAException::CWSAException() throw()
 	:m_szFile("<unknown file>")
 	,m_szFunc("<unknown func>")
 	,m_nLine(-1)
@@ -45,35 +45,36 @@ CYWSAException::CYWSAException() throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-DWORD CYWSAException::GetErrorCode() const
+DWORD CWSAException::GetErrorCode() const
 {
 	return m_dwErrorCode;
 }
 
-std::string CYWSAException::GetMessage() const
+std::string CWSAException::GetMessage() const
 {
 	return m_sMessage;
 }
 
-const char* CYWSAException::GetClassName() const
+const char* CWSAException::GetClassName() const
 {
-	return "WSAException";
+	return "CWSAException";
 }
 
-const char* CYWSAException::what() const throw()
+const char* CWSAException::what() const throw()
 {
 	return ToString().c_str();
 }
 
-const std::string& CYWSAException::ToString() const
+const std::string& CWSAException::ToString() const
 {
 	if(m_sWhat.empty()){
 		stringstream sstr;
-		sstr << GetClassName() << "-> ";
-		if(m_nLine > 0){
-			sstr << m_szFile << "(" << m_nLine << ")";
-		}
-		sstr << ": " << m_szFunc << ": (" << m_dwErrorCode << ")" <<m_sMessage;
+		sstr << GetClassName() 
+			<< ":: "<< m_szFile 
+			<< "(" << m_nLine << ")"
+			<< "-> " << m_szFunc 
+			<< "(" << m_dwErrorCode << ")"
+			<< ": " << m_sMessage;
 
 		m_sWhat = sstr.str();
 	}

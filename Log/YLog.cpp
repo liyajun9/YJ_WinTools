@@ -35,7 +35,7 @@ CYLogger::~CYLogger()
 	DeleteCriticalSection(&m_cs);
 }
 
-void CYLogger::Log(const char* pszData, ...)
+void CYLogger::LogInfo(const char* pszData, ...)
 {
 	std::string sData;
 	va_list argList;
@@ -52,6 +52,146 @@ void CYLogger::Log(const char* pszData, ...)
 	write(sDataTmp.c_str(), LogLevel::Info);
 #else
 	write(sData.c_str(), LogLevel::Info);
+#endif
+}
+
+void CYLogger::LogInfo(const wchar_t* pwszData, ...)
+{
+	std::wstring sData;
+	va_list argList;
+	va_start(argList, pwszData);
+	size_t nSize = _vscwprintf(pwszData, argList);
+	if(sData.capacity() < (nSize + 2))
+		sData.resize(nSize + 2);
+
+	vswprintf((wchar_t*)sData.data(), pwszData, argList);
+	va_end(argList);
+
+#if defined(UNICODE) || defined(_UNICODE)
+	write(sData.c_str(), LogLevel::Info);
+#else
+	std::string sDataTmp = WCharToMB(sData);
+	write(sDataTmp.c_str(), LogLevel::Info);
+#endif
+}
+
+void CYLogger::LogDebug(const char* pszData, ...)
+{
+	std::string sData;
+	va_list argList;
+	va_start(argList, pszData);
+	size_t nSize = _vscprintf(pszData, argList);
+	if(sData.capacity() < (nSize + 1))
+		sData.resize(nSize + 1);
+
+	vsprintf((char*)sData.data(), pszData, argList);
+	va_end(argList);
+
+#if defined(UNICODE) || defined(_UNICODE)		
+	std::wstring sDataTmp = MBToWChar(sData);
+	write(sDataTmp.c_str(), LogLevel::Debug);
+#else
+	write(sData.c_str(), LogLevel::Debug);
+#endif
+}
+
+void CYLogger::LogDebug(const wchar_t* pwszData, ...)
+{
+	std::wstring sData;
+	va_list argList;
+	va_start(argList, pwszData);
+	size_t nSize = _vscwprintf(pwszData, argList);
+	if(sData.capacity() < (nSize + 2))
+		sData.resize(nSize + 2);
+
+	vswprintf((wchar_t*)sData.data(), pwszData, argList);
+	va_end(argList);
+
+#if defined(UNICODE) || defined(_UNICODE)
+	write(sData.c_str(), LogLevel::Debug);
+#else
+	std::string sDataTmp = WCharToMB(sData);
+	write(sDataTmp.c_str(), LogLevel::Debug);
+#endif
+}
+
+void CYLogger::LogWarn(const char* pszData, ...)
+{
+	std::string sData;
+	va_list argList;
+	va_start(argList, pszData);
+	size_t nSize = _vscprintf(pszData, argList);
+	if(sData.capacity() < (nSize + 1))
+		sData.resize(nSize + 1);
+
+	vsprintf((char*)sData.data(), pszData, argList);
+	va_end(argList);
+
+#if defined(UNICODE) || defined(_UNICODE)		
+	std::wstring sDataTmp = MBToWChar(sData);
+	write(sDataTmp.c_str(), LogLevel::Warn);
+#else
+	write(sData.c_str(), LogLevel::Warn);
+#endif
+}
+
+void CYLogger::LogWarn(const wchar_t* pwszData, ...)
+{
+	std::wstring sData;
+	va_list argList;
+	va_start(argList, pwszData);
+	size_t nSize = _vscwprintf(pwszData, argList);
+	if(sData.capacity() < (nSize + 2))
+		sData.resize(nSize + 2);
+
+	vswprintf((wchar_t*)sData.data(), pwszData, argList);
+	va_end(argList);
+
+#if defined(UNICODE) || defined(_UNICODE)
+	write(sData.c_str(), LogLevel::Warn);
+#else
+	std::string sDataTmp = WCharToMB(sData);
+	write(sDataTmp.c_str(), LogLevel::Warn);
+#endif
+}
+
+void CYLogger::LogError(const char* pszData, ...)
+{
+	std::string sData;
+	va_list argList;
+	va_start(argList, pszData);
+	size_t nSize = _vscprintf(pszData, argList);
+	if(sData.capacity() < (nSize + 1))
+		sData.resize(nSize + 1);
+
+	vsprintf((char*)sData.data(), pszData, argList);
+	va_end(argList);
+
+#if defined(UNICODE) || defined(_UNICODE)		
+	std::wstring sDataTmp = MBToWChar(sData);
+	write(sDataTmp.c_str(), LogLevel::Error);
+#else
+	write(sData.c_str(), LogLevel::Error);
+#endif
+}
+
+void CYLogger::LogError(const wchar_t* pwszData, ...)
+{
+	std::wstring sData;
+	va_list argList;
+	va_start(argList, pwszData);
+	size_t nSize = _vscwprintf(pwszData, argList);
+	if(sData.capacity() < (nSize + 2))
+		sData.resize(nSize + 2);
+
+	vswprintf((wchar_t*)sData.data(), pwszData, argList);
+	va_end(argList);
+
+#if defined(UNICODE) || defined(_UNICODE)
+	write(sData.c_str(), LogLevel::Error);
+#else
+	std::string sDataTmp = WCharToMB(sData);
+	write(sDataTmp.c_str(), LogLevel::Error);
 #endif
 }
 
@@ -72,26 +212,6 @@ void CYLogger::Log(LogLevel logLevel, const char* pszData, ...)
 	write(sDataTmp.c_str(), logLevel);
 #else
 	write(sData.c_str(), logLevel);
-#endif
-}
-
-void CYLogger::Log(const wchar_t* pwszData, ...)
-{
-	std::wstring sData;
-	va_list argList;
-	va_start(argList, pwszData);
-	size_t nSize = _vscwprintf(pwszData, argList);
-	if(sData.capacity() < (nSize + 2))
-		sData.resize(nSize + 2);
-
-	vswprintf((wchar_t*)sData.data(), pwszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), LogLevel::Info);
-#else
-	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), LogLevel::Info);
 #endif
 }
 

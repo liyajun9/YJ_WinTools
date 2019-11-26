@@ -3,14 +3,14 @@
 #include <exception>
 #include <concrt.h>
 
-class CYWin32Exception : public std::exception
+class CWin32Exception : public std::exception
 {
 public:
-	CYWin32Exception(const char* file, const char* func, int line) throw();
-	CYWin32Exception(const char* file, const char* func) throw();
-	CYWin32Exception(const char* file) throw();
-	CYWin32Exception() throw();
-	virtual ~CYWin32Exception(){}
+	CWin32Exception(const char* file, const char* func, int line) throw();
+	CWin32Exception(const char* file, const char* func) throw();
+	CWin32Exception(const char* file) throw();
+	CWin32Exception() throw();
+	virtual ~CWin32Exception(){}
 
 public:
 	DWORD GetErrorCode() const;

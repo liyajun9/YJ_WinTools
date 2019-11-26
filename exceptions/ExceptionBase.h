@@ -2,14 +2,14 @@
 #include <string>
 #include "..\Log\tstring.h"
 
-class CYExceptionBase : public std::exception
+class CExceptionBase : public std::exception
 {
 public:
-	CYExceptionBase(const char* message, const char* file, const char* func, int line) throw();
-	CYExceptionBase(const char* message, const char* file, const char* func) throw();
-	CYExceptionBase(const char* message, const char* file) throw();
-	CYExceptionBase(const char* message) throw();
-	virtual ~CYExceptionBase() {};
+	CExceptionBase(const char* message, const char* file, const char* func, int line) throw();
+	CExceptionBase(const char* message, const char* file, const char* func) throw();
+	CExceptionBase(const char* message, const char* file) throw();
+	CExceptionBase(const char* message) throw();
+	virtual ~CExceptionBase() {};
 
 public:
 	void Init(const char* file, const char* func, int line);
