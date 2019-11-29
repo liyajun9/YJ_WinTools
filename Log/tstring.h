@@ -11,6 +11,7 @@
 #define tofstream std::wofstream
 #define tifstream std::wifstream
 #define tfstream std::wfstream
+#define tstringstream std::wstringstream
 
 #else
 
@@ -21,6 +22,7 @@
 #define tofstream std::ofstream
 #define tifstream std::ifstream
 #define tfstream std::fstream
+#define tstringstream std::stringstream
 
 #endif
 

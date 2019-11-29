@@ -24,7 +24,7 @@
 #define Utf8ToTString			NS_Yutils::Utf8ToMB
 #define TStringToMB			NS_Yutils::MBToMB
 #define TStringToWChar		NS_Yutils::MBToWChar
-#define TStringToUtf8			NS_Yutils::WCharToUtf8
+#define TStringToUtf8			NS_Yutils::MBToUtf8
 #define MBToTChar				NS_Yutils::MBToMB			
 #define WCharToTChar		NS_Yutils::WCharToMB
 #define Utf8ToTChar			NS_Yutils::Utf8ToMB

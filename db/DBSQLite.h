@@ -2,10 +2,11 @@
 #include "..\sqlite\include\sqlite3.h"
 #include <winbase.h>
 #include <vector>
+#include "..\Log\tstring.h"
 
 #define SQLITE_QUERY_SUCCESS 0
 #define SQLITE_QUERY_ERROR 1
-typedef std::vector<std::string> TransactSQLs;
+typedef std::vector<tstring> TransactSQLs;
 
 #define SQLite CDBSQLite::GetInstance()
 
@@ -13,15 +14,15 @@ class CDBSQLite{
 public:
 	static CDBSQLite& GetInstance();
 
-	bool GetIsExist(const std::string& sSQL);
-	int GetIntField(const std::string& sSQL);//return -1 on error or empty result
-	std::string GetStringField(const std::string& sSQL); //return "" on error or empty result
+	bool GetIsExist(const tstring& sSQL);
+	int GetIntField(const tstring& sSQL);//return -1 on error or empty result
+	tstring GetStringField(const tstring& sSQL); //return "" on error or empty result
 
-	bool ExecuteSQL(const std::string& sSQL, unsigned int *pAffectedRows = NULL);
+	bool ExecuteSQL(const tstring& sSQL, unsigned int *pAffectedRows = NULL);
 	bool ExecuteTransac(const TransactSQLs& vecSQL);
 
-	bool GetIsTableExist(const std::string& sTable);
-	bool GetIsColumnExist(const std::string& sTable, const std::string&sCol);//note: column name is sensitive
+	bool GetIsTableExist(const tstring& sTable);
+	bool GetIsColumnExist(const tstring& sTable, const tstring&sCol);//note: column name is sensitive
 
 	int GetLastError();//0(SQLITE_QUERY_SUCCESS) or 1(SQLITE_QUERY_ERROR)
 
