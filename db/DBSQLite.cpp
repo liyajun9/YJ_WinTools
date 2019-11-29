@@ -216,7 +216,7 @@ bool CDBSQLite::GetIsTableExist(const tstring& sTable)
 	return GetIntField(ssSQL.str()) > 0;
 }
 
-bool CDBSQLite::GetIsColumnExist(const std::string& sTable, const std::string& sCol)
+bool CDBSQLite::GetIsColumnExist(const tstring& sTable, const tstring& sCol)
 {
 	tstringstream ssSQL;
 	ssSQL<<_T("select count(*) from PRAGMA_table_info(\'")<<sTable<<_T("\') where name=\'")<<sCol<<_T("\'");
