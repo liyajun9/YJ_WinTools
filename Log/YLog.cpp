@@ -7,7 +7,7 @@
 using namespace NS_Yutils;
 
 //Creat a global instance
-CYLogger theLogger(_T("Logs"), false,  static_cast<int>(CYLogger::LogItem::DateTime) | static_cast<int>(CYLogger::LogItem::ThreadId), 3);
+CYLogger theLogger(_T("Logs"), true,  static_cast<int>(CYLogger::LogItem::DateTime) | static_cast<int>(CYLogger::LogItem::ThreadId), 3);
 
 CYLogger::CYLogger(tstring sLogFileDirectory, bool bAutoEndline ,int loggableItem, int nExpireLogDays):
 m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nExpireLogDays(nExpireLogDays)

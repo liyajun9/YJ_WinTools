@@ -3,17 +3,27 @@
 #include <winbase.h>
 #include <vector>
 
-typedef std::vector<std::string> SQLTransac;
+#define SQLITE_QUERY_SUCCESS 0
+#define SQLITE_QUERY_ERROR 1
+typedef std::vector<std::string> TransactSQLs;
+
+#define SQLite CDBSQLite::GetInstance()
 
 class CDBSQLite{
 public:
 	static CDBSQLite& GetInstance();
 
-	bool ExecuteSQL(const std::string& sSQL);
-	bool IsExist(const std::string& sSQL);
-	int GetIntField(const std::string& sSQL);
-	std::string GetStringField(const std::string& sSQL);
-	bool ExecuteTransac(const SQLTransac& vecSQL);
+	bool GetIsExist(const std::string& sSQL);
+	int GetIntField(const std::string& sSQL);//return -1 on error or empty result
+	std::string GetStringField(const std::string& sSQL); //return "" on error or empty result
+
+	bool ExecuteSQL(const std::string& sSQL, unsigned int *pAffectedRows = NULL);
+	bool ExecuteTransac(const TransactSQLs& vecSQL);
+
+	bool GetIsTableExist(const std::string& sTable);
+	bool GetIsColumnExist(const std::string& sTable, const std::string&sCol);//note: column name is sensitive
+
+	int GetLastError();//0(SQLITE_QUERY_SUCCESS) or 1(SQLITE_QUERY_ERROR)
 
 private:
 	void InitConnection();
@@ -30,5 +40,5 @@ private:
 	static const char *pDbfilename;
 	CRITICAL_SECTION m_cs;  
 
-	char *m_pszErrMsg;
+	int m_nLastError; //0 - success    other-error
 };

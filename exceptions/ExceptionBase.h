@@ -21,8 +21,8 @@ public:
 
 protected:
 	std::string m_sMessage;
-	const char* m_szFile;
-	const char* m_szFunc;
+	std::string m_sFile;
+	std::string m_sFunc;
 	int m_nLine;
 
 private:

@@ -29,8 +29,8 @@ std::string TranslateErrCode(DWORD errCode)
 }
 
 CWin32Exception::CWin32Exception(const char* file, const char* func, int line) throw()
-	:m_szFile(file)
-	,m_szFunc(func)
+	:m_sFile(file)
+	,m_sFunc(func)
 	,m_nLine(line)
 {
 	m_dwErrorCode = GetLastError();
@@ -38,8 +38,8 @@ CWin32Exception::CWin32Exception(const char* file, const char* func, int line) t
 }
 
 CWin32Exception::CWin32Exception(const char* file, const char* func) throw()
-	:m_szFile(file)
-	,m_szFunc(func)
+	:m_sFile(file)
+	,m_sFunc(func)
 	,m_nLine(-1)
 {
 	m_dwErrorCode = GetLastError();
@@ -47,8 +47,8 @@ CWin32Exception::CWin32Exception(const char* file, const char* func) throw()
 }
 
 CWin32Exception::CWin32Exception(const char* file) throw()
-	:m_szFile(file)
-	,m_szFunc("<unknown func>")
+	:m_sFile(file)
+	,m_sFunc("<unknown func>")
 	,m_nLine(-1)
 {
 	m_dwErrorCode = GetLastError();
@@ -56,8 +56,8 @@ CWin32Exception::CWin32Exception(const char* file) throw()
 }
 
 CWin32Exception::CWin32Exception() throw()
-	:m_szFile("<unknown file>")
-	,m_szFunc("<unknown func>")
+	:m_sFile("<unknown file>")
+	,m_sFunc("<unknown func>")
 	,m_nLine(-1)
 {
 	m_dwErrorCode = GetLastError();
@@ -89,9 +89,9 @@ const std::string& CWin32Exception::ToString() const
 	if(m_sWhat.empty()){
 		stringstream sstr;
 		sstr << GetClassName() 
-			<< ":: "<< m_szFile 
+			<< ":: "<< m_sFile 
 			<< "(" << m_nLine << ")"
-			<< "-> " << m_szFunc 
+			<< "-> " << m_sFunc 
 			<< "(" << m_dwErrorCode << ")"
 			<< ": " << m_sMessage;
 

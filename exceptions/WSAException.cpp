@@ -10,8 +10,8 @@ using namespace std;
 std::string TranslateErrCode(DWORD errCode);
 
 CWSAException::CWSAException(const char* file, const char* func, int line) throw()
-	:m_szFile(file)
-	,m_szFunc(func)
+	:m_sFile(file)
+	,m_sFunc(func)
 	,m_nLine(line)
 {
 	m_dwErrorCode = WSAGetLastError();
@@ -19,8 +19,8 @@ CWSAException::CWSAException(const char* file, const char* func, int line) throw
 }
 
 CWSAException::CWSAException(const char* file, const char* func) throw()
-	:m_szFile(file)
-	,m_szFunc(func)
+	:m_sFile(file)
+	,m_sFunc(func)
 	,m_nLine(-1)
 {
 	m_dwErrorCode = WSAGetLastError();
@@ -28,8 +28,8 @@ CWSAException::CWSAException(const char* file, const char* func) throw()
 }
 
 CWSAException::CWSAException(const char* file) throw()
-	:m_szFile(file)
-	,m_szFunc("<unknown func>")
+	:m_sFile(file)
+	,m_sFunc("<unknown func>")
 	,m_nLine(-1)
 {
 	m_dwErrorCode = WSAGetLastError();
@@ -37,8 +37,8 @@ CWSAException::CWSAException(const char* file) throw()
 }
 
 CWSAException::CWSAException() throw()
-	:m_szFile("<unknown file>")
-	,m_szFunc("<unknown func>")
+	:m_sFile("<unknown file>")
+	,m_sFunc("<unknown func>")
 	,m_nLine(-1)
 {
 	m_dwErrorCode = WSAGetLastError();
@@ -70,9 +70,9 @@ const std::string& CWSAException::ToString() const
 	if(m_sWhat.empty()){
 		stringstream sstr;
 		sstr << GetClassName() 
-			<< ":: "<< m_szFile 
+			<< ":: "<< m_sFile 
 			<< "(" << m_nLine << ")"
-			<< "-> " << m_szFunc 
+			<< "-> " << m_sFunc 
 			<< "(" << m_dwErrorCode << ")"
 			<< ": " << m_sMessage;
 

@@ -7,8 +7,8 @@ using namespace std;
 CExceptionBase::CExceptionBase(const char* message, const char* file, const char* func, int line) throw()
 	: std::exception()
 	,m_sMessage(message)
-	,m_szFile(file)
-	,m_szFunc(func)
+	,m_sFile(file)
+	,m_sFunc(func)
 	,m_nLine(line)
 {
 }
@@ -16,8 +16,8 @@ CExceptionBase::CExceptionBase(const char* message, const char* file, const char
 CExceptionBase::CExceptionBase(const char* message, const char* file, const char* func) throw()
 	: std::exception()
 	,m_sMessage(message)
-	,m_szFile(file)
-	,m_szFunc(func)
+	,m_sFile(file)
+	,m_sFunc(func)
 	,m_nLine(-1)
 {
 }
@@ -25,8 +25,8 @@ CExceptionBase::CExceptionBase(const char* message, const char* file, const char
 CExceptionBase::CExceptionBase(const char* message, const char* file) throw()
 	: std::exception()
 	,m_sMessage(message)
-	,m_szFile(file)
-	,m_szFunc("<unknown func>")
+	,m_sFile(file)
+	,m_sFunc("<unknown func>")
 	,m_nLine(-1)
 {
 }
@@ -34,8 +34,8 @@ CExceptionBase::CExceptionBase(const char* message, const char* file) throw()
 CExceptionBase::CExceptionBase(const char* message) throw()
 	: std::exception()
 	,m_sMessage(message)
-	,m_szFile("<unknown file>")
-	,m_szFunc("<unknown func>")
+	,m_sFile("<unknown file>")
+	,m_sFunc("<unknown func>")
 	,m_nLine(-1)
 {
 }
@@ -55,9 +55,9 @@ const std::string& CExceptionBase::ToString() const
 	if(m_sWhat.empty()){
 		stringstream sstr;
 		sstr << GetClassName() 
-			<< ":: "<< m_szFile 
+			<< ":: "<< m_sFile 
 			<< "(" << m_nLine << ")"
-			<< "-> " << m_szFunc 
+			<< "-> " << m_sFunc 
 			<< ": " << m_sMessage;
 
 		m_sWhat = sstr.str();
