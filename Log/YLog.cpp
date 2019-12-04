@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "YLog.h"
+#include <sstream>
 
 #pragma warning(disable:4482)
 #pragma warning(disable:4996)
@@ -262,39 +263,43 @@ void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
 		m_stream.imbue(cn_loc);
 	}
 
+	tstringstream sstr;
+
 	if(bIsFirstRun){ //write header
-		m_stream << _T("\r\n********************************New Log*********************************") << std::endl;
+		sstr << _T("\r\n********************************New Log*********************************") << std::endl;
 		bIsFirstRun = false;
 	}	
 
 	if(m_loggableItem & static_cast<int>(DateTime)){
-		m_stream<<GetCurrDateTime(Date_Format_3, true);
+		sstr<<GetCurrDateTime(Date_Format_3, true);
 	}
 	if(m_loggableItem & static_cast<int>(ThreadId)){
-		m_stream<<_T("[")<<GetCurrentThreadId()<<_T("]");
+		sstr<<_T("[")<<GetCurrentThreadId()<<_T("]");
 	}
 	switch (logLevel)
 	{
 	case Info:
-		m_stream<<_T("[INF]");
+		sstr<<_T("[INFO]");
 		break;
 	case Debug:
-		m_stream<<_T("[DBG]");
+		sstr<<_T("[DBG]");
 		break;
 	case Warn:
-		m_stream<<_T("[WRN]");
+		sstr<<_T("[WARN]");
 		break;
 	case Error:
-		m_stream<<_T("[ERR]");
+		sstr<<_T("[ERROR]");
 		break;
 	default:
-		m_stream<<_T("[INF]");
+		sstr<<_T("[INFO]");
 		break;
 	}
 	if(m_bAutoEndline)
-		m_stream<<_T(" ")<<pData<<std::endl;
+		sstr<<_T(" ")<<pData<<std::endl;
 	else
-		m_stream<<_T(" ")<<pData;
+		sstr<<_T(" ")<<pData;
+
+	m_stream<<sstr.str();
 	m_stream.flush();
 }
 
