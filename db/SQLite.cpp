@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "DBSQLite.h"
+#include "SQLite.h"
 #include "..\Log\Log.h"
 #include "..\exceptions\SQliteException.h"
 #include <sstream>

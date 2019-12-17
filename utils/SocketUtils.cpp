@@ -1,9 +1,8 @@
 ﻿#include "stdafx.h"
 #include "SocketUtils.h"
-#include <ws2tcpip.h>
 #include "CharEncodings.h"
 #include <iptypes.h>
-#include <winsock.h>
+#include <winsock2.h>
 
 #pragma comment(lib, "ws2_32.lib")
 
