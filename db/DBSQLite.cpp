@@ -16,20 +16,20 @@ CDBSQLite& CDBSQLite::GetInstance()
 
 CDBSQLite::CDBSQLite() : m_nLastError(0)
 {
-	InitializeCriticalSection(&m_cs);
+	::InitializeCriticalSection(&m_cs);
 }
 
 CDBSQLite::~CDBSQLite()
 {
 	sqlite3_close(pDbconnection);
-	DeleteCriticalSection(&m_cs);
+	::DeleteCriticalSection(&m_cs);
 }
 
 bool CDBSQLite::ExecuteSQL(const tstring& sSQL, unsigned int *pAffectedRows)
 {
 	std::string sSQLutf8 = TStringToUtf8(sSQL);
 
-	CYCriticalSectionLock(&m_cs, true); 
+	CYCriticalSection cs(m_cs); 
 	char *pszErrMsg = NULL;
 	try{
 		InitConnection();
@@ -59,7 +59,7 @@ bool CDBSQLite::GetIsExist(const tstring& sSQL)
 {
 	std::string sSQLutf8 = TStringToUtf8(sSQL);
 
-	CYCriticalSectionLock(&m_cs, true);
+	CYCriticalSection cs(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	bool bRet(false);
@@ -98,7 +98,7 @@ int CDBSQLite::GetIntField(const tstring& sSQL)
 {
 	std::string sSQLutf8 = TStringToUtf8(sSQL);
 
-	CYCriticalSectionLock(&m_cs, true);
+	CYCriticalSection cs(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	int nRet(-1);
@@ -137,7 +137,7 @@ tstring CDBSQLite::GetStringField(const tstring& sSQL)
 {
 	std::string sSQLutf8 = TStringToUtf8(sSQL);
 
-	CYCriticalSectionLock(&m_cs, true);
+	CYCriticalSection cs(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	std::string sRet = "";
@@ -174,7 +174,7 @@ tstring CDBSQLite::GetStringField(const tstring& sSQL)
 
 bool CDBSQLite::ExecuteTransac(const TransactSQLs& vecSQL)
 {
-	CYCriticalSectionLock(&m_cs, true);
+	CYCriticalSection cs(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	bool bRet(false);

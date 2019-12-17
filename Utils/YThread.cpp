@@ -18,7 +18,7 @@ CYThread::~CYThread()
 {
 	if(INVALID_HANDLE_VALUE != m_hThread){
 		if(m_eState == E_STATE::RUNNING || m_eState == E_STATE::PAUSED){
-			//LOG_INFO("Note: CYThread destructor: will cancel the thread");
+			LOG_INFO("Note: CYThread destructor: will cancel the thread");
 			Cancel();  //Note: won't call 	OnThreadCancel of subclass since subclass isn't exist anymore here
 		}
 		CloseHandle(m_hThread);

@@ -10,29 +10,34 @@
 #include <windows.h>
 #include <exception>
 
-class CYCriticalSectionLock
+class CYCriticalSection
 {
 public:
-	explicit CYCriticalSectionLock(CRITICAL_SECTION* pCS, bool bInitialLock = false){
-		if(pCS == NULL)
-			throw std::exception("Critical Section is null");
-		m_pCS = pCS;
-		if(bInitialLock)
-			Lock();
+	explicit CYCriticalSection(CRITICAL_SECTION& cs)
+	: m_cs(cs){
+		::EnterCriticalSection(&m_cs);
 	}
 
-	~CYCriticalSectionLock(){
-		Unlock();
+	~CYCriticalSection(){
+		::LeaveCriticalSection(&m_cs);
 	}
 
 public:
-	inline bool Lock(){
-		return TryEnterCriticalSection(m_pCS) > 0 ? TRUE : FALSE;
+	inline void Lock(){
+		::EnterCriticalSection(&m_cs);
 	}
+
+	inline bool TryLock(){
+		return TryEnterCriticalSection(&m_cs) > 0 ? TRUE : FALSE;
+	}
+
 	inline void Unlock(){
-		LeaveCriticalSection(m_pCS);
+		::LeaveCriticalSection(&m_cs);
 	}
 
 private:
-	CRITICAL_SECTION* m_pCS;
+	CYCriticalSection();
+	CYCriticalSection(const CYCriticalSection&);
+	CYCriticalSection& operator =(const CYCriticalSection&);
+	CRITICAL_SECTION& m_cs;
 };

@@ -1,6 +1,7 @@
 #pragma once
 #include <concrt.h>
 
+//thread function return values
 #define THREAD_ERROR_SUCCESS 0
 #define THREAD_ERROR_OTHER 1
 #define THREAD_ERROR_EXCEPTION 2

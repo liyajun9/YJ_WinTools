@@ -8,7 +8,7 @@
 using namespace NS_Yutils;
 
 //Creat a global instance
-CYLogger theLogger(_T("Logs"), true,  static_cast<int>(CYLogger::LogItem::DateTime) | static_cast<int>(CYLogger::LogItem::ThreadId), 3);
+CYLogger theLogger(_T("Logs"), true,  static_cast<int>(CYLogger::ELogItem::DATETIME) | static_cast<int>(CYLogger::ELogItem::THREADID), 3);
 
 CYLogger::CYLogger(tstring sLogFileDirectory, bool bAutoEndline ,int loggableItem, int nExpireLogDays):
 m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nExpireLogDays(nExpireLogDays)
@@ -38,6 +38,8 @@ CYLogger::~CYLogger()
 
 void CYLogger::LogInfo(const char* pszData, ...)
 {
+	if(!(LOG_LEVEL & ELogType::Info)) return;
+
 	std::string sData;
 	va_list argList;
 	va_start(argList, pszData);
@@ -50,14 +52,16 @@ void CYLogger::LogInfo(const char* pszData, ...)
 
 #if defined(UNICODE) || defined(_UNICODE)		
 	std::wstring sDataTmp = MBToWChar(sData);
-	write(sDataTmp.c_str(), LogLevel::Info);
+	write(sDataTmp.c_str(), ELogType::Info);
 #else
-	write(sData.c_str(), LogLevel::Info);
+	write(sData.c_str(), ELogType::Info);
 #endif
 }
 
 void CYLogger::LogInfo(const wchar_t* pwszData, ...)
 {
+	if(!(LOG_LEVEL & ELogType::Info)) return;
+
 	std::wstring sData;
 	va_list argList;
 	va_start(argList, pwszData);
@@ -69,15 +73,17 @@ void CYLogger::LogInfo(const wchar_t* pwszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), LogLevel::Info);
+	write(sData.c_str(), ELogType::Info);
 #else
 	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), LogLevel::Info);
+	write(sDataTmp.c_str(), ELogType::Info);
 #endif
 }
 
 void CYLogger::LogDebug(const char* pszData, ...)
 {
+	if(!(LOG_LEVEL & ELogType::Debug)) return;
+
 	std::string sData;
 	va_list argList;
 	va_start(argList, pszData);
@@ -90,14 +96,16 @@ void CYLogger::LogDebug(const char* pszData, ...)
 
 #if defined(UNICODE) || defined(_UNICODE)		
 	std::wstring sDataTmp = MBToWChar(sData);
-	write(sDataTmp.c_str(), LogLevel::Debug);
+	write(sDataTmp.c_str(), ELogType::Debug);
 #else
-	write(sData.c_str(), LogLevel::Debug);
+	write(sData.c_str(), ELogType::Debug);
 #endif
 }
 
 void CYLogger::LogDebug(const wchar_t* pwszData, ...)
 {
+	if(!(LOG_LEVEL & ELogType::Debug)) return;
+
 	std::wstring sData;
 	va_list argList;
 	va_start(argList, pwszData);
@@ -109,15 +117,17 @@ void CYLogger::LogDebug(const wchar_t* pwszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), LogLevel::Debug);
+	write(sData.c_str(), ELogType::Debug);
 #else
 	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), LogLevel::Debug);
+	write(sDataTmp.c_str(), ELogType::Debug);
 #endif
 }
 
 void CYLogger::LogWarn(const char* pszData, ...)
 {
+	if(!(LOG_LEVEL & ELogType::Warn)) return;
+
 	std::string sData;
 	va_list argList;
 	va_start(argList, pszData);
@@ -130,14 +140,16 @@ void CYLogger::LogWarn(const char* pszData, ...)
 
 #if defined(UNICODE) || defined(_UNICODE)		
 	std::wstring sDataTmp = MBToWChar(sData);
-	write(sDataTmp.c_str(), LogLevel::Warn);
+	write(sDataTmp.c_str(), ELogType::Warn);
 #else
-	write(sData.c_str(), LogLevel::Warn);
+	write(sData.c_str(), ELogType::Warn);
 #endif
 }
 
 void CYLogger::LogWarn(const wchar_t* pwszData, ...)
 {
+	if(!(LOG_LEVEL & ELogType::Warn)) return;
+
 	std::wstring sData;
 	va_list argList;
 	va_start(argList, pwszData);
@@ -149,15 +161,17 @@ void CYLogger::LogWarn(const wchar_t* pwszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), LogLevel::Warn);
+	write(sData.c_str(), ELogType::Warn);
 #else
 	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), LogLevel::Warn);
+	write(sDataTmp.c_str(), ELogType::Warn);
 #endif
 }
 
 void CYLogger::LogError(const char* pszData, ...)
 {
+	if(!(LOG_LEVEL & ELogType::Error)) return;
+
 	std::string sData;
 	va_list argList;
 	va_start(argList, pszData);
@@ -170,14 +184,16 @@ void CYLogger::LogError(const char* pszData, ...)
 
 #if defined(UNICODE) || defined(_UNICODE)		
 	std::wstring sDataTmp = MBToWChar(sData);
-	write(sDataTmp.c_str(), LogLevel::Error);
+	write(sDataTmp.c_str(), ELogType::Error);
 #else
-	write(sData.c_str(), LogLevel::Error);
+	write(sData.c_str(), ELogType::Error);
 #endif
 }
 
 void CYLogger::LogError(const wchar_t* pwszData, ...)
 {
+	if(!(LOG_LEVEL & ELogType::Error)) return;
+
 	std::wstring sData;
 	va_list argList;
 	va_start(argList, pwszData);
@@ -189,15 +205,17 @@ void CYLogger::LogError(const wchar_t* pwszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), LogLevel::Error);
+	write(sData.c_str(), ELogType::Error);
 #else
 	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), LogLevel::Error);
+	write(sDataTmp.c_str(), ELogType::Error);
 #endif
 }
 
-void CYLogger::Log(LogLevel logLevel, const char* pszData, ...)
+void CYLogger::LogFatal(const char* pszData, ...)
 {
+	if(!(LOG_LEVEL & ELogType::Fatal)) return;
+
 	std::string sData;
 	va_list argList;
 	va_start(argList, pszData);
@@ -210,14 +228,16 @@ void CYLogger::Log(LogLevel logLevel, const char* pszData, ...)
 
 #if defined(UNICODE) || defined(_UNICODE)		
 	std::wstring sDataTmp = MBToWChar(sData);
-	write(sDataTmp.c_str(), logLevel);
+	write(sDataTmp.c_str(), ELogType::Fatal);
 #else
-	write(sData.c_str(), logLevel);
+	write(sData.c_str(), ELogType::Fatal);
 #endif
 }
 
-void CYLogger::Log(LogLevel logLevel, const wchar_t* pwszData, ...)
+void CYLogger::LogFatal(const wchar_t* pwszData, ...)
 {
+	if(!(LOG_LEVEL & ELogType::Fatal)) return;
+
 	std::wstring sData;
 	va_list argList;
 	va_start(argList, pwszData);
@@ -229,22 +249,67 @@ void CYLogger::Log(LogLevel logLevel, const wchar_t* pwszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), logLevel);
+	write(sData.c_str(), ELogType::Fatal);
 #else
 	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), logLevel);
+	write(sDataTmp.c_str(), ELogType::Fatal);
 #endif
 }
 
-void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
+void CYLogger::Log(ELogType logType, const char* pszData, ...)
 {
+	if(!(LOG_LEVEL & logType)) return;
+
+	std::string sData;
+	va_list argList;
+	va_start(argList, pszData);
+	size_t nSize = _vscprintf(pszData, argList);
+	if(sData.capacity() < (nSize + 1))
+		sData.resize(nSize + 1);
+
+	vsprintf((char*)sData.data(), pszData, argList);
+	va_end(argList);
+
+#if defined(UNICODE) || defined(_UNICODE)		
+	std::wstring sDataTmp = MBToWChar(sData);
+	write(sDataTmp.c_str(), logType);
+#else
+	write(sData.c_str(), logType);
+#endif
+}
+
+void CYLogger::Log(ELogType logType, const wchar_t* pwszData, ...)
+{
+	if(!(LOG_LEVEL & logType)) return;
+
+	std::wstring sData;
+	va_list argList;
+	va_start(argList, pwszData);
+	size_t nSize = _vscwprintf(pwszData, argList);
+	if(sData.capacity() < (nSize + 2))
+		sData.resize(nSize + 2);
+
+	vswprintf((wchar_t*)sData.data(), pwszData, argList);
+	va_end(argList);
+
+#if defined(UNICODE) || defined(_UNICODE)
+	write(sData.c_str(), logType);
+#else
+	std::string sDataTmp = WCharToMB(sData);
+	write(sDataTmp.c_str(), logType);
+#endif
+}
+
+void CYLogger::write(const TCHAR* pData, ELogType logLevel)
+{
+	CYCriticalSection cs(m_cs);
+
 	static bool bIsFirstRun = true;
 	bool bIsNewDay = false;
 
 	tstring sCurrDate = GetCurrDate(Date_Format_3);
 	 bIsNewDay = m_sCurrDate.compare(sCurrDate)!=0;
 
-	 CYCriticalSectionLock(&m_cs, true);
 	if(bIsFirstRun || bIsNewDay){//delete expired log files
 		DeleteExpiredOrInvalidLog();
 	}
@@ -270,28 +335,31 @@ void CYLogger::write(const TCHAR* pData, LogLevel logLevel)
 		bIsFirstRun = false;
 	}	
 
-	if(m_loggableItem & static_cast<int>(DateTime)){
+	if(m_loggableItem & static_cast<int>(DATETIME)){
 		sstr<<GetCurrDateTime(Date_Format_3, true);
 	}
-	if(m_loggableItem & static_cast<int>(ThreadId)){
+	if(m_loggableItem & static_cast<int>(THREADID)){
 		sstr<<_T("[")<<GetCurrentThreadId()<<_T("]");
 	}
 	switch (logLevel)
 	{
-	case Info:
-		sstr<<_T("[INFO]");
-		break;
 	case Debug:
-		sstr<<_T("[DBG]");
+		sstr<<_T("[debug]");
+		break;
+	case Info:
+		sstr<<_T("[info]");
 		break;
 	case Warn:
-		sstr<<_T("[WARN]");
+		sstr<<_T("[warn]");
 		break;
 	case Error:
-		sstr<<_T("[ERROR]");
+		sstr<<_T("[error]");
+		break;
+	case Fatal:
+		sstr<<_T("[fatal]");
 		break;
 	default:
-		sstr<<_T("[INFO]");
+		sstr<<_T("[unknown]");
 		break;
 	}
 	if(m_bAutoEndline)

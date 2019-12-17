@@ -15,49 +15,70 @@
 #include <xlocale>
 #include <wchar.h>
 
-#define LOG_INFO theLogger.LogInfo
+#if(defined DEBUG || defined _DEBUG)
+#define LOG_LEVEL		LOG_LEVEL_DEBUG
+#else
+#define LOG_LEVEL		LOG_LEVEL_WARN
+#endif
+
+#define LOG_LEVEL_FATAL			ELogType::Fatal
+#define LOG_LEVEL_ERROR		(LOG_LEVEL_FATAL|ELogType::Error)
+#define LOG_LEVEL_WARN		(LOG_LEVEL_ERROR|ELogType::Warn)
+#define LOG_LEVEL_INFO			(LOG_LEVEL_WARN|ELogType::Info)
+#define LOG_LEVEL_DEBUG		(LOG_LEVEL_INFO|ELogType::Debug)
+#define LOG_LEVEL_ALL				0xff
+#define LOG_LEVEL_NONE		0x00
+
 #define LOG_DEBUG theLogger.LogDebug
+#define LOG_INFO theLogger.LogInfo
 #define LOG_WARN theLogger.LogWarn
 #define LOG_ERROR theLogger.LogError
+#define LOG_FATAL theLogger.LogFatal
 
 class CYLogger{
 public:
-	enum LogLevel
+	enum ELogType
 	{
-		Info,
-		Debug,
-		Warn,
-		Error
+		Fatal = 0x01,
+		Error = 0x02,
+		Warn = 0x04,
+		Info = 0x08,
+		Debug = 0x10
 	};
 
-	enum LogItem
+	enum ELogItem
 	{
-		DateTime	= 0x1,
-		ThreadId	= 0x2
+		DATETIME	= 0x01,
+		THREADID	= 0x02
 	};
 
 public:
-	CYLogger(tstring sLogFileDirectory,		// log directory. support only one sub-directory. empty indicates current path.
+	explicit CYLogger(tstring sLogFileDirectory,		// log directory. support only one sub-directory. empty indicates current path.
 						bool bAutoEndline = false,	// whether auto add end of line
-						int loggableItem = static_cast<int>(DateTime) | static_cast<int>(ThreadId), //prefix of each line includings
+						int loggableItem = static_cast<int>(DATETIME) | static_cast<int>(THREADID), //prefix of each line includings
 						int nExpireLogDays = 7);			// saving log for days
 	~CYLogger();
 
-	void LogInfo(const char* pszData, ...); 
-	void LogInfo(const wchar_t* pwszData, ...);
 	void LogDebug(const char* pszData, ...); 
 	void LogDebug(const wchar_t* pwszData, ...);
+	void LogInfo(const char* pszData, ...); 
+	void LogInfo(const wchar_t* pwszData, ...);
 	void LogWarn(const char* pszData, ...); 
 	void LogWarn(const wchar_t* pwszData, ...);
 	void LogError(const char* pszData, ...); 
 	void LogError(const wchar_t* pwszData, ...);
+	void LogFatal(const char* pszData, ...); 
+	void LogFatal(const wchar_t* pwszData, ...);
 
-	void Log(LogLevel logLevel, const char* pszData, ...);	
-	void Log(LogLevel logLevel, const wchar_t* pwszData, ...);
+	void Log(ELogType logType, const char* pszData, ...);	
+	void Log(ELogType logType, const wchar_t* pwszData, ...);
 
 private:
 	CYLogger();
-	void write(const TCHAR* pData, LogLevel logLevel);
+	CYLogger(const CYLogger& rhs);
+	CYLogger& operator =(const CYLogger& rhs);
+
+	void write(const TCHAR* pData, ELogType logLevel);
 	void DeleteExpiredOrInvalidLog();
 	bool IsFreshValidLog(tstring sFileName);
 
