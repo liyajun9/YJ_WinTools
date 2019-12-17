@@ -7,7 +7,7 @@
 #define THREAD_ERROR_EXCEPTION 2
 //Todo... #define THREAD_ERROR_OTHERERROR
 
-class CYThread{
+class YThread{
 	typedef enum EThreadState{
 		RETURN_ERROR = -5,
 		EXCEPTION = -4,	
@@ -20,8 +20,8 @@ class CYThread{
 	} E_STATE;
 
 public:
-	CYThread();
-	virtual ~CYThread();
+	YThread();
+	virtual ~YThread();
 
 	virtual int Run() = 0; //invoked in thread function
 
@@ -40,8 +40,8 @@ protected:
 	E_STATE m_eState;
 
 private:
-	CYThread(const CYThread& rhs);
-	CYThread & operator =(const CYThread& thread);	
+	YThread(const YThread& rhs);
+	YThread & operator =(const YThread& thread);	
 	static unsigned __stdcall threadEntry(void *pParam);
 
 	virtual void BeforeThreadRun(); 

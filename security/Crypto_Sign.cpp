@@ -1,22 +1,22 @@
 #include "stdafx.h"
-#include "YCrypto_Sign.h"
+#include "Crypto_Sign.h"
 #include <openssl/pem.h>
-#include "YMD5.h"
-#include "YBase64.h"
+#include "MD5.h"
+#include "Base64.h"
 
 #pragma warning(disable:4996)
 
-int CYCrypto_Sign::RSA_MD5_Sign(const std::string& sPEMFilePath, const std::string& sMsg, std::string& sSign)
+int YCrypto_Sign::RSA_MD5_Sign(const std::string& sPEMFilePath, const std::string& sMsg, std::string& sSign)
 {
 	return RSA_MD5_Sign(sPEMFilePath, reinterpret_cast<const unsigned char*>(sMsg.data()), sMsg.length(), sSign);
 }
 
-int CYCrypto_Sign::RSA_MD5_SignVerify(const std::string& sPEMFilePath,  const std::string& sSign, const std::string& sMsg)
+int YCrypto_Sign::RSA_MD5_SignVerify(const std::string& sPEMFilePath,  const std::string& sSign, const std::string& sMsg)
 {
 	return RSA_MD5_SignVerify(sPEMFilePath, sSign, reinterpret_cast<const unsigned char*>(sMsg.data()), sMsg.length());
 }
 
-int CYCrypto_Sign::RSA_MD5_Sign(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sSign)
+int YCrypto_Sign::RSA_MD5_Sign(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sSign)
 {
 	sSign.clear();
 	FILE* pPriKeyFile = fopen(sPEMFilePath.c_str(), "r");
@@ -31,7 +31,7 @@ int CYCrypto_Sign::RSA_MD5_Sign(const std::string& sPEMFilePath, const unsigned 
 
 	unsigned char pDigest[MD5_BUFFER_SIZE];
 	memset(pDigest, 0, MD5_BUFFER_SIZE);
-	CYMD5::Update(reinterpret_cast<const void *>(pSrc), nSrcLen, reinterpret_cast<char *>(pDigest), MD5_BUFFER_SIZE, false);
+	YMD5::Update(reinterpret_cast<const void *>(pSrc), nSrcLen, reinterpret_cast<char *>(pDigest), MD5_BUFFER_SIZE, false);
 
 	int nOutLen = RSA_size(pPriKey);
 	unsigned char *pDst = new unsigned char[nOutLen];
@@ -42,7 +42,7 @@ int CYCrypto_Sign::RSA_MD5_Sign(const std::string& sPEMFilePath, const unsigned 
 	nRet = RSA_sign(NID_md5, pDigest, MD5_BUFFER_SIZE, pDst, &nLen, pPriKey);
 	if(nRet > 0){
 		std::string sTmp(reinterpret_cast<char*>(pDst), nLen);
-		CYBase64::Encode(sTmp, nLen, sSign);
+		YBase64::Encode(sTmp, nLen, sSign);
 	}
 
 	if(pDst)
@@ -50,11 +50,11 @@ int CYCrypto_Sign::RSA_MD5_Sign(const std::string& sPEMFilePath, const unsigned 
 	return (int)nLen;
 }
 
-int CYCrypto_Sign::RSA_MD5_SignVerify(const std::string& sPEMFilePath,  const std::string& sSign, const unsigned char *pSrc, int nSrcLen)
+int YCrypto_Sign::RSA_MD5_SignVerify(const std::string& sPEMFilePath,  const std::string& sSign, const unsigned char *pSrc, int nSrcLen)
 {
 	unsigned char pDigest[MD5_BUFFER_SIZE];
 	memset(pDigest, 0, MD5_BUFFER_SIZE);
-	CYMD5::Update(reinterpret_cast<const void *>(pSrc), nSrcLen, reinterpret_cast<char *>(pDigest), MD5_BUFFER_SIZE, false);
+	YMD5::Update(reinterpret_cast<const void *>(pSrc), nSrcLen, reinterpret_cast<char *>(pDigest), MD5_BUFFER_SIZE, false);
 
 	FILE* pPubKeyFile = fopen(sPEMFilePath.c_str(), "rb");
 	if(pPubKeyFile == NULL)
@@ -70,7 +70,7 @@ int CYCrypto_Sign::RSA_MD5_SignVerify(const std::string& sPEMFilePath,  const st
 	int nLen = sSign.length();
 	unsigned char *pDecoded = new unsigned char[nLen];
 	memset(pDecoded, 0, nLen);
-	int nRetnLen = CYBase64::Decode(sSign, pDecoded, nLen);
+	int nRetnLen = YBase64::Decode(sSign, pDecoded, nLen);
 
 	int nRet = RSA_verify(NID_md5, pDigest, MD5_BUFFER_SIZE, pDecoded, nRetnLen, pPubKey);
 	if(pDecoded)
@@ -78,10 +78,10 @@ int CYCrypto_Sign::RSA_MD5_SignVerify(const std::string& sPEMFilePath,  const st
 	return nRet;
 }
 
-CYCrypto_Sign::CYCrypto_Sign()
+YCrypto_Sign::YCrypto_Sign()
 {
 }
 
-CYCrypto_Sign::~CYCrypto_Sign()
+YCrypto_Sign::~YCrypto_Sign()
 {
 }

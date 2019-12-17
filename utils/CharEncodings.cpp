@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "YCharEncodings.h"
+#include "CharEncodings.h"
 #include <Windows.h>
 
 std::wstring& NS_Yutils::WCharToWChar(std::wstring& str)

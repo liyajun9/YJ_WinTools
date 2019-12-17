@@ -3,7 +3,7 @@
 
 #define BASE64_ENCODE_NEEDSIZE(x)	(x % 3 == 0 ? x / 3 * 4 : (x / 3 + 1) * 4)
 
-class CYBase64{
+class YBase64{
 /*Fast-use methods*/
 public:
 	static std::string Encode(const unsigned char *pSrc, int nSrcLen);
@@ -23,8 +23,8 @@ public:
 	static int Decode(const std::string& sSrc, unsigned char* pDecoded, int nDecodedLen);
 
 private:
-	CYBase64(){}
-	~CYBase64(){}
+	YBase64(){}
+	~YBase64(){}
 
 	static inline bool is_base64(unsigned char c)
 	{

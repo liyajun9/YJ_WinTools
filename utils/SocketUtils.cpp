@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
-#include "YsocketUtils.h"
+#include "SocketUtils.h"
 #include <ws2tcpip.h>
-#include "YCharEncodings.h"
+#include "CharEncodings.h"
 #include <iptypes.h>
 #include <winsock.h>
 

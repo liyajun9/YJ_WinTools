@@ -1,12 +1,12 @@
 #pragma once
 #include <string>
 #include <openssl/aes.h>
-#include "YCryptoUtils.h"
+#include "CryptoUtils.h"
 
 #pragma warning(disable:4482)
 typedef unsigned char AES_cblock[16];
 
-class CYCrypto_AES{
+class YCrypto_AES{
 	//CBC modd
 public:
 /*AES(CBC mode)	 encrypt and Base64 encode*/
@@ -67,6 +67,6 @@ public:
 	static std::string AESKeyToString(const AES_KEY* pKey);
 
 private:
-	CYCrypto_AES() {}
-	~CYCrypto_AES() {}
+	YCrypto_AES() {}
+	~YCrypto_AES() {}
 };

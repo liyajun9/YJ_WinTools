@@ -10,15 +10,15 @@
 #include <windows.h>
 #include <exception>
 
-class CYCriticalSection
+class YCriticalSection
 {
 public:
-	explicit CYCriticalSection(CRITICAL_SECTION& cs)
+	explicit YCriticalSection(CRITICAL_SECTION& cs)
 	: m_cs(cs){
 		::EnterCriticalSection(&m_cs);
 	}
 
-	~CYCriticalSection(){
+	~YCriticalSection(){
 		::LeaveCriticalSection(&m_cs);
 	}
 
@@ -36,8 +36,8 @@ public:
 	}
 
 private:
-	CYCriticalSection();
-	CYCriticalSection(const CYCriticalSection&);
-	CYCriticalSection& operator =(const CYCriticalSection&);
+	YCriticalSection();
+	YCriticalSection(const YCriticalSection&);
+	YCriticalSection& operator =(const YCriticalSection&);
 	CRITICAL_SECTION& m_cs;
 };

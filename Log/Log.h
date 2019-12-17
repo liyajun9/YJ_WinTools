@@ -8,9 +8,9 @@
 #include <fstream>
 #include <iosfwd>
 #include <stdarg.h>
-#include "..\Utils\YTimeUtils.h"
-#include "..\Utils\YCriticalSectionLock.h"
-#include "..\Utils\YCharEncodings.h"
+#include "..\Utils\TimeUtils.h"
+#include "..\Utils\CriticalSection.h"
+#include "..\Utils\CharEncodings.h"
 #include <direct.h>
 #include <xlocale>
 #include <wchar.h>
@@ -29,13 +29,13 @@
 #define LOG_LEVEL_ALL				0xff
 #define LOG_LEVEL_NONE		0x00
 
-#define LOG_DEBUG theLogger.LogDebug
-#define LOG_INFO theLogger.LogInfo
-#define LOG_WARN theLogger.LogWarn
-#define LOG_ERROR theLogger.LogError
-#define LOG_FATAL theLogger.LogFatal
+#define LOG_DEBUG yLog.LogDebug
+#define LOG_INFO yLog.LogInfo
+#define LOG_WARN yLog.LogWarn
+#define LOG_ERROR yLog.LogError
+#define LOG_FATAL yLog.LogFatal
 
-class CYLogger{
+class YLog{
 public:
 	enum ELogType
 	{
@@ -53,11 +53,11 @@ public:
 	};
 
 public:
-	explicit CYLogger(tstring sLogFileDirectory,		// log directory. support only one sub-directory. empty indicates current path.
+	explicit YLog(tstring sLogFileDirectory,		// log directory. support only one sub-directory. empty indicates current path.
 						bool bAutoEndline = false,	// whether auto add end of line
 						int loggableItem = static_cast<int>(DATETIME) | static_cast<int>(THREADID), //prefix of each line includings
 						int nExpireLogDays = 7);			// saving log for days
-	~CYLogger();
+	~YLog();
 
 	void LogDebug(const char* pszData, ...); 
 	void LogDebug(const wchar_t* pwszData, ...);
@@ -74,9 +74,9 @@ public:
 	void Log(ELogType logType, const wchar_t* pwszData, ...);
 
 private:
-	CYLogger();
-	CYLogger(const CYLogger& rhs);
-	CYLogger& operator =(const CYLogger& rhs);
+	YLog();
+	YLog(const YLog& rhs);
+	YLog& operator =(const YLog& rhs);
 
 	void write(const TCHAR* pData, ELogType logLevel);
 	void DeleteExpiredOrInvalidLog();
@@ -94,4 +94,4 @@ private:
 	tofstream m_stream;
 };
 
-extern CYLogger theLogger;
+extern YLog yLog;

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "YCryptoUtils.h"
+#include "CryptoUtils.h"
 #include <string.h>
 
 int Padding(const void *pIn, unsigned int nCbLen, void *pOut, unsigned int nCbOutLen, unsigned int nCbBlockSize, int paddingScheme)

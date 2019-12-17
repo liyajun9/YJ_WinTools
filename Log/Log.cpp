@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "YLog.h"
+#include "Log.h"
 #include <sstream>
 
 #pragma warning(disable:4482)
@@ -8,9 +8,9 @@
 using namespace NS_Yutils;
 
 //Creat a global instance
-CYLogger theLogger(_T("Logs"), true,  static_cast<int>(CYLogger::ELogItem::DATETIME) | static_cast<int>(CYLogger::ELogItem::THREADID), 3);
+YLog yLog(_T("log"), true,  static_cast<int>(YLog::ELogItem::DATETIME) | static_cast<int>(YLog::ELogItem::THREADID), 3);
 
-CYLogger::CYLogger(tstring sLogFileDirectory, bool bAutoEndline ,int loggableItem, int nExpireLogDays):
+YLog::YLog(tstring sLogFileDirectory, bool bAutoEndline ,int loggableItem, int nExpireLogDays):
 m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nExpireLogDays(nExpireLogDays)
 {
 	InitializeCriticalSection(&m_cs);
@@ -30,13 +30,13 @@ m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(logg
 #endif
 }
 
-CYLogger::~CYLogger()
+YLog::~YLog()
 {
 	m_stream.close();
 	DeleteCriticalSection(&m_cs);
 }
 
-void CYLogger::LogInfo(const char* pszData, ...)
+void YLog::LogInfo(const char* pszData, ...)
 {
 	if(!(LOG_LEVEL & ELogType::Info)) return;
 
@@ -58,7 +58,7 @@ void CYLogger::LogInfo(const char* pszData, ...)
 #endif
 }
 
-void CYLogger::LogInfo(const wchar_t* pwszData, ...)
+void YLog::LogInfo(const wchar_t* pwszData, ...)
 {
 	if(!(LOG_LEVEL & ELogType::Info)) return;
 
@@ -80,7 +80,7 @@ void CYLogger::LogInfo(const wchar_t* pwszData, ...)
 #endif
 }
 
-void CYLogger::LogDebug(const char* pszData, ...)
+void YLog::LogDebug(const char* pszData, ...)
 {
 	if(!(LOG_LEVEL & ELogType::Debug)) return;
 
@@ -102,7 +102,7 @@ void CYLogger::LogDebug(const char* pszData, ...)
 #endif
 }
 
-void CYLogger::LogDebug(const wchar_t* pwszData, ...)
+void YLog::LogDebug(const wchar_t* pwszData, ...)
 {
 	if(!(LOG_LEVEL & ELogType::Debug)) return;
 
@@ -124,7 +124,7 @@ void CYLogger::LogDebug(const wchar_t* pwszData, ...)
 #endif
 }
 
-void CYLogger::LogWarn(const char* pszData, ...)
+void YLog::LogWarn(const char* pszData, ...)
 {
 	if(!(LOG_LEVEL & ELogType::Warn)) return;
 
@@ -146,7 +146,7 @@ void CYLogger::LogWarn(const char* pszData, ...)
 #endif
 }
 
-void CYLogger::LogWarn(const wchar_t* pwszData, ...)
+void YLog::LogWarn(const wchar_t* pwszData, ...)
 {
 	if(!(LOG_LEVEL & ELogType::Warn)) return;
 
@@ -168,7 +168,7 @@ void CYLogger::LogWarn(const wchar_t* pwszData, ...)
 #endif
 }
 
-void CYLogger::LogError(const char* pszData, ...)
+void YLog::LogError(const char* pszData, ...)
 {
 	if(!(LOG_LEVEL & ELogType::Error)) return;
 
@@ -190,7 +190,7 @@ void CYLogger::LogError(const char* pszData, ...)
 #endif
 }
 
-void CYLogger::LogError(const wchar_t* pwszData, ...)
+void YLog::LogError(const wchar_t* pwszData, ...)
 {
 	if(!(LOG_LEVEL & ELogType::Error)) return;
 
@@ -212,7 +212,7 @@ void CYLogger::LogError(const wchar_t* pwszData, ...)
 #endif
 }
 
-void CYLogger::LogFatal(const char* pszData, ...)
+void YLog::LogFatal(const char* pszData, ...)
 {
 	if(!(LOG_LEVEL & ELogType::Fatal)) return;
 
@@ -234,7 +234,7 @@ void CYLogger::LogFatal(const char* pszData, ...)
 #endif
 }
 
-void CYLogger::LogFatal(const wchar_t* pwszData, ...)
+void YLog::LogFatal(const wchar_t* pwszData, ...)
 {
 	if(!(LOG_LEVEL & ELogType::Fatal)) return;
 
@@ -256,7 +256,7 @@ void CYLogger::LogFatal(const wchar_t* pwszData, ...)
 #endif
 }
 
-void CYLogger::Log(ELogType logType, const char* pszData, ...)
+void YLog::Log(ELogType logType, const char* pszData, ...)
 {
 	if(!(LOG_LEVEL & logType)) return;
 
@@ -278,7 +278,7 @@ void CYLogger::Log(ELogType logType, const char* pszData, ...)
 #endif
 }
 
-void CYLogger::Log(ELogType logType, const wchar_t* pwszData, ...)
+void YLog::Log(ELogType logType, const wchar_t* pwszData, ...)
 {
 	if(!(LOG_LEVEL & logType)) return;
 
@@ -300,9 +300,9 @@ void CYLogger::Log(ELogType logType, const wchar_t* pwszData, ...)
 #endif
 }
 
-void CYLogger::write(const TCHAR* pData, ELogType logLevel)
+void YLog::write(const TCHAR* pData, ELogType logLevel)
 {
-	CYCriticalSection cs(m_cs);
+	YCriticalSection cs(m_cs);
 
 	static bool bIsFirstRun = true;
 	bool bIsNewDay = false;
@@ -371,7 +371,7 @@ void CYLogger::write(const TCHAR* pData, ELogType logLevel)
 	m_stream.flush();
 }
 
-void CYLogger::DeleteExpiredOrInvalidLog()
+void YLog::DeleteExpiredOrInvalidLog()
 {
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 	WIN32_FIND_DATA ffd;
@@ -405,7 +405,7 @@ void CYLogger::DeleteExpiredOrInvalidLog()
 	hFind = INVALID_HANDLE_VALUE;
 }
 
-bool CYLogger::IsFreshValidLog(tstring sFileName)
+bool YLog::IsFreshValidLog(tstring sFileName)
 {
 	tstring::size_type nPos = sFileName.find_last_of(_T('.'));
 	if(nPos != tstring::npos){

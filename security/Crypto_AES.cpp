@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "YCrypto_AES.h"
-#include "YCryptoUtils.h"
-#include "YMD5.h"
-#include "YBase64.h"
+#include "Crypto_AES.h"
+#include "CryptoUtils.h"
+#include "MD5.h"
+#include "Base64.h"
 
-bool CYCrypto_AES::AES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,  const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+bool YCrypto_AES::AES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,  const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
 {
 	if(sKey.length() < AES_BLOCK_SIZE || sIv.length() < AES_BLOCK_SIZE) return false;
 
@@ -27,14 +27,14 @@ bool CYCrypto_AES::AES64_CBC_Encrypt(const std::string& sKey, const std::string&
 
 	//encrypt
 	AES_cbc_encrypt(pInput, pOutput, nLen, &key, iv, AES_ENCRYPT);
-	CYBase64::Encode(pOutput, nLen, sEncrypted);
+	YBase64::Encode(pOutput, nLen, sEncrypted);
 
 	if(pInput)	delete []pInput;
 	if(pOutput) delete []pOutput;
 	return true;
 }
 
-int CYCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const std::string sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const std::string sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
 {
 	if(sKey.length() < AES_BLOCK_SIZE || sIv.length() < AES_BLOCK_SIZE) return 0;
 
@@ -46,7 +46,7 @@ int CYCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& 
 
 	int nLen = sSrc.length();
 	unsigned char *pInput = new unsigned char[nLen]; memset(pInput, 0, nLen);
-	nLen = CYBase64::Decode(sSrc, pInput, nLen);
+	nLen = YBase64::Decode(sSrc, pInput, nLen);
 	if(nLen <= 0 || nDecryptLen < nLen){
 		if(pInput)	delete []pInput;
 		return 0;
@@ -57,7 +57,7 @@ int CYCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& 
 	return nOutLen;
 }
 
-int CYCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const std::string sSrc, std::string& sDecrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const std::string sSrc, std::string& sDecrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
 {
 	int nLen =sSrc.length();
 	unsigned char *pDecrypted = new unsigned char[nLen]; memset(pDecrypted, 0, nLen);
@@ -70,7 +70,7 @@ int CYCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& 
 	return nLen;
 }
 
-int CYCrypto_AES::AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+int YCrypto_AES::AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
 {
 		if(sKey.length() < AES_BLOCK_SIZE || sIv.length() < AES_BLOCK_SIZE) return 0;
 	
@@ -96,7 +96,7 @@ int CYCrypto_AES::AES_CBC_Encrypt(const std::string& sKey, const std::string& sI
 		return nLen;
 }
 
-int CYCrypto_AES::AES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+int YCrypto_AES::AES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
 {
 		if(sKey.length() < AES_BLOCK_SIZE || sIv.length() < AES_BLOCK_SIZE) return 0;
 	
@@ -119,12 +119,12 @@ int CYCrypto_AES::AES_CBC_Decrypt(const std::string& sKey, const std::string& sI
 		return nLen;
 }
 
-std::string CYCrypto_AES::AESKeyToHexString(const AES_KEY* pKey, bool isToUpperCase)
+std::string YCrypto_AES::AESKeyToHexString(const AES_KEY* pKey, bool isToUpperCase)
 {
 	return CharToHexString(reinterpret_cast<const void *>(pKey), AES_BLOCK_SIZE, isToUpperCase);
 }
 
-bool CYCrypto_AES::HexStringToAESKey(const std::string& sSrc, bool isUpperCase, AES_KEY* pKey)
+bool YCrypto_AES::HexStringToAESKey(const std::string& sSrc, bool isUpperCase, AES_KEY* pKey)
 {
 	if(sSrc.length() < AES_BLOCK_SIZE) return false;
 
@@ -132,7 +132,7 @@ bool CYCrypto_AES::HexStringToAESKey(const std::string& sSrc, bool isUpperCase, 
 	return true;
 }
 
-std::string CYCrypto_AES::AESKeyToString(const AES_KEY* pKey)
+std::string YCrypto_AES::AESKeyToString(const AES_KEY* pKey)
 {
 	char key[AES_BLOCK_SIZE + 1];memset(key, 0, AES_BLOCK_SIZE + 1);
 	memcpy(key, pKey, AES_BLOCK_SIZE);

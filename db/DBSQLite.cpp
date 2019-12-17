@@ -1,35 +1,35 @@
 #include "stdafx.h"
 #include "DBSQLite.h"
-#include "..\Log\YLog.h"
+#include "..\Log\Log.h"
 #include "..\exceptions\SQliteException.h"
 #include <sstream>
-#include "..\Utils\YCharEncodings.h"
+#include "..\Utils\CharEncodings.h"
 
-sqlite3* CDBSQLite::pDbconnection = NULL;
-const char* CDBSQLite::pDbfilename = "netbar.db";
+sqlite3* YSQLite::pDbconnection = NULL;
+const char* YSQLite::pDbfilename = "netbar.db";
 
-CDBSQLite& CDBSQLite::GetInstance()
+YSQLite& YSQLite::GetInstance()
 {
-	static CDBSQLite dbSqliteInstance;
+	static YSQLite dbSqliteInstance;
 	return dbSqliteInstance;
 }
 
-CDBSQLite::CDBSQLite() : m_nLastError(0)
+YSQLite::YSQLite() : m_nLastError(0)
 {
 	::InitializeCriticalSection(&m_cs);
 }
 
-CDBSQLite::~CDBSQLite()
+YSQLite::~YSQLite()
 {
 	sqlite3_close(pDbconnection);
 	::DeleteCriticalSection(&m_cs);
 }
 
-bool CDBSQLite::ExecuteSQL(const tstring& sSQL, unsigned int *pAffectedRows)
+bool YSQLite::ExecuteSQL(const tstring& sSQL, unsigned int *pAffectedRows)
 {
 	std::string sSQLutf8 = TStringToUtf8(sSQL);
 
-	CYCriticalSection cs(m_cs); 
+	YCriticalSection cs(m_cs); 
 	char *pszErrMsg = NULL;
 	try{
 		InitConnection();
@@ -55,11 +55,11 @@ bool CDBSQLite::ExecuteSQL(const tstring& sSQL, unsigned int *pAffectedRows)
 	return true;
 }
 
-bool CDBSQLite::GetIsExist(const tstring& sSQL)
+bool YSQLite::GetIsExist(const tstring& sSQL)
 {
 	std::string sSQLutf8 = TStringToUtf8(sSQL);
 
-	CYCriticalSection cs(m_cs);
+	YCriticalSection cs(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	bool bRet(false);
@@ -94,11 +94,11 @@ bool CDBSQLite::GetIsExist(const tstring& sSQL)
 	return bRet;
 }
 
-int CDBSQLite::GetIntField(const tstring& sSQL)
+int YSQLite::GetIntField(const tstring& sSQL)
 {
 	std::string sSQLutf8 = TStringToUtf8(sSQL);
 
-	CYCriticalSection cs(m_cs);
+	YCriticalSection cs(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	int nRet(-1);
@@ -133,11 +133,11 @@ int CDBSQLite::GetIntField(const tstring& sSQL)
 	return nRet;
 }
 
-tstring CDBSQLite::GetStringField(const tstring& sSQL)
+tstring YSQLite::GetStringField(const tstring& sSQL)
 {
 	std::string sSQLutf8 = TStringToUtf8(sSQL);
 
-	CYCriticalSection cs(m_cs);
+	YCriticalSection cs(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	std::string sRet = "";
@@ -172,9 +172,9 @@ tstring CDBSQLite::GetStringField(const tstring& sSQL)
 	return Utf8ToTString(sRet);
 }
 
-bool CDBSQLite::ExecuteTransac(const TransactSQLs& vecSQL)
+bool YSQLite::ExecuteTransac(const TransactSQLs& vecSQL)
 {
-	CYCriticalSection cs(m_cs);
+	YCriticalSection cs(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	bool bRet(false);
@@ -208,7 +208,7 @@ bool CDBSQLite::ExecuteTransac(const TransactSQLs& vecSQL)
 	return true;
 }
 
-bool CDBSQLite::GetIsTableExist(const tstring& sTable)
+bool YSQLite::GetIsTableExist(const tstring& sTable)
 {
 	tstringstream ssSQL;
 	ssSQL<<_T("select count(*) from sqlite_master where type = \'table\' and name = \'")<<sTable<<_T("\'");
@@ -216,7 +216,7 @@ bool CDBSQLite::GetIsTableExist(const tstring& sTable)
 	return GetIntField(ssSQL.str()) > 0;
 }
 
-bool CDBSQLite::GetIsColumnExist(const tstring& sTable, const tstring& sCol)
+bool YSQLite::GetIsColumnExist(const tstring& sTable, const tstring& sCol)
 {
 	tstringstream ssSQL;
 	ssSQL<<_T("select count(*) from PRAGMA_table_info(\'")<<sTable<<_T("\') where name=\'")<<sCol<<_T("\'");
@@ -224,13 +224,13 @@ bool CDBSQLite::GetIsColumnExist(const tstring& sTable, const tstring& sCol)
 	return GetIntField(ssSQL.str()) > 0;
 }
 
-void CDBSQLite::InitConnection()
+void YSQLite::InitConnection()
 {
 	if(!pDbconnection)
 		sqlite3_open_v2(pDbfilename, &pDbconnection, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, NULL);
 }
 
-int CDBSQLite::GetLastError()
+int YSQLite::GetLastError()
 {
 	return m_nLastError;
 }

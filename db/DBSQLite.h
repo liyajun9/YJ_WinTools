@@ -8,11 +8,11 @@
 #define SQLITE_QUERY_ERROR 1
 typedef std::vector<tstring> TransactSQLs;
 
-#define SQLite CDBSQLite::GetInstance()
+#define SQLite YSQLite::GetInstance()
 
-class CDBSQLite{
+class YSQLite{
 public:
-	static CDBSQLite& GetInstance();
+	static YSQLite& GetInstance();
 
 	bool GetIsExist(const tstring& sSQL);
 	int GetIntField(const tstring& sSQL);//return -1 on error or empty result
@@ -30,11 +30,11 @@ private:
 	void InitConnection();
 
 private:	
-	CDBSQLite();
-	CDBSQLite(const CDBSQLite& );
-	~CDBSQLite();
+	YSQLite();
+	YSQLite(const YSQLite& );
+	~YSQLite();
 
-	void operator=(const CDBSQLite&);
+	void operator=(const YSQLite&);
 
 private:
 	static sqlite3 *pDbconnection;

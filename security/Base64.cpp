@@ -1,26 +1,26 @@
 #include "stdafx.h"
-#include "YBase64.h"
+#include "Base64.h"
 
 static const std::string base64_chars = 
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	"abcdefghijklmnopqrstuvwxyz"
 	"0123456789+/";
 
-std::string CYBase64::Encode(const unsigned char *pSrc, int nSrcLen)
+std::string YBase64::Encode(const unsigned char *pSrc, int nSrcLen)
 {
 	std::string sEncoded;
 	Encode(pSrc, nSrcLen, sEncoded);
 	return sEncoded;
 }
 
-void CYBase64::Encode(const std::string sSrc, int nSrcLen, std::string& sEncoded)
+void YBase64::Encode(const std::string sSrc, int nSrcLen, std::string& sEncoded)
 {
 	unsigned char *pSrc = new unsigned char[nSrcLen]; memset(pSrc, 0, nSrcLen);
 	memcpy(pSrc, sSrc.data(), nSrcLen);
 	Encode(pSrc, nSrcLen, sEncoded);
 }
 
- void CYBase64::Encode(const unsigned char *pSrc, int nSrcLen, std::string& sEncoded)
+ void YBase64::Encode(const unsigned char *pSrc, int nSrcLen, std::string& sEncoded)
  {
 	 sEncoded.empty();
 	 int i = 0, j = 0;
@@ -58,7 +58,7 @@ void CYBase64::Encode(const std::string sSrc, int nSrcLen, std::string& sEncoded
 	 }
  }
 
- int CYBase64::Decode(const std::string& sSrc, unsigned char* pDecoded, int nDecodedLen)
+ int YBase64::Decode(const std::string& sSrc, unsigned char* pDecoded, int nDecodedLen)
  {
 	 int nLen = sSrc.length();
 	 int i = 0, j = 0, in_ = 0, out_ = 0;

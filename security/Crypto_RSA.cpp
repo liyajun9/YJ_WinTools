@@ -1,31 +1,31 @@
 #include "stdafx.h"
-#include "YCrypto_RSA.h"
+#include "Crypto_RSA.h"
 #include <openssl/pem.h>
-#include "YBase64.h"
+#include "Base64.h"
 
 #pragma warning(disable:4996)
 
-bool CYCrypto_RSA::PubKey_Encrypt64(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
+bool YCrypto_RSA::PubKey_Encrypt64(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
 {
 	std::string sTmp;
 	int nLen = PubKey_Encrypt(sPEMFilePath, pSrc, nSrcLen, sTmp);
 	if(0 >= nLen)		return false;
 
-	CYBase64::Encode(sTmp, nLen, sEncrypted);
+	YBase64::Encode(sTmp, nLen, sEncrypted);
 	return true;
 }
 
-bool CYCrypto_RSA::PriKey_Decrypt64(const std::string& sPEMFilePath, const unsigned char *pSrc, int nSrcLen, std::string& sDecrypted)
+bool YCrypto_RSA::PriKey_Decrypt64(const std::string& sPEMFilePath, const unsigned char *pSrc, int nSrcLen, std::string& sDecrypted)
 {
 	std::string sSrc(reinterpret_cast<const char *>(pSrc), nSrcLen);
 	unsigned char *pDecoded = new unsigned char[nSrcLen];
 	memset(pDecoded, 0, nSrcLen);
-	int nLen = CYBase64::Decode(sSrc, pDecoded, nSrcLen);
+	int nLen = YBase64::Decode(sSrc, pDecoded, nSrcLen);
 
 	return PriKey_Decrypt(sPEMFilePath, pDecoded, nLen, sDecrypted) > 0;
 }
 
-int CYCrypto_RSA::PubKey_Encrypt(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
+int YCrypto_RSA::PubKey_Encrypt(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
 {
 	sEncrypted.clear();
 	FILE* pPubKeyFile = fopen(sPEMFilePath.c_str(), "rb");
@@ -72,7 +72,7 @@ int CYCrypto_RSA::PubKey_Encrypt(const std::string& sPEMFilePath, const unsigned
 	return nOutLen;
 }
 
-int CYCrypto_RSA::PriKey_Decrypt(const std::string& sPEMFilePath, const unsigned char *pSrc, int nSrcLen, std::string& sDecrypted)
+int YCrypto_RSA::PriKey_Decrypt(const std::string& sPEMFilePath, const unsigned char *pSrc, int nSrcLen, std::string& sDecrypted)
 {
 	sDecrypted.clear();
 	FILE* pPriKeyFile = fopen(sPEMFilePath.c_str(), "r");

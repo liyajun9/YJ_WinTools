@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "YMD5.h"
+#include "MD5.h"
 #include <openssl/md5.h>
 
 #pragma warning(disable: 4996)
@@ -7,7 +7,7 @@
 #pragma comment(lib,"libssl.lib")
 
 using namespace std;
-std::string CYMD5::Update(const std::string& sIn, size_t nLen, bool isToUpperCase)
+std::string YMD5::Update(const std::string& sIn, size_t nLen, bool isToUpperCase)
 {
 	unsigned char MD[MD5_DIGEST_LENGTH]; memset(&MD, 0, MD5_DIGEST_LENGTH);
 	MD5_CTX ctx = {0};
@@ -23,7 +23,7 @@ std::string CYMD5::Update(const std::string& sIn, size_t nLen, bool isToUpperCas
 	string sOut = szTmp;
 	return sOut;
 }
-void CYMD5::Update(const std::string& sIn, size_t nLen, std::string& sOut,  bool isToUpperCase)
+void YMD5::Update(const std::string& sIn, size_t nLen, std::string& sOut,  bool isToUpperCase)
 {
 	unsigned char MD[MD5_DIGEST_LENGTH]; memset(&MD, 0, MD5_DIGEST_LENGTH);
 	MD5_CTX ctx = {0};
@@ -39,7 +39,7 @@ void CYMD5::Update(const std::string& sIn, size_t nLen, std::string& sOut,  bool
 	sOut = szTmp;
 }
 
-void CYMD5::Update(const void* pIn, unsigned int nCbLen, char* pszOut, unsigned int nCbOutLen, bool isToUpperCase)
+void YMD5::Update(const void* pIn, unsigned int nCbLen, char* pszOut, unsigned int nCbOutLen, bool isToUpperCase)
 {
 	if(nCbOutLen < MD5_BUFFER_SIZE)	return;
 

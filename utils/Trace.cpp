@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "YTrace.h"
+#include "Trace.h"
 
 void NS_Yutils::_trace(const char *format, ...)
 {
 	char buffer[TRACE_BUFFER_LEN];
-	memset(buffer, 0, TRACE_BUFFER_LEN);
+	memset(buffer, 0, TRACE_BUFFER_LEN * sizeof(char));
 
 	time_t t = time(NULL);
 	struct tm tmCur;
@@ -29,12 +29,12 @@ void NS_Yutils::_trace(const char *format, ...)
 void NS_Yutils::_trace(const wchar_t *format, ...)
 {
 	wchar_t buffer[TRACE_BUFFER_LEN];
-	memset(buffer, 0, TRACE_BUFFER_LEN);
+	memset(buffer, 0, TRACE_BUFFER_LEN * sizeof(wchar_t));
 
 	time_t t = time(NULL);
 	struct tm tmCur;
 	localtime_s(&tmCur, &t); 
-	wsprintf(buffer, _T("%04d-%02d-%02d %02d:%02d:%02d "), 
+	wsprintfW(buffer, L"%04d-%02d-%02d %02d:%02d:%02d ", 
 		tmCur.tm_year + 1900, 
 		tmCur.tm_mon + 1,
 		tmCur.tm_mday,
@@ -48,5 +48,5 @@ void NS_Yutils::_trace(const wchar_t *format, ...)
 	va_end(argptr);
 
 	OutputDebugStringW(buffer);
-	OutputDebugStringW(_T("\r\n"));
+	OutputDebugStringW(L"\r\n");
 }

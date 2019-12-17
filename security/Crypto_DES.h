@@ -19,7 +19,7 @@ enum des_block_mode{
 	des_TRIPLE_CBC = 6  //algorithm_ede3_cbc_encrypt
 };
 
-class CYCrypto_DES{	
+class YCrypto_DES{	
 //ECB mode
 public:
 	/*DES(ECB mode)	 encrypt using key of MD5 of original key, and Base64 encode*/
@@ -131,6 +131,6 @@ public:
 	static void GetMD5AsKey(const std::string& sKey, DES_cblock* pKey);//calc MD5 of key, and set parity to odd
 
 private:
-	CYCrypto_DES(){}
-	~CYCrypto_DES(){}
+	YCrypto_DES(){}
+	~YCrypto_DES(){}
 };

@@ -1,34 +1,34 @@
 #include "stdafx.h"
-#include "YCrypto_AES_ex.h"
+#include "Crypto_AES_ex.h"
 #include <openssl\ossl_typ.h>
 #include <openssl\evp.h>
 #include <openssl\aes.h>
-#include "YBase64.h"
+#include "Base64.h"
 
-bool CYCrypto_AES_ex::AES64Encrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
+bool YCrypto_AES_ex::AES64Encrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
 {
 	std::string sTmp;
 	int nRes = 0;
 	if(!(nRes = AESEncrypt_128cbc(sKey, sIv, pSrc, nSrcLen, sTmp)))
 		return false;
 
-	CYBase64::Encode(reinterpret_cast<const unsigned char*>(sTmp.data()), nRes, sEncrypted);
+	YBase64::Encode(reinterpret_cast<const unsigned char*>(sTmp.data()), nRes, sEncrypted);
 	return true;
 }
 
-bool CYCrypto_AES_ex::AES64Decrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sDecrypted)
+bool YCrypto_AES_ex::AES64Decrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sDecrypted)
 {
 	std::string sTmp(reinterpret_cast<const char*>(pSrc), nSrcLen);
 	unsigned char *pDecoded = new unsigned char[nSrcLen];	memset(pDecoded, 0, nSrcLen);
 	int nRes =	0;
-	if(!(nRes = CYBase64::Decode(sTmp, pDecoded, nSrcLen))){
+	if(!(nRes = YBase64::Decode(sTmp, pDecoded, nSrcLen))){
 		if(pDecoded) delete []pDecoded;
 		return false;
 	}	
 	return AESDecrypt_128cbc(sKey, sIv, pDecoded, nRes, sDecrypted) > 0;
 }
 
-int CYCrypto_AES_ex::AESEncrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
+int YCrypto_AES_ex::AESEncrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
 {
 	if(sKey.length() != 16 || sIv.length() != 16)		return 0;
 	sEncrypted.clear();
@@ -64,7 +64,7 @@ int CYCrypto_AES_ex::AESEncrypt_128cbc(const std::string& sKey, const std::strin
 	return nOutLen;
 }
 
-int CYCrypto_AES_ex::AESDecrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sDecrypted)
+int YCrypto_AES_ex::AESDecrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sDecrypted)
 {
 	if(sKey.length() != 16 || sIv.length() != 16)		return 0;
 	sDecrypted.clear();
@@ -99,10 +99,10 @@ int CYCrypto_AES_ex::AESDecrypt_128cbc(const std::string& sKey, const std::strin
 	return nPlainTextLen;
 }
 
-CYCrypto_AES_ex::CYCrypto_AES_ex()
+YCrypto_AES_ex::YCrypto_AES_ex()
 {
 }
 
-CYCrypto_AES_ex::~CYCrypto_AES_ex()
+YCrypto_AES_ex::~YCrypto_AES_ex()
 {
 }

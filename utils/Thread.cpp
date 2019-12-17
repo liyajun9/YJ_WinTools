@@ -1,20 +1,20 @@
 #include "stdafx.h"
-#include "YThread.h"
+#include "Thread.h"
 #include <winbase.h>
 #include "..\exceptions\Win32Exception.h"
 #include "..\exceptions\ExceptionBase.h"
-#include "..\Log\YLog.h"
+#include "..\Log\Log.h"
 
 #pragma warning(disable:4482)
 
-CYThread::CYThread() 
+YThread::YThread() 
 	: m_hThread(INVALID_HANDLE_VALUE),
 	m_nThreadID(0),
 	m_eState(E_STATE::INITIAL)
 {
 }
 
-CYThread::~CYThread()
+YThread::~YThread()
 {
 	if(INVALID_HANDLE_VALUE != m_hThread){
 		if(m_eState == E_STATE::RUNNING || m_eState == E_STATE::PAUSED){
@@ -25,12 +25,12 @@ CYThread::~CYThread()
 	}
 }
 
-CYThread::E_STATE CYThread::GetState() const
+YThread::E_STATE YThread::GetState() const
 {
 	return m_eState;
 }
 
-void CYThread::Start()
+void YThread::Start()
 {
 	if(m_eState != E_STATE::INITIAL)
 		return;
@@ -48,7 +48,7 @@ void CYThread::Start()
 	}
 }
 
-void CYThread::Suspend()
+void YThread::Suspend()
 {
 	if(INVALID_HANDLE_VALUE == m_hThread)
 		return;
@@ -66,7 +66,7 @@ void CYThread::Suspend()
 	}
 }
 
-void CYThread::Resume()
+void YThread::Resume()
 {
 	if(INVALID_HANDLE_VALUE == m_hThread)
 		return;
@@ -84,7 +84,7 @@ void CYThread::Resume()
 	}
 }
 
-void CYThread::Cancel(int nTimeout)
+void YThread::Cancel(int nTimeout)
 {
 	if(INVALID_HANDLE_VALUE == m_hThread)
 		return;
@@ -102,9 +102,9 @@ void CYThread::Cancel(int nTimeout)
 	}
 }
 
-unsigned __stdcall CYThread::threadEntry(void *pParam)
+unsigned __stdcall YThread::threadEntry(void *pParam)
 {
-	CYThread *pThread = reinterpret_cast<CYThread *>(pParam);
+	YThread *pThread = reinterpret_cast<YThread *>(pParam);
 	unsigned nRet = THREAD_ERROR_SUCCESS;
 
 	try{
@@ -136,51 +136,51 @@ unsigned __stdcall CYThread::threadEntry(void *pParam)
 	return nRet;
 }
 
-const HANDLE CYThread::GetThreadHandle() const
+const HANDLE YThread::GetThreadHandle() const
 {
 	return m_hThread;
 }
 
-unsigned CYThread::GetThreadId() const
+unsigned YThread::GetThreadId() const
 {
 	return m_nThreadID;
 }
 
-void CYThread::BeforeThreadRun()
+void YThread::BeforeThreadRun()
 {
 	LOG_INFO(_T("BeforeThreadRun"));
 }
 
-void CYThread::OnThreadRun()
+void YThread::OnThreadRun()
 {
 	LOG_INFO(_T("OnThreadRun"));
 }
 
-void CYThread::OnThreadSuspend()
+void YThread::OnThreadSuspend()
 {
 	LOG_INFO(_T("OnThreadSuspend"));
 }
 
-void CYThread::OnThreadResume()
+void YThread::OnThreadResume()
 {
 	LOG_INFO(_T("OnThreadResume"));
 }
 
-void CYThread::OnThreadReturn()
+void YThread::OnThreadReturn()
 {
 	LOG_INFO(_T("OnThreadReturn"));
 }
 
-void CYThread::OnThreadCancel()
+void YThread::OnThreadCancel()
 {
 	LOG_INFO(_T("OnThreadCancel"));
 }
 
-void CYThread::OnThreadError()
+void YThread::OnThreadError()
 {
 	LOG_INFO(_T("OnThreadError"));
 }
-void CYThread::OnThreadException()
+void YThread::OnThreadException()
 {
 	LOG_INFO(_T("OnThreadException"));
 }

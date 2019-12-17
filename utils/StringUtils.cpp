@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "YstringUtils.h"
+#include "StringUtils.h"
 #include <algorithm>
 #include <stdarg.h>
 #pragma warning(disable:4996)
