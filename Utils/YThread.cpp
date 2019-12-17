@@ -7,73 +7,43 @@
 
 #pragma warning(disable:4482)
 
-CYThread::CYThread() : m_pListener(NULL),
-	m_hThread(INVALID_HANDLE_VALUE),
-	m_pfnThread(NULL),
-	m_pParam(NULL),
+CYThread::CYThread() 
+	: m_hThread(INVALID_HANDLE_VALUE),
 	m_nThreadID(0),
-	m_Status(E_THREAD_STATUS::notexsit)
+	m_eState(E_STATE::INITIAL)
 {
 }
 
 CYThread::~CYThread()
 {
-	LOG_INFO("Note: Thread instance destructing: will cancel the thread");
 	if(INVALID_HANDLE_VALUE != m_hThread){
-		Cancel();
+		if(m_eState == E_STATE::RUNNING || m_eState == E_STATE::PAUSED){
+			//LOG_INFO("Note: CYThread destructor: will cancel the thread");
+			Cancel();  //Note: won't call 	OnThreadCancel of subclass since subclass isn't exist anymore here
+		}
 		CloseHandle(m_hThread);
 	}
 }
 
-CYThread::E_THREAD_STATUS CYThread::GetStatus()
+CYThread::E_STATE CYThread::GetState() const
 {
-	return m_Status;
+	return m_eState;
 }
 
-void CYThread::Create(CYThreadListener *pListener, PFNTHREAD pfnThread, void *pParam)
+void CYThread::Start()
 {
-	if(m_Status != E_THREAD_STATUS::notexsit)
+	if(m_eState != E_STATE::INITIAL)
 		return;
 
+	BeforeThreadRun();
+
 	try{
-		if(pListener){
-			m_pListener = pListener;
-			m_pListener->setThread(this);
-		}
-
-		if(pfnThread)
-			m_pfnThread = pfnThread;
-
-		if(pParam)
-			m_pParam = pParam;
-
-		m_hThread = (HANDLE)_beginthreadex(NULL, 0, ThreadFuncWrapper, this, CREATE_SUSPENDED, &m_nThreadID);
+		m_hThread = (HANDLE)_beginthreadex(NULL, 0, threadEntry, reinterpret_cast<void*>(this), 0, &m_nThreadID);
 		if(INVALID_HANDLE_VALUE == m_hThread){
-			throw CWin32Exception("YThread", "Create");
+			throw CWin32Exception("YThread", "Start");
 		}
-		m_Status = E_THREAD_STATUS::paused;
-
 	}catch(CWin32Exception& e){
-		m_Status = E_THREAD_STATUS::createfailed;
-		LOG_ERROR(e.what());
-	}
-}
-
-void CYThread::Run()
-{
-	if(INVALID_HANDLE_VALUE == m_hThread)
-		return;
-	if(m_Status != E_THREAD_STATUS::paused)
-		return;
-
-	if(m_pListener)
-		m_pListener->BeforeThreadRun();
-
-	try{
-		if(-1 == ResumeThread(m_hThread))
-			throw CWin32Exception("YThread", "Resume");
-		m_Status = E_THREAD_STATUS::ongoing;
-	}catch(CWin32Exception& e){
+		m_eState = E_STATE::CREATE_FAIL;
 		LOG_ERROR(e.what());
 	}
 }
@@ -82,16 +52,15 @@ void CYThread::Suspend()
 {
 	if(INVALID_HANDLE_VALUE == m_hThread)
 		return;
-	if(m_Status != E_THREAD_STATUS::ongoing)
+	if(m_eState != E_STATE::RUNNING)
 		return;
 
 	try{
 		if(-1 == SuspendThread(m_hThread))
 			throw CWin32Exception("YThread", "Suspend");
-		m_Status = E_THREAD_STATUS::paused;
 
-		if(m_pListener)
-			m_pListener->OnThreadSuspend();
+		m_eState = E_STATE::PAUSED;
+		OnThreadSuspend();
 	}catch(CWin32Exception& e){
 		LOG_ERROR(e.what());
 	}
@@ -101,16 +70,15 @@ void CYThread::Resume()
 {
 	if(INVALID_HANDLE_VALUE == m_hThread)
 		return;
-	if(m_Status != E_THREAD_STATUS::paused)
+	if(m_eState != E_STATE::PAUSED)
 		return;
 
 	try{
 		if(-1 == ResumeThread(m_hThread))
 			throw CWin32Exception("YThread", "Resume");
-		m_Status = E_THREAD_STATUS::ongoing;
 
-		if(m_pListener)
-			m_pListener->OnThreadResume();
+		m_eState = E_STATE::RUNNING;
+		OnThreadResume();
 	}catch(CWin32Exception& e){
 		LOG_ERROR(e.what());
 	}
@@ -120,59 +88,99 @@ void CYThread::Cancel(int nTimeout)
 {
 	if(INVALID_HANDLE_VALUE == m_hThread)
 		return;
-	if(m_Status != E_THREAD_STATUS::ongoing)
+	if(m_eState != E_STATE::RUNNING && m_eState != E_STATE::PAUSED)
 		return;
 
-	if(nTimeout == -1 || 
-		nTimeout > 0 &&WaitForSingleObject(m_hThread, nTimeout))
+	if(nTimeout > 0 &&WaitForSingleObject(m_hThread, nTimeout))
 	{
-		m_Status = E_THREAD_STATUS::canceled;
-		TerminateThread(m_hThread, m_Status);
-		if(m_pListener)
-			m_pListener->OnThreadCancel();
+		m_eState = E_STATE::RETURNED;
+		OnThreadReturn();
 	}else{
-		m_Status = E_THREAD_STATUS::success;
-		if(m_pListener)
-			m_pListener->OnThreadReturn();
+		m_eState = E_STATE::CANCELED;
+		TerminateThread(m_hThread, m_eState);
+		OnThreadCancel();
 	}
 }
 
-unsigned __stdcall CYThread::ThreadFuncWrapper(void *pParam)
+unsigned __stdcall CYThread::threadEntry(void *pParam)
 {
-	CYThread *pThreadWarpper = reinterpret_cast<CYThread *>(pParam);
-	if(pThreadWarpper->m_pListener)
-		pThreadWarpper->m_pListener->OnThreadRun();
-
-	pThreadWarpper->m_Status = E_THREAD_STATUS::ongoing;
+	CYThread *pThread = reinterpret_cast<CYThread *>(pParam);
 	unsigned nRet = THREAD_ERROR_SUCCESS;
 
 	try{
-		if(pThreadWarpper->m_pfnThread)
-			nRet = pThreadWarpper->m_pfnThread(pThreadWarpper->m_pParam);
+		pThread->m_eState = E_STATE::RUNNING;
+		pThread->OnThreadRun();
+		nRet = pThread->Run();
 
 		switch (nRet)
 		{
 		case THREAD_ERROR_SUCCESS:
-			pThreadWarpper->m_Status = E_THREAD_STATUS::success;
-			if(pThreadWarpper->m_pListener)
-				pThreadWarpper->m_pListener->OnThreadReturn();
+			pThread->m_eState = E_STATE::RETURNED;
+			pThread->OnThreadReturn();
 			break;
 		default:
-			pThreadWarpper->m_Status = E_THREAD_STATUS::error;
-			throw CExceptionBase("thread returned with error", "YThread", "ThreadFuncWrapper");
+			pThread->m_eState = E_STATE::RETURN_ERROR;
+			throw CExceptionBase("thread returned with error", "YThread", "threadEntry");
 			break;
 		}
 	}catch(CExceptionBase& e){
 		LOG_ERROR(e.what());
-		if(pThreadWarpper->m_pListener)
-			pThreadWarpper->m_pListener->OnThreadError();
+		pThread->OnThreadError();
 	}catch(...){
 		nRet = THREAD_ERROR_EXCEPTION;
-		pThreadWarpper->m_Status = E_THREAD_STATUS::exception;
-		CExceptionBase e("thread returned because exception occurred within tread function", "YThread", "ThreadFuncWrapper");
+		pThread->m_eState = E_STATE::EXCEPTION;
+		CExceptionBase e("thread returned because exception occurred within tread function", "YThread", "threadEntry");
 		LOG_ERROR(e.what());
-		if(pThreadWarpper->m_pListener)
-			pThreadWarpper->m_pListener->OnThreadException();
+		pThread->OnThreadException();
 	}
 	return nRet;
+}
+
+const HANDLE CYThread::GetThreadHandle() const
+{
+	return m_hThread;
+}
+
+unsigned CYThread::GetThreadId() const
+{
+	return m_nThreadID;
+}
+
+void CYThread::BeforeThreadRun()
+{
+	LOG_INFO(_T("BeforeThreadRun"));
+}
+
+void CYThread::OnThreadRun()
+{
+	LOG_INFO(_T("OnThreadRun"));
+}
+
+void CYThread::OnThreadSuspend()
+{
+	LOG_INFO(_T("OnThreadSuspend"));
+}
+
+void CYThread::OnThreadResume()
+{
+	LOG_INFO(_T("OnThreadResume"));
+}
+
+void CYThread::OnThreadReturn()
+{
+	LOG_INFO(_T("OnThreadReturn"));
+}
+
+void CYThread::OnThreadCancel()
+{
+	LOG_INFO(_T("OnThreadCancel"));
+}
+
+void CYThread::OnThreadError()
+{
+	LOG_INFO(_T("OnThreadError"));
+}
+void CYThread::OnThreadException()
+{
+	LOG_INFO(_T("OnThreadException"));
 }
