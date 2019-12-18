@@ -28,7 +28,7 @@ std::string TranslateErrCode(DWORD errCode)
 	return sRet;
 }
 
-CWin32Exception::CWin32Exception(const char* file, const char* func, int line) throw()
+YWin32Exception::YWin32Exception(const char* file, const char* func, int line) throw()
 	:m_sFile(file)
 	,m_sFunc(func)
 	,m_nLine(line)
@@ -37,7 +37,7 @@ CWin32Exception::CWin32Exception(const char* file, const char* func, int line) t
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CWin32Exception::CWin32Exception(const char* file, const char* func) throw()
+YWin32Exception::YWin32Exception(const char* file, const char* func) throw()
 	:m_sFile(file)
 	,m_sFunc(func)
 	,m_nLine(-1)
@@ -46,7 +46,7 @@ CWin32Exception::CWin32Exception(const char* file, const char* func) throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CWin32Exception::CWin32Exception(const char* file) throw()
+YWin32Exception::YWin32Exception(const char* file) throw()
 	:m_sFile(file)
 	,m_sFunc("<unknown func>")
 	,m_nLine(-1)
@@ -55,7 +55,7 @@ CWin32Exception::CWin32Exception(const char* file) throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CWin32Exception::CWin32Exception() throw()
+YWin32Exception::YWin32Exception() throw()
 	:m_sFile("<unknown file>")
 	,m_sFunc("<unknown func>")
 	,m_nLine(-1)
@@ -64,27 +64,27 @@ CWin32Exception::CWin32Exception() throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-DWORD CWin32Exception::GetErrorCode() const
+DWORD YWin32Exception::GetErrorCode() const
 {
 	return m_dwErrorCode;
 }
 
-std::string CWin32Exception::GetMessage() const
+std::string YWin32Exception::GetMessage() const
 {
 	return m_sMessage;
 }
 
-const char* CWin32Exception::GetClassName() const
+const char* YWin32Exception::GetClassName() const
 {
-	return "CWin32Exception";
+	return "YWin32Exception";
 }
 
-const char* CWin32Exception::what() const throw()
+const char* YWin32Exception::what() const throw()
 {
 	return ToString().c_str();
 }
 
-const std::string& CWin32Exception::ToString() const
+const std::string& YWin32Exception::ToString() const
 {
 	if(m_sWhat.empty()){
 		stringstream sstr;

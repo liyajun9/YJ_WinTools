@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "ExceptionBase.h"
+#include "Exception.h"
 #include <sstream>
 
 using namespace std;
 
-CExceptionBase::CExceptionBase(const char* message, const char* file, const char* func, int line) throw()
+YException::YException(const char* message, const char* file, const char* func, int line) throw()
 	: std::exception()
 	,m_sMessage(message)
 	,m_sFile(file)
@@ -13,7 +13,7 @@ CExceptionBase::CExceptionBase(const char* message, const char* file, const char
 {
 }
 
-CExceptionBase::CExceptionBase(const char* message, const char* file, const char* func) throw()
+YException::YException(const char* message, const char* file, const char* func) throw()
 	: std::exception()
 	,m_sMessage(message)
 	,m_sFile(file)
@@ -22,7 +22,7 @@ CExceptionBase::CExceptionBase(const char* message, const char* file, const char
 {
 }
 
-CExceptionBase::CExceptionBase(const char* message, const char* file) throw()
+YException::YException(const char* message, const char* file) throw()
 	: std::exception()
 	,m_sMessage(message)
 	,m_sFile(file)
@@ -31,7 +31,7 @@ CExceptionBase::CExceptionBase(const char* message, const char* file) throw()
 {
 }
 
-CExceptionBase::CExceptionBase(const char* message) throw()
+YException::YException(const char* message) throw()
 	: std::exception()
 	,m_sMessage(message)
 	,m_sFile("<unknown file>")
@@ -40,17 +40,17 @@ CExceptionBase::CExceptionBase(const char* message) throw()
 {
 }
 
-std::string CExceptionBase::GetMessage() const
+std::string YException::GetMessage() const
 {
 	return m_sMessage;
 }
 
-const char* CExceptionBase::what() const throw()
+const char* YException::what() const throw()
 {
 	return ToString().c_str();
 }
 
-const std::string& CExceptionBase::ToString() const
+const std::string& YException::ToString() const
 {
 	if(m_sWhat.empty()){
 		stringstream sstr;
@@ -65,7 +65,7 @@ const std::string& CExceptionBase::ToString() const
 	return m_sWhat;
 }
 
-std::string CExceptionBase::GetClassName() const
+std::string YException::GetClassName() const
 {
-	return "CExceptionBase";
+	return "YException";
 }

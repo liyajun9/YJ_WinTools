@@ -2,8 +2,9 @@
 #include "Thread.h"
 #include <winbase.h>
 #include "..\exceptions\Win32Exception.h"
-#include "..\exceptions\ExceptionBase.h"
+#include "..\exceptions\Exception.h"
 #include "..\Log\Log.h"
+#include <process.h>
 
 #pragma warning(disable:4482)
 
@@ -40,9 +41,9 @@ void YThread::Start()
 	try{
 		m_hThread = (HANDLE)_beginthreadex(NULL, 0, threadEntry, reinterpret_cast<void*>(this), 0, &m_nThreadID);
 		if(INVALID_HANDLE_VALUE == m_hThread){
-			throw CWin32Exception("YThread", "Start");
+			throw YWin32Exception("YThread", "Start");
 		}
-	}catch(CWin32Exception& e){
+	}catch(YWin32Exception& e){
 		m_eState = E_STATE::CREATE_FAIL;
 		LOG_ERROR(e.what());
 	}
@@ -57,11 +58,11 @@ void YThread::Suspend()
 
 	try{
 		if(-1 == SuspendThread(m_hThread))
-			throw CWin32Exception("YThread", "Suspend");
+			throw YWin32Exception("YThread", "Suspend");
 
 		m_eState = E_STATE::PAUSED;
 		OnThreadSuspend();
-	}catch(CWin32Exception& e){
+	}catch(YWin32Exception& e){
 		LOG_ERROR(e.what());
 	}
 }
@@ -75,11 +76,11 @@ void YThread::Resume()
 
 	try{
 		if(-1 == ResumeThread(m_hThread))
-			throw CWin32Exception("YThread", "Resume");
+			throw YWin32Exception("YThread", "Resume");
 
 		m_eState = E_STATE::RUNNING;
 		OnThreadResume();
-	}catch(CWin32Exception& e){
+	}catch(YWin32Exception& e){
 		LOG_ERROR(e.what());
 	}
 }
@@ -120,17 +121,16 @@ unsigned __stdcall YThread::threadEntry(void *pParam)
 			break;
 		default:
 			pThread->m_eState = E_STATE::RETURN_ERROR;
-			throw CExceptionBase("thread returned with error", "YThread", "threadEntry");
+			throw YException("thread returned with error", "YThread", "threadEntry");
 			break;
 		}
-	}catch(CExceptionBase& e){
+	}catch(YException& e){
 		LOG_ERROR(e.what());
 		pThread->OnThreadError();
-	}catch(...){
+	}catch(std::exception& e){
 		nRet = THREAD_ERROR_EXCEPTION;
 		pThread->m_eState = E_STATE::EXCEPTION;
-		CExceptionBase e("thread returned because exception occurred within tread function", "YThread", "threadEntry");
-		LOG_ERROR(e.what());
+		LOG_FATAL(_T("exception in YThread threadEntry - %s"), e.what());
 		pThread->OnThreadException();
 	}
 	return nRet;

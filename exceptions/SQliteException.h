@@ -1,13 +1,13 @@
 #pragma once
-#include "ExceptionBase.h"
+#include "Exception.h"
 
-class CSQLiteException : public CExceptionBase{
+class YSQLiteException : public YException{
 public:
-	CSQLiteException(const char* message, const char* file, const char* func, int line) throw();
-	CSQLiteException(const char* message, const char* file, const char* func) throw();
-	CSQLiteException(const char* message, const char* file) throw();
-	CSQLiteException(const char* message) throw();
-	virtual ~CSQLiteException();
+	YSQLiteException(const char* message, const char* file, const char* func, int line) throw();
+	YSQLiteException(const char* message, const char* file, const char* func) throw();
+	YSQLiteException(const char* message, const char* file) throw();
+	YSQLiteException(const char* message) throw();
+	virtual ~YSQLiteException();
 
 public:
 	virtual std::string GetClassName() const;

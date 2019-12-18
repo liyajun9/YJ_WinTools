@@ -1,31 +1,31 @@
 #include "stdafx.h"
 #include "SQliteException.h"
 
-CSQLiteException::CSQLiteException(const char* message, const char* file, const char* func, int line) throw()
-	: CExceptionBase(message, file, func, line)
+YSQLiteException::YSQLiteException(const char* message, const char* file, const char* func, int line) throw()
+	: YException(message, file, func, line)
 {
 }
 
-CSQLiteException::CSQLiteException(const char* message, const char* file, const char* func) throw()
-	: CExceptionBase(message, file, func)
+YSQLiteException::YSQLiteException(const char* message, const char* file, const char* func) throw()
+	: YException(message, file, func)
 {
 }
 
-CSQLiteException::CSQLiteException(const char* message, const char* file) throw()
-	: CExceptionBase(message, file)
+YSQLiteException::YSQLiteException(const char* message, const char* file) throw()
+	: YException(message, file)
 {
 }
 
-CSQLiteException::CSQLiteException(const char* message) throw()
-	: CExceptionBase(message)
+YSQLiteException::YSQLiteException(const char* message) throw()
+	: YException(message)
 {
 }
 
-CSQLiteException::~CSQLiteException()
+YSQLiteException::~YSQLiteException()
 {
 }
 
-std::string CSQLiteException::GetClassName() const
+std::string YSQLiteException::GetClassName() const
 {
-	return "CSQLiteException";
+	return "YSQLiteException";
 }

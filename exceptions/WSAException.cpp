@@ -9,7 +9,7 @@ using namespace std;
 
 std::string TranslateErrCode(DWORD errCode);
 
-CWSAException::CWSAException(const char* file, const char* func, int line) throw()
+YWSAException::YWSAException(const char* file, const char* func, int line) throw()
 	:m_sFile(file)
 	,m_sFunc(func)
 	,m_nLine(line)
@@ -18,7 +18,7 @@ CWSAException::CWSAException(const char* file, const char* func, int line) throw
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CWSAException::CWSAException(const char* file, const char* func) throw()
+YWSAException::YWSAException(const char* file, const char* func) throw()
 	:m_sFile(file)
 	,m_sFunc(func)
 	,m_nLine(-1)
@@ -27,7 +27,7 @@ CWSAException::CWSAException(const char* file, const char* func) throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CWSAException::CWSAException(const char* file) throw()
+YWSAException::YWSAException(const char* file) throw()
 	:m_sFile(file)
 	,m_sFunc("<unknown func>")
 	,m_nLine(-1)
@@ -36,7 +36,7 @@ CWSAException::CWSAException(const char* file) throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-CWSAException::CWSAException() throw()
+YWSAException::YWSAException() throw()
 	:m_sFile("<unknown file>")
 	,m_sFunc("<unknown func>")
 	,m_nLine(-1)
@@ -45,27 +45,27 @@ CWSAException::CWSAException() throw()
 	m_sMessage = TranslateErrCode(m_dwErrorCode);
 }
 
-DWORD CWSAException::GetErrorCode() const
+DWORD YWSAException::GetErrorCode() const
 {
 	return m_dwErrorCode;
 }
 
-std::string CWSAException::GetMessage() const
+std::string YWSAException::GetMessage() const
 {
 	return m_sMessage;
 }
 
-const char* CWSAException::GetClassName() const
+const char* YWSAException::GetClassName() const
 {
-	return "CWSAException";
+	return "YWSAException";
 }
 
-const char* CWSAException::what() const throw()
+const char* YWSAException::what() const throw()
 {
 	return ToString().c_str();
 }
 
-const std::string& CWSAException::ToString() const
+const std::string& YWSAException::ToString() const
 {
 	if(m_sWhat.empty()){
 		stringstream sstr;

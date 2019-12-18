@@ -1,11 +1,3 @@
-//  Convinient way to use Critical Section
-//	Usage:
-//	AnyFunc()
-//	{
-//		CYCriticalSectionLock(&cs, TRUE);
-//		//other codes
-//	}
-// author:liyajun
 #pragma once
 #include <windows.h>
 #include <exception>
@@ -19,19 +11,6 @@ public:
 	}
 
 	~YCriticalSection(){
-		::LeaveCriticalSection(&m_cs);
-	}
-
-public:
-	inline void Lock(){
-		::EnterCriticalSection(&m_cs);
-	}
-
-	inline bool TryLock(){
-		return TryEnterCriticalSection(&m_cs) > 0 ? TRUE : FALSE;
-	}
-
-	inline void Unlock(){
 		::LeaveCriticalSection(&m_cs);
 	}
 
