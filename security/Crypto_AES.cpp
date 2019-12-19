@@ -3,6 +3,7 @@
 #include "CryptoUtils.h"
 #include "MD5.h"
 #include "Base64.h"
+#include <memory>
 
 bool YCrypto_AES::AES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,  const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
 {
@@ -16,21 +17,19 @@ bool YCrypto_AES::AES64_CBC_Encrypt(const std::string& sKey, const std::string& 
 
 	//padding for encryption
 	unsigned int nLen = (nSrcLen/AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
-	unsigned char *pInput = new unsigned char[nLen]; memset(pInput, 0, nLen);
-	nLen = Padding(pSrc, nSrcLen, pInput, nLen, AES_BLOCK_SIZE, paddingScheme);
-	if(nLen <= 0) {
-		if(pInput) delete []pInput;
+	std::shared_ptr<unsigned char> spInput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
+	memset(spInput.get(), 0, nLen);
+	nLen = Padding(pSrc, nSrcLen, spInput.get(), nLen, AES_BLOCK_SIZE, paddingScheme);
+	if(nLen <= 0) 
 		return false;
-	}
 
-	unsigned char *pOutput = new unsigned char[nLen]; memset(pOutput, 0, nLen);
+	std::shared_ptr<unsigned char> spOutput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
+	 memset(spOutput.get(), 0, nLen);
 
 	//encrypt
-	AES_cbc_encrypt(pInput, pOutput, nLen, &key, iv, AES_ENCRYPT);
-	YBase64::Encode(pOutput, nLen, sEncrypted);
+	AES_cbc_encrypt(spInput.get(), spOutput.get(), nLen, &key, iv, AES_ENCRYPT);
+	YBase64::Encode(spOutput.get(), nLen, sEncrypted);
 
-	if(pInput)	delete []pInput;
-	if(pOutput) delete []pOutput;
 	return true;
 }
 
@@ -45,28 +44,26 @@ int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& s
 	memcpy(&iv, sIv.c_str(), AES_BLOCK_SIZE);
 
 	int nLen = sSrc.length();
-	unsigned char *pInput = new unsigned char[nLen]; memset(pInput, 0, nLen);
-	nLen = YBase64::Decode(sSrc, pInput, nLen);
-	if(nLen <= 0 || nDecryptLen < nLen){
-		if(pInput)	delete []pInput;
+	std::shared_ptr<unsigned char> spInput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
+	memset(spInput.get(), 0, nLen);
+	nLen = YBase64::Decode(sSrc, spInput.get(), nLen);
+	if(nLen <= 0 || nDecryptLen < nLen)
 		return 0;
-	}
 
-	int nOutLen = AES_CBC_Decrypt(sKey, sIv, pInput, nLen, pDecrypted, nDecryptLen, paddingScheme, nKeyBits);
-	if(pInput) delete []pInput;
+	int nOutLen = AES_CBC_Decrypt(sKey, sIv, spInput.get(), nLen, pDecrypted, nDecryptLen, paddingScheme, nKeyBits);
 	return nOutLen;
 }
 
 int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const std::string sSrc, std::string& sDecrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
 {
 	int nLen =sSrc.length();
-	unsigned char *pDecrypted = new unsigned char[nLen]; memset(pDecrypted, 0, nLen);
+	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
+	memset(spDecrypted.get(), 0, nLen);
 
-	nLen = AES64_CBC_Decrypt(sKey, sIv, sSrc, pDecrypted, nLen, paddingScheme, nKeyBits);
+	nLen = AES64_CBC_Decrypt(sKey, sIv, sSrc, spDecrypted.get(), nLen, paddingScheme, nKeyBits);
 	if(nLen > 0)
-		sDecrypted = std::string(reinterpret_cast<char *>(pDecrypted), nLen);
+		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
 
-	if(pDecrypted) delete []pDecrypted;
 	return nLen;
 }
 
@@ -82,17 +79,15 @@ int YCrypto_AES::AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv
 		
 		//padding for encryption
 		int nLen = (nSrcLen/AES_BLOCK_SIZE + 1) * AES_BLOCK_SIZE;
-		unsigned char *pInput = new unsigned char[nLen]; memset(pInput, 0, nLen);
-		nLen = Padding(pSrc, nSrcLen, pInput, nLen, AES_BLOCK_SIZE, paddingScheme);
-		if(nLen <= 0 || nEncryptLen < nLen) {
-			if(pInput) delete []pInput;
+		std::shared_ptr<unsigned char> spInput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
+		memset(spInput.get(), 0, nLen);
+		nLen = Padding(pSrc, nSrcLen, spInput.get(), nLen, AES_BLOCK_SIZE, paddingScheme);
+		if(nLen <= 0 || nEncryptLen < nLen) 
 			return 0;
-		}
 	
 		//encrypt
-		AES_cbc_encrypt(pInput, pEncrypted, nLen, &key, iv, AES_ENCRYPT);
+		AES_cbc_encrypt(spInput.get(), pEncrypted, nLen, &key, iv, AES_ENCRYPT);
 	
-		if(pInput)	delete []pInput;
 		return nLen;
 }
 
@@ -106,15 +101,15 @@ int YCrypto_AES::AES_CBC_Decrypt(const std::string& sKey, const std::string& sIv
 		AES_cblock iv;
 		memcpy(&iv, sIv.c_str(), AES_BLOCK_SIZE);
 	
-		unsigned char *pOutput = new unsigned char[nSrcLen]; memset(pOutput, 0, nSrcLen);
+		std::shared_ptr<unsigned char> spOutput(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+		memset(spOutput.get(), 0, nSrcLen);
 		//decrypt
-		AES_cbc_encrypt(pSrc, pOutput, nSrcLen, &key, iv, AES_DECRYPT);	
+		AES_cbc_encrypt(pSrc, spOutput.get(), nSrcLen, &key, iv, AES_DECRYPT);	
 		
 		//remove padding for decryption
-		unsigned int nLen = RemovePadding(pOutput, nSrcLen, paddingScheme);
+		unsigned int nLen = RemovePadding(spOutput.get(), nSrcLen, paddingScheme);
 		if(nLen > 0)
-			memcpy(pDecrypted, pOutput, nLen);
-		if(pOutput) delete []pOutput;
+			memcpy(pDecrypted, spOutput.get(), nLen);
 	
 		return nLen;
 }

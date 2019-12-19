@@ -3,6 +3,7 @@
 #include <openssl/pem.h>
 #include "MD5.h"
 #include "Base64.h"
+#include <memory>
 
 #pragma warning(disable:4996)
 
@@ -34,19 +35,17 @@ int YCrypto_Sign::RSA_MD5_Sign(const std::string& sPEMFilePath, const unsigned c
 	YMD5::Update(reinterpret_cast<const void *>(pSrc), nSrcLen, reinterpret_cast<char *>(pDigest), MD5_BUFFER_SIZE, false);
 
 	int nOutLen = RSA_size(pPriKey);
-	unsigned char *pDst = new unsigned char[nOutLen];
-	memset(pDst, 0, nOutLen);
+	std::shared_ptr<unsigned char> spDst(new unsigned char[nOutLen], std::default_delete<unsigned char[]>());
+	memset(spDst.get(), 0, nOutLen);
 
 	unsigned int nRet(0);
 	unsigned int nLen(0);
-	nRet = RSA_sign(NID_md5, pDigest, MD5_BUFFER_SIZE, pDst, &nLen, pPriKey);
+	nRet = RSA_sign(NID_md5, pDigest, MD5_BUFFER_SIZE, spDst.get(), &nLen, pPriKey);
 	if(nRet > 0){
-		std::string sTmp(reinterpret_cast<char*>(pDst), nLen);
+		std::string sTmp(reinterpret_cast<char*>(spDst.get()), nLen);
 		YBase64::Encode(sTmp, nLen, sSign);
 	}
 
-	if(pDst)
-		delete []pDst;
 	return (int)nLen;
 }
 
@@ -68,13 +67,11 @@ int YCrypto_Sign::RSA_MD5_SignVerify(const std::string& sPEMFilePath,  const std
 		return 0;
 
 	int nLen = sSign.length();
-	unsigned char *pDecoded = new unsigned char[nLen];
-	memset(pDecoded, 0, nLen);
-	int nRetnLen = YBase64::Decode(sSign, pDecoded, nLen);
+	std::shared_ptr<unsigned char> spDecoded(new unsigned char[nLen], std::default_delete<unsigned char[]>());
+	memset(spDecoded.get(), 0, nLen);
+	int nRetnLen = YBase64::Decode(sSign, spDecoded.get(), nLen);
 
-	int nRet = RSA_verify(NID_md5, pDigest, MD5_BUFFER_SIZE, pDecoded, nRetnLen, pPubKey);
-	if(pDecoded)
-		delete []pDecoded;
+	int nRet = RSA_verify(NID_md5, pDigest, MD5_BUFFER_SIZE, spDecoded.get(), nRetnLen, pPubKey);
 	return nRet;
 }
 

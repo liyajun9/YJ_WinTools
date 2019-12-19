@@ -2,6 +2,7 @@
 #include "Crypto_RSA.h"
 #include <openssl/pem.h>
 #include "Base64.h"
+#include <memory>
 
 #pragma warning(disable:4996)
 
@@ -18,12 +19,11 @@ bool YCrypto_RSA::PubKey_Encrypt64(const std::string& sPEMFilePath, const unsign
 bool YCrypto_RSA::PriKey_Decrypt64(const std::string& sPEMFilePath, const unsigned char *pSrc, int nSrcLen, std::string& sDecrypted)
 {
 	std::string sSrc(reinterpret_cast<const char *>(pSrc), nSrcLen);
-	unsigned char *pDecoded = new unsigned char[nSrcLen];
-	memset(pDecoded, 0, nSrcLen);
-	int nLen = YBase64::Decode(sSrc, pDecoded, nSrcLen);
+	std::shared_ptr<unsigned char> spDecoded(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	memset(spDecoded.get(), 0, nSrcLen);
+	int nLen = YBase64::Decode(sSrc, spDecoded.get(), nSrcLen);
 
-	bool bRet = PriKey_Decrypt(sPEMFilePath, pDecoded, nLen, sDecrypted) > 0;
-	if(pDecoded) delete []pDecoded;
+	bool bRet = PriKey_Decrypt(sPEMFilePath, spDecoded.get(), nLen, sDecrypted) > 0;
 	return bRet;
 }
 
@@ -43,7 +43,7 @@ int YCrypto_RSA::PubKey_Encrypt(const std::string& sPEMFilePath, const unsigned 
 
 	int nRemain = nSrcLen;
 	int nModulusLen = RSA_size(pPubKey);	//cipher text length
-	unsigned char *pUnitDst= new unsigned char[nModulusLen];
+	std::shared_ptr<unsigned char> spUnitDst(new unsigned char[nModulusLen], std::default_delete<unsigned char[]>());
 	int nUnitLen = nModulusLen - 11; //PKCS#1 padding
 		
 	int nCurrLen = 0;
@@ -56,19 +56,17 @@ int YCrypto_RSA::PubKey_Encrypt(const std::string& sPEMFilePath, const unsigned 
 		else
 			nCurrLen = nRemain;
 
-		memset(pUnitDst, 0, nModulusLen);
-		int nRes = RSA_public_encrypt(nCurrLen, pSrc + nPos, pUnitDst, pPubKey, RSA_PKCS1_PADDING);
+		memset(spUnitDst.get(), 0, nModulusLen);
+		int nRes = RSA_public_encrypt(nCurrLen, pSrc + nPos, spUnitDst.get(), pPubKey, RSA_PKCS1_PADDING);
 		if(nRes < 0)
 			break;
 
-		sEncrypted.append(reinterpret_cast<char *>(pUnitDst), nRes);
+		sEncrypted.append(reinterpret_cast<char *>(spUnitDst.get()), nRes);
 
 		nRemain -= nCurrLen;
 		nPos += nCurrLen;
 		nOutLen += nRes;
 	}
-	if(pUnitDst)
-		delete []pUnitDst;
 	RSA_free(pPubKey);
 	CRYPTO_cleanup_all_ex_data();
 	return nOutLen;
@@ -90,7 +88,7 @@ int YCrypto_RSA::PriKey_Decrypt(const std::string& sPEMFilePath, const unsigned 
 	int nRemain = nSrcLen;
 	int nModulusLen = RSA_size(pPriKey);  //cipherText unit length
 	int nUnitLen = nModulusLen - 11; //PKCS#1 padding plainText unit length
-	unsigned char *pUnitDst= new unsigned char[nUnitLen];
+	std::shared_ptr<unsigned char> spUnitDst(new unsigned char[nUnitLen], std::default_delete<unsigned char[]>());
 
 	int nCurrLen = 0;
 	int nPos = 0;
@@ -102,20 +100,18 @@ int YCrypto_RSA::PriKey_Decrypt(const std::string& sPEMFilePath, const unsigned 
 		else
 			nCurrLen = nRemain;
 
-		memset(pUnitDst, 0, nUnitLen);
-		int nRes = RSA_private_decrypt(nCurrLen, pSrc + nPos, pUnitDst, pPriKey, RSA_PKCS1_PADDING);
+		memset(spUnitDst.get(), 0, nUnitLen);
+		int nRes = RSA_private_decrypt(nCurrLen, pSrc + nPos, spUnitDst.get(), pPriKey, RSA_PKCS1_PADDING);
 		if(nRes < 0)
 			break;
 
-		sDecrypted.append(reinterpret_cast<char *>(pUnitDst), nRes);
+		sDecrypted.append(reinterpret_cast<char *>(spUnitDst.get()), nRes);
 
 		nRemain -= nCurrLen;
 		nPos += nCurrLen;
 		nOutLen += nRes;
 	}
 
-	if(pUnitDst)
-		delete []pUnitDst;
 	RSA_free(pPriKey);
 	CRYPTO_cleanup_all_ex_data();
 	return nOutLen;

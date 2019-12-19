@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CharEncodings.h"
 #include <Windows.h>
+#include <memory>
 
 std::wstring& NS_Yutils::WCharToWChar(std::wstring& str)
 {
@@ -42,12 +43,11 @@ std::string NS_Yutils::WCharToUtf8(const std::wstring& str)
 		int nLen = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, NULL, 0, NULL, NULL);
 		if(nLen <= 0) break;
 
-		char *pszMB = static_cast<char*>(calloc(nLen, sizeof(char)));
-		if(!pszMB) break;
+		std::shared_ptr<char> spszMB(new char[nLen], std::default_delete<char[]>());
+		memset(spszMB.get(), 0, nLen);
 
-		nLen = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, pszMB, nLen, NULL, NULL);
-		sRet = pszMB;
-		free(pszMB);
+		nLen = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), -1, spszMB.get(), nLen, NULL, NULL);
+		sRet = spszMB.get();
 	} while (0);
 
 	return sRet;
@@ -61,12 +61,11 @@ std::wstring NS_Yutils::Utf8ToWChar(const std::string& str)
 		int nLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
 		if(nLen <= 0) break;
 
-		wchar_t *pszWC = static_cast<wchar_t*>(calloc(nLen, sizeof(wchar_t)));
-		if(!pszWC) break;
+		std::shared_ptr<wchar_t> spszWC(new wchar_t[nLen], std::default_delete<wchar_t[]>());
+		memset(spszWC.get(), 0, nLen);
 
-		nLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, pszWC, nLen);
-		sRet = pszWC;
-		free(pszWC);
+		nLen = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, spszWC.get(), nLen);
+		sRet = spszWC.get();
 	} while (0);
 
 	return sRet;
@@ -94,12 +93,11 @@ std::wstring NS_Yutils::MBToWChar(const std::string& str)
 		int nLen = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, NULL, 0);
 		if(nLen <= 0) break;
 
-		wchar_t* pszWC = static_cast<wchar_t*>(calloc(nLen, sizeof(wchar_t)));
-		if(!pszWC) break;
+		std::shared_ptr<wchar_t> spszWC(new wchar_t[nLen], std::default_delete<wchar_t[]>());
+		memset(spszWC.get(), 0, nLen);
 
-		nLen = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, pszWC, nLen);
-		sRet = pszWC;
-		free(pszWC);
+		nLen = MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, spszWC.get(), nLen);
+		sRet = spszWC.get();
 	} while (0);
 
 	return sRet;
@@ -113,12 +111,11 @@ std::string NS_Yutils::WCharToMB(const std::wstring& str)
 		int nLen = WideCharToMultiByte(CP_ACP, 0, str.c_str(), -1, NULL, 0, NULL, NULL);
 		if(nLen <= 0) break;
 
-		char *pszMB = static_cast<char*>(calloc(nLen, sizeof(char)));
-		if(!pszMB) break;
+		std::shared_ptr<char> spszMB(new char[nLen], std::default_delete<char[]>());
+		memset(spszMB.get(), 0, nLen);
 
-		nLen = WideCharToMultiByte(CP_ACP, 0, str.c_str(), -1, pszMB, nLen, NULL, NULL);
-		sRet = pszMB;
-		free(pszMB);
+		nLen = WideCharToMultiByte(CP_ACP, 0, str.c_str(), -1, spszMB.get(), nLen, NULL, NULL);
+		sRet = spszMB.get();
 	} while (0);
 
 	return sRet;
@@ -171,18 +168,19 @@ int NS_Yutils::MBToUtf8(const char *pMB, int nCbMB, char *pUtf, int nCbUtf)
 
 		int nLen = MultiByteToWideChar(CP_ACP,  0, pMB, nCbMB, NULL, 0);
 		if(nLen <= 0) break;
-		wchar_t *pszWide = static_cast<wchar_t*>(calloc(nLen, sizeof(wchar_t)));
-		if(!pszWide) break;
-		nLen = MultiByteToWideChar(CP_ACP, 0, pMB, nCbMB, pszWide, nLen);
 
-		int nLenNew = WideCharToMultiByte(CP_UTF8, 0, pszWide, nLen, NULL, 0, NULL, NULL);
-		if(nLenNew <= 0 || nCbUtf < nLenNew + 1){
-			free(pszWide);		break;
-		}
-		nLen = WideCharToMultiByte(CP_UTF8, 0, pszWide, nLen, pUtf, nCbUtf, NULL, NULL);
+		std::shared_ptr<wchar_t> spszWide(new wchar_t[nLen], std::default_delete<wchar_t[]>());
+		memset(spszWide.get(), 0, nLen);
+
+		nLen = MultiByteToWideChar(CP_ACP, 0, pMB, nCbMB, spszWide.get(), nLen);
+
+		int nLenNew = WideCharToMultiByte(CP_UTF8, 0, spszWide.get(), nLen, NULL, 0, NULL, NULL);
+		if(nLenNew <= 0 || nCbUtf < nLenNew + 1)
+			break;
+		
+		nLen = WideCharToMultiByte(CP_UTF8, 0, spszWide.get(), nLen, pUtf, nCbUtf, NULL, NULL);
 		pUtf[nLen] = '\0';
 		nRet = nLen + 1;
-		free(pszWide);
 	} while (0);
 
 	return nRet;
@@ -233,18 +231,19 @@ int NS_Yutils::Utf8ToMB(const char *pUTF, int nCbUtf, char *pMB, int nCbMB)
 
 		int nLen = MultiByteToWideChar(CP_UTF8,  0, pUTF, nCbUtf, NULL, 0);
 		if(nLen <= 0) break;
-		wchar_t *pszWide = static_cast<wchar_t*>(calloc(nLen, sizeof(wchar_t)));
-		if(!pszWide) break;
-		nLen = MultiByteToWideChar(CP_UTF8, 0, pUTF, nCbUtf, pszWide, nLen);
 
-		int nLenNew = WideCharToMultiByte(CP_ACP, 0, pszWide, nLen, NULL, 0, NULL, NULL);
-		if(nLenNew <= 0 || nCbMB < nLenNew + 1){
-			free(pszWide);		break;
-		}
-		nLen = WideCharToMultiByte(CP_ACP, 0, pszWide, nLen, pMB, nCbMB, NULL, NULL);
+		std::shared_ptr<wchar_t> spszWide(new wchar_t[nLen], std::default_delete<wchar_t[]>());
+		memset(spszWide.get(), 0, nLen);
+
+		nLen = MultiByteToWideChar(CP_UTF8, 0, pUTF, nCbUtf, spszWide.get(), nLen);
+
+		int nLenNew = WideCharToMultiByte(CP_ACP, 0, spszWide.get(), nLen, NULL, 0, NULL, NULL);
+		if(nLenNew <= 0 || nCbMB < nLenNew + 1)
+			break;
+
+		nLen = WideCharToMultiByte(CP_ACP, 0, spszWide.get(), nLen, pMB, nCbMB, NULL, NULL);
 		pMB[nLen] = '\0';
 		nRet = nLen + 1;
-		free(pszWide);
 	} while (0);
 
 	return nRet;

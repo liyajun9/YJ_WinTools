@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Base64.h"
+#include <memory>
 
 static const std::string base64_chars = 
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -15,11 +16,9 @@ std::string YBase64::Encode(const unsigned char *pSrc, int nSrcLen)
 
 void YBase64::Encode(const std::string sSrc, int nSrcLen, std::string& sEncoded)
 {
-	unsigned char *pSrc = new unsigned char[nSrcLen]; memset(pSrc, 0, nSrcLen);
-	memcpy(pSrc, sSrc.data(), nSrcLen);
-	Encode(pSrc, nSrcLen, sEncoded);
-	if(pSrc)
-		delete []pSrc;
+	std::shared_ptr<unsigned char> spSrc(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	memset(spSrc.get(), 0, nSrcLen); memcpy(spSrc.get(), sSrc.data(), nSrcLen);
+	Encode(spSrc.get(), nSrcLen, sEncoded);
 }
 
  void YBase64::Encode(const unsigned char *pSrc, int nSrcLen, std::string& sEncoded)

@@ -4,6 +4,7 @@
 #include <openssl\evp.h>
 #include <openssl\aes.h>
 #include "Base64.h"
+#include <memory>
 
 bool YCrypto_AES_ex::AES64Encrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
 {
@@ -19,14 +20,13 @@ bool YCrypto_AES_ex::AES64Encrypt_128cbc(const std::string& sKey, const std::str
 bool YCrypto_AES_ex::AES64Decrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sDecrypted)
 {
 	std::string sTmp(reinterpret_cast<const char*>(pSrc), nSrcLen);
-	unsigned char *pDecoded = new unsigned char[nSrcLen];	memset(pDecoded, 0, nSrcLen);
+	std::shared_ptr<unsigned char> spDecoded(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	memset(spDecoded.get(), 0, nSrcLen);
 	int nRes =	0;
-	if(!(nRes = YBase64::Decode(sTmp, pDecoded, nSrcLen))){
-		if(pDecoded) delete []pDecoded;
+	if(!(nRes = YBase64::Decode(sTmp, spDecoded.get(), nSrcLen)))
 		return false;
-	}	
-	bool bRet = AESDecrypt_128cbc(sKey, sIv, pDecoded, nRes, sDecrypted) > 0;
-	if(pDecoded) delete []pDecoded;
+
+	bool bRet = AESDecrypt_128cbc(sKey, sIv, spDecoded.get(), nRes, sDecrypted) > 0;
 	return bRet;
 }
 
@@ -45,23 +45,19 @@ int YCrypto_AES_ex::AESEncrypt_128cbc(const std::string& sKey, const std::string
 	int nBlockSize = EVP_CIPHER_block_size(EVP_aes_128_cbc());
 	int nOutLen = nSrcLen + nBlockSize  - 1;
 	int nLen1  = 0;
-	unsigned char *pEncrypted = new unsigned char[nOutLen]; memset(pEncrypted, 0, nOutLen);
-	if(1 != EVP_EncryptUpdate(ctx, pEncrypted, &nLen1, pSrc, nSrcLen)) {
-		if(pEncrypted) delete []pEncrypted;
+	std::shared_ptr<unsigned char> spEncrypted(new unsigned char[nOutLen], std::default_delete<unsigned char[]>());
+	memset(spEncrypted.get(), 0, nOutLen);
+	if(1 != EVP_EncryptUpdate(ctx, spEncrypted.get(), &nLen1, pSrc, nSrcLen)) 
 		return 0;
-	}	
 
 	int nLen2 = 0;
-	if(1 != EVP_EncryptFinal_ex(ctx, pEncrypted + nLen1, &nLen2)){
-		if(pEncrypted) delete []pEncrypted;
+	if(1 != EVP_EncryptFinal_ex(ctx, spEncrypted.get() + nLen1, &nLen2))
 		return 0;
-	}
 
 	nOutLen = nLen1 + nLen2;
 
 	EVP_CIPHER_CTX_free(ctx);
-	sEncrypted.assign(reinterpret_cast<const char*>(pEncrypted), nOutLen);  
-	if(pEncrypted) delete []pEncrypted;
+	sEncrypted.assign(reinterpret_cast<const char*>(spEncrypted.get()), nOutLen);  
 
 	return nOutLen;
 }
@@ -79,25 +75,23 @@ int YCrypto_AES_ex::AESDecrypt_128cbc(const std::string& sKey, const std::string
 	int nBlockSize = EVP_CIPHER_block_size(EVP_aes_128_cbc());
 	int nPlainTextLen = 0;
 	int nOutLen = nSrcLen + nBlockSize;
-	unsigned char *pDecrypted = new unsigned char[nOutLen]; memset(pDecrypted, 0, nOutLen);
+	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nOutLen], std::default_delete<unsigned char[]>());
+	memset(spDecrypted.get(), 0, nOutLen);
 	int nLen1 = 0;
-	if(1 != EVP_DecryptUpdate(ctx, pDecrypted, &nLen1, pSrc, nSrcLen)){
-		if(pDecrypted) delete []pDecrypted;
+	if(1 != EVP_DecryptUpdate(ctx, spDecrypted.get(), &nLen1, pSrc, nSrcLen))
 		return 0;
-	}
+
 	nPlainTextLen = nLen1;
 
 	int nLen2 = 0;
-	if(1 != EVP_DecryptFinal_ex(ctx, pDecrypted + nLen1, &nLen2)){
-		if(pDecrypted) delete []pDecrypted;
+	if(1 != EVP_DecryptFinal_ex(ctx, spDecrypted.get() + nLen1, &nLen2))
 		return 0;
-	}
+
 	nPlainTextLen += nLen2;
 	EVP_CIPHER_CTX_free(ctx);
 
-	sDecrypted.assign(reinterpret_cast<const char*>(pDecrypted), nPlainTextLen);
+	sDecrypted.assign(reinterpret_cast<const char*>(spDecrypted.get()), nPlainTextLen);
 
-	if(pDecrypted) delete []pDecrypted;
 	return nPlainTextLen;
 }
 
