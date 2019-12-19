@@ -22,7 +22,9 @@ bool YCrypto_RSA::PriKey_Decrypt64(const std::string& sPEMFilePath, const unsign
 	memset(pDecoded, 0, nSrcLen);
 	int nLen = YBase64::Decode(sSrc, pDecoded, nSrcLen);
 
-	return PriKey_Decrypt(sPEMFilePath, pDecoded, nLen, sDecrypted) > 0;
+	bool bRet = PriKey_Decrypt(sPEMFilePath, pDecoded, nLen, sDecrypted) > 0;
+	if(pDecoded) delete []pDecoded;
+	return bRet;
 }
 
 int YCrypto_RSA::PubKey_Encrypt(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)

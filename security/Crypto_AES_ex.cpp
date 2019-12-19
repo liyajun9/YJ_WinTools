@@ -25,7 +25,9 @@ bool YCrypto_AES_ex::AES64Decrypt_128cbc(const std::string& sKey, const std::str
 		if(pDecoded) delete []pDecoded;
 		return false;
 	}	
-	return AESDecrypt_128cbc(sKey, sIv, pDecoded, nRes, sDecrypted) > 0;
+	bool bRet = AESDecrypt_128cbc(sKey, sIv, pDecoded, nRes, sDecrypted) > 0;
+	if(pDecoded) delete []pDecoded;
+	return bRet;
 }
 
 int YCrypto_AES_ex::AESEncrypt_128cbc(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)

@@ -18,6 +18,8 @@ void YBase64::Encode(const std::string sSrc, int nSrcLen, std::string& sEncoded)
 	unsigned char *pSrc = new unsigned char[nSrcLen]; memset(pSrc, 0, nSrcLen);
 	memcpy(pSrc, sSrc.data(), nSrcLen);
 	Encode(pSrc, nSrcLen, sEncoded);
+	if(pSrc)
+		delete []pSrc;
 }
 
  void YBase64::Encode(const unsigned char *pSrc, int nSrcLen, std::string& sEncoded)
