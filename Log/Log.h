@@ -57,7 +57,7 @@ public:
 						bool bAutoEndline = false,	// whether auto add end of line
 						int loggableItem = static_cast<int>(DATETIME) | static_cast<int>(THREADID), //prefix of each line includings
 						int nExpireLogDays = 7);			// saving log for days
-	~YLog();
+	virtual ~YLog();
 
 	void LogDebug(const char* pszData, ...); 
 	void LogDebug(const wchar_t* pwszData, ...);

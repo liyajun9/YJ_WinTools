@@ -32,7 +32,7 @@ private:
 private:	
 	YSQLite();
 	YSQLite(const YSQLite& );
-	~YSQLite();
+	virtual ~YSQLite();
 
 	void operator=(const YSQLite&);
 
