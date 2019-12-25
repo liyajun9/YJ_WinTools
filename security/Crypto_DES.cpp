@@ -163,12 +163,12 @@ bool YCrypto_DES::DES64_ECB_Encrypt(const std::string& sKey, const unsigned char
 
 	//padding for encryption
 	unsigned int nLen = (nSrcLen/DES_BLOCK_SIZE + 1) * DES_BLOCK_SIZE;
-	std::shared_ptr<unsigned char> spInput(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	std::shared_ptr<unsigned char> spInput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
 	nLen = Padding(pSrc, nSrcLen, spInput.get(), nLen, DES_BLOCK_SIZE, paddingScheme);
 	if(nLen <= 0)
 		return false;
 
-	std::shared_ptr<unsigned char> spEncrypted(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	std::shared_ptr<unsigned char> spEncrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
 
 	//encrypt
 	unsigned int nCount = nLen / DES_BLOCK_SIZE;
