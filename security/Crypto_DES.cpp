@@ -5,22 +5,222 @@
 #include "Base64.h"
 #include <memory>
 
-bool YCrypto_DES::DES64_CBC_Encrypt_MD5AsKey(const std::string& sKey, const std::string& sIv,const unsigned char *pSrc, int nSrcLen, std::string& sEncrypted,  int paddingScheme)
+int YCrypto_DES::DES64_CBC_Decrypt_KeyMD5(const std::string& sKey, const std::string& sIv, const std::string& sSrc, std::string& sDecrypted, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
 {
-	if(sKey.length() < DES_BLOCK_SIZE || sIv.length() < DES_BLOCK_SIZE) return false;
+	int nLen = sSrc.length() * 2;
+	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
+	memset(spDecrypted.get(), 0, nLen);
 
-	DES_cblock key, iv;
+	nLen = DES64_CBC_Decrypt_KeyMD5(sKey, sIv, sSrc, spDecrypted.get(), nLen, paddingScheme);
+	if(nLen > 0)
+		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
+
+	return nLen;
+}
+
+int YCrypto_DES::DES64_CBC_Decrypt_KeyMD5(const std::string& sKey, const std::string& sIv, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	if(sKey.length() < DES_BLOCK_SIZE || sIv.length() < DES_BLOCK_SIZE) 
+		return false;
+
+	DES_cblock key = {}, iv = {};
+	GetMD5AsKey(sKey, &key);
+	memcpy(&iv, sIv.c_str(), DES_BLOCK_SIZE);
+
+	return DES64_CBC_Decrypt(std::string(reinterpret_cast<char*>(&key)), std::string(reinterpret_cast<char *>(&iv)), sSrc, pDecrypted, nDecryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES64_ECB_Decrypt_KeyMD5(const std::string& sKey, const std::string& sSrc,  std::string& sDecrypted, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	int nLen = sSrc.length();
+	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
+	memset(spDecrypted.get(), 0, nLen);
+
+	nLen = DES64_ECB_Decrypt_KeyMD5(sKey,  sSrc, spDecrypted.get(), nLen, paddingScheme);
+	if(nLen > 0)
+		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
+
+	return nLen;
+}
+
+int YCrypto_DES::DES64_ECB_Decrypt_KeyMD5(const std::string& sKey, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	if(sKey.length() < DES_BLOCK_SIZE ) 
+		return false;
+
+	DES_cblock key = {};
+	GetMD5AsKey(sKey, &key);
+
+	return DES64_ECB_Decrypt(std::string(reinterpret_cast<char*>(&key)), sSrc, pDecrypted, nDecryptLen, paddingScheme);
+}
+
+bool YCrypto_DES::DES64_CBC_Encrypt_KeyMD5(const std::string& sKey, const std::string& sIv,const unsigned char *pSrc, int nSrcLen, std::string& sEncrypted,  int paddingScheme /*= padding_scheme::padding_pkcs5*/)
+{
+	if(sKey.length() < DES_BLOCK_SIZE || sIv.length() < DES_BLOCK_SIZE) 
+		return false;
+
+	DES_cblock key = {}, iv = {};
 	GetMD5AsKey(sKey, &key);
 	memcpy(&iv, sIv.c_str(), DES_BLOCK_SIZE);
 
 	return DES64_CBC_Encrypt(std::string(reinterpret_cast<char *>(&key), DES_BLOCK_SIZE), std::string(reinterpret_cast<char *>(&iv), DES_BLOCK_SIZE), pSrc, nSrcLen, sEncrypted, paddingScheme);
 }
 
-bool YCrypto_DES::DES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,const unsigned char *pSrc, int nSrcLen, std::string& sEncrypted,  int paddingScheme)
+bool YCrypto_DES::DES64_ECB_Encrypt_KeyMD5(const std::string& sKey, const unsigned char *pSrc, int nSrcLen, std::string& sEncrypted,  int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	if(sKey.length() < DES_BLOCK_SIZE ) 
+		return false;
+
+	DES_cblock key = {};
+	GetMD5AsKey(sKey, &key);
+
+	return DES64_ECB_Encrypt(std::string(reinterpret_cast<char*>(&key)), pSrc, nSrcLen, sEncrypted, paddingScheme);
+}
+
+int YCrypto_DES::DES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const std::string& sSrc, std::string& sDecrypted, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+
+	return DES64_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, sDecrypted, paddingScheme);
+}
+
+int YCrypto_DES::DES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const char* pSrc, int nSrcLen, std::string& sDecrypted, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	return DES64_CBC_Decrypt(sKey, sIv, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sDecrypted, paddingScheme);
+}
+
+int YCrypto_DES::DES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, std::string& sDecrypted, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	//prepare buffer size = nSrcLen, because cipher length must less than plain length for DES64
+	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	memset(spDecrypted.get(), 0, nSrcLen);
+
+	int nLen(0);
+	nLen = DES64_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, spDecrypted.get(), nLen, paddingScheme);
+	if(nLen > 0)
+		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
+
+	return nLen;
+}
+
+int YCrypto_DES::DES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+
+	return DES64_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, pDecrypted, nDecryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const char *pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	return DES64_CBC_Decrypt(sKey, sIv, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, pDecrypted, nDecryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const unsigned char *pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	if(sKey.length() < DES_BLOCK_SIZE || sIv.length() < DES_BLOCK_SIZE) 
+		return 0;
+
+	DES_cblock key = {}, iv = {};
+	memcpy(&key, sKey.c_str(), DES_BLOCK_SIZE);
+	memcpy(&iv, sIv.c_str(), DES_BLOCK_SIZE);
+	DES_key_schedule schedule;
+	DES_set_key_unchecked(&key, &schedule);
+
+	//prepare buffer size = nSrcLen for base64 decode result
+	std::shared_ptr<unsigned char> spInput(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	memset(spInput.get(), 0, nSrcLen);
+	int nLen(0);
+	nLen = YBase64::Decode(pSrc, nSrcLen, spInput.get(), nSrcLen);
+	if(nLen <= 0 || nDecryptLen < nLen)
+		return 0;
+
+	//decrypt
+	int nOutLen = DES_CBC_Decrypt(&key, &iv, spInput.get(), nLen, pDecrypted, nDecryptLen, paddingScheme);
+
+	return nOutLen;
+}
+
+int YCrypto_DES::DES64_ECB_Decrypt(const std::string& sKey, const std::string& sSrc,  std::string& sDecrypted, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+
+	return DES64_ECB_Decrypt(sKey, pSrc, nSrcLen, sDecrypted, paddingScheme);
+}
+
+int YCrypto_DES::DES64_ECB_Decrypt(const std::string& sKey, const char* pSrc, int nSrcLen,  std::string& sDecrypted, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	return DES64_ECB_Decrypt(sKey, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sDecrypted, paddingScheme);
+}
+
+int YCrypto_DES::DES64_ECB_Decrypt(const std::string& sKey, const unsigned char* pSrc, int nSrcLen,  std::string& sDecrypted, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	//prepare buffer size = nSrcLen, because cipher length must less than plain length for DES64
+	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	memset(spDecrypted.get(), 0, nSrcLen);
+
+	int nLen(0);
+	nLen = DES64_ECB_Decrypt(sKey,  pSrc, nSrcLen, spDecrypted.get(), nSrcLen, paddingScheme);
+	if(nLen > 0)
+		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
+
+	return nLen;
+}
+
+int YCrypto_DES::DES64_ECB_Decrypt(const std::string& sKey, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme /*= padding_pkcs5*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+
+	return DES64_ECB_Decrypt(sKey, pSrc, nSrcLen, pDecrypted, nDecryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES64_ECB_Decrypt(const std::string& sKey, const char* pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme /*= padding_pkcs5*/)
+{
+	return DES64_ECB_Decrypt(sKey, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, pDecrypted, nDecryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES64_ECB_Decrypt(const std::string& sKey, const unsigned char* pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	if(sKey.length() < DES_BLOCK_SIZE) 
+		return 0;
+
+	//prepare buffer size = nSrcLen, because base64 decode result has a less length
+	std::shared_ptr<unsigned char> spInput(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	memset(spInput.get(), 0, nSrcLen);
+	int nLen(0); 
+	nLen = YBase64::Decode(pSrc, nSrcLen, spInput.get(), nSrcLen); 
+	if(nLen <= 0 || nDecryptLen < nLen)
+		return 0;
+
+	DES_cblock key = {};
+	memcpy(&key, sKey.c_str(), DES_BLOCK_SIZE);
+
+	int nOutLen = DES_ECB_Decrypt(&key, spInput.get(), nLen, pDecrypted, nDecryptLen, paddingScheme);
+
+	return nOutLen;
+}
+
+bool YCrypto_DES::DES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const std::string& sSrc, std::string& sEncrypted,  int paddingScheme /*= padding_pkcs5*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+
+	return DES64_CBC_Encrypt(sKey, sIv, pSrc, nSrcLen, sEncrypted, paddingScheme);
+}
+
+bool YCrypto_DES::DES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const char *pSrc, int nSrcLen, std::string& sEncrypted,  int paddingScheme /*= padding_pkcs5*/)
+{
+	return DES64_CBC_Encrypt(sKey, sIv, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sEncrypted, paddingScheme);
+}
+
+bool YCrypto_DES::DES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,const unsigned char *pSrc, int nSrcLen, std::string& sEncrypted,  int paddingScheme/*= padding_scheme::padding_pkcs5*/)
 {
 	if(sKey.length() < DES_BLOCK_SIZE || sIv.length() < DES_BLOCK_SIZE) return false;
 
-	DES_cblock key, iv;
+	DES_cblock key = {}, iv = {};
 	memcpy(&key, sKey.c_str(), DES_BLOCK_SIZE);
 	memcpy(&iv, sIv.c_str(), DES_BLOCK_SIZE);
 	DES_key_schedule schedule;
@@ -34,7 +234,7 @@ bool YCrypto_DES::DES64_CBC_Encrypt(const std::string& sKey, const std::string& 
 		return false;
 
 	std::shared_ptr<unsigned char> spOutput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-	 memset(spOutput.get(), 0, nLen);
+	memset(spOutput.get(), 0, nLen);
 
 	//decrypt
 	DES_cbc_encrypt(spInput.get(), spOutput.get(), nLen, &schedule, &iv, DES_ENCRYPT);
@@ -44,85 +244,79 @@ bool YCrypto_DES::DES64_CBC_Encrypt(const std::string& sKey, const std::string& 
 	return true;
 }
 
-int YCrypto_DES::DES64_CBC_Decrypt_MD5AsKey(const std::string& sKey, const std::string& sIv, const std::string& sSrc, std::string& sDecrypted, int paddingScheme)
+bool YCrypto_DES::DES64_ECB_Encrypt(const std::string& sKey, const std::string& sSrc, std::string& sEncrypted,  int paddingScheme /*= padding_pkcs5*/)
 {
-	int nLen = sSrc.length() * 2;
-	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-	memset(spDecrypted.get(), 0, nLen);
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
 
-	nLen = DES64_CBC_Decrypt_MD5AsKey(sKey, sIv, sSrc, spDecrypted.get(), nLen, paddingScheme);
-	if(nLen > 0)
-		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
-
-	return nLen;
+	return DES64_ECB_Encrypt(sKey, pSrc, nSrcLen, sEncrypted, paddingScheme);
 }
 
-int YCrypto_DES::DES64_CBC_Decrypt_MD5AsKey(const std::string& sKey, const std::string& sIv, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme)
+bool YCrypto_DES::DES64_ECB_Encrypt(const std::string& sKey, const char *pSrc, int nSrcLen, std::string& sEncrypted,  int paddingScheme /*= padding_pkcs5*/)
 {
-	if(sKey.length() < DES_BLOCK_SIZE || sIv.length() < DES_BLOCK_SIZE) return false;
-
-	DES_cblock key, iv;
-	GetMD5AsKey(sKey, &key);
-	memcpy(&iv, sIv.c_str(), DES_BLOCK_SIZE);
-
-	return DES64_CBC_Decrypt(std::string(reinterpret_cast<char*>(&key)), std::string(reinterpret_cast<char *>(&iv)), sSrc, pDecrypted, nDecryptLen, paddingScheme);
+	return DES64_ECB_Encrypt(sKey, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sEncrypted, paddingScheme);
 }
 
-int YCrypto_DES::DES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const std::string& sSrc, std::string& sDecrypted, int paddingScheme)
+bool YCrypto_DES::DES64_ECB_Encrypt(const std::string& sKey, const unsigned char *pSrc, int nSrcLen, std::string& sEncrypted,  int paddingScheme/*= padding_scheme::padding_pkcs5*/)
 {
-	int nLen = sSrc.length();
-	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-	memset(spDecrypted.get(), 0, nLen);
+	if(sKey.length() < DES_BLOCK_SIZE) 
+		return false;
 
-	nLen = DES64_CBC_Decrypt(sKey, sIv, sSrc, spDecrypted.get(), nLen, paddingScheme);
-	if(nLen > 0)
-		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
-
-	return nLen;
-}
-
-int YCrypto_DES::DES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme)
-{
-	if(sKey.length() < DES_BLOCK_SIZE || sIv.length() < DES_BLOCK_SIZE) return 0;
-
-	DES_cblock key, iv;
+	DES_cblock key = {};
 	memcpy(&key, sKey.c_str(), DES_BLOCK_SIZE);
-	memcpy(&iv, sIv.c_str(), DES_BLOCK_SIZE);
 	DES_key_schedule schedule;
 	DES_set_key_unchecked(&key, &schedule);
 
-	int nLen = sSrc.length();
-	std::shared_ptr<unsigned char> spInput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-	memset(spInput.get(), 0, nLen);
-	nLen = YBase64::Decode(sSrc, spInput.get(), nLen);
-	if(nLen <= 0 || nDecryptLen < nLen)
-		return 0;
-
-	//decrypt
-	int nOutLen = DES_CBC_Decrypt(&key, &iv, spInput.get(), nLen, pDecrypted, nDecryptLen, paddingScheme);
-
-	return nOutLen;
-}
-
-int YCrypto_DES::DES_CBC_Encrypt(DES_cblock* pKey, DES_cblock* pIv, const unsigned char *pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme)
-{
-	DES_key_schedule schedule;
-	DES_set_key_unchecked(pKey, &schedule);
-
-	//padding for encryption
-	int nLen  = (nSrcLen/DES_BLOCK_SIZE + 1) * DES_BLOCK_SIZE;
+	//padding
+	unsigned int nLen = (nSrcLen / DES_BLOCK_SIZE + 1) * DES_BLOCK_SIZE;
 	std::shared_ptr<unsigned char> spInput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
 	nLen = Padding(pSrc, nSrcLen, spInput.get(), nLen, DES_BLOCK_SIZE, paddingScheme);
-	if(nLen <= 0 || nEncryptLen < nLen)
-		return 0;
+	if(nLen <= 0)
+		return false;
+
+	std::shared_ptr<unsigned char> spEncrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
 
 	//encrypt
-	DES_cbc_encrypt(spInput.get(), pEncrypted, nLen, &schedule, pIv, DES_ENCRYPT);
+	unsigned int nCount = nLen / DES_BLOCK_SIZE;
+	DES_cblock input = {}, output = {};
+	for(unsigned int i=0; i<nCount; i++){
+		memcpy(input, &(spInput.get()[i * DES_BLOCK_SIZE]), DES_BLOCK_SIZE);
+		DES_ecb_encrypt(&input, &output, &schedule, DES_ENCRYPT);
+		memcpy(&(spEncrypted.get()[i * DES_BLOCK_SIZE]), output, DES_BLOCK_SIZE);
+	}
 
-	return nLen;
+	YBase64::Encode(spEncrypted.get(), nLen, sEncrypted);
+
+	return true;
 }
 
-int YCrypto_DES::DES_CBC_Decrypt(const_DES_cblock* pKey, DES_cblock* pIv, const unsigned char *pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme)
+int YCrypto_DES::DES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+
+	return DES_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, pDecrypted, nDecryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const char *pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	return DES_CBC_Decrypt(sKey, sIv, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, pDecrypted, nDecryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const unsigned char *pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	if(sKey.length() < DES_BLOCK_SIZE || sIv.length() < DES_BLOCK_SIZE)
+		return 0;
+
+	DES_cblock desKey = {};
+	DES_cblock desIv = {};
+	memcpy(&desKey, sKey.data(), DES_BLOCK_SIZE);
+	memcpy(&desIv, sIv.data(), DES_BLOCK_SIZE);
+
+	return DES_CBC_Decrypt(&desKey, &desIv, pSrc, nSrcLen, pDecrypted, nDecryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES_CBC_Decrypt(const_DES_cblock* pKey, DES_cblock* pIv, const unsigned char *pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
 {
 	DES_key_schedule schedule;
 	DES_set_key_unchecked(pKey, &schedule);
@@ -142,107 +336,31 @@ int YCrypto_DES::DES_CBC_Decrypt(const_DES_cblock* pKey, DES_cblock* pIv, const 
 	return nLen;
 }
 
-bool YCrypto_DES::DES64_ECB_Encrypt_MD5AsKey(const std::string& sKey, const unsigned char *pSrc, int nSrcLen, std::string& sEncrypted,  int paddingScheme)
+int YCrypto_DES::DES_ECB_Decrypt(const std::string& sKey, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
 {
-		if(sKey.length() < DES_BLOCK_SIZE ) return false;
-	
-		DES_cblock key;
-		GetMD5AsKey(sKey, &key);
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
 
-		return DES64_ECB_Encrypt(std::string(reinterpret_cast<char*>(&key)), pSrc, nSrcLen, sEncrypted, paddingScheme);
+	return DES_ECB_Decrypt(sKey, pSrc, nSrcLen, pDecrypted, nDecryptLen, paddingScheme);
 }
 
-bool YCrypto_DES::DES64_ECB_Encrypt(const std::string& sKey, const unsigned char *pSrc, int nSrcLen, std::string& sEncrypted,  int paddingScheme)
+int YCrypto_DES::DES_ECB_Decrypt(const std::string& sKey, const char *pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
 {
-	if(sKey.length() < DES_BLOCK_SIZE) return false;
-
-	DES_cblock key;
-	memcpy(&key, sKey.c_str(), DES_BLOCK_SIZE);
-	DES_key_schedule schedule;
-	DES_set_key_unchecked(&key, &schedule);
-
-	//padding for encryption
-	unsigned int nLen = (nSrcLen/DES_BLOCK_SIZE + 1) * DES_BLOCK_SIZE;
-	std::shared_ptr<unsigned char> spInput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-	nLen = Padding(pSrc, nSrcLen, spInput.get(), nLen, DES_BLOCK_SIZE, paddingScheme);
-	if(nLen <= 0)
-		return false;
-
-	std::shared_ptr<unsigned char> spEncrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-
-	//encrypt
-	unsigned int nCount = nLen / DES_BLOCK_SIZE;
-	DES_cblock input, output;
-	for(unsigned int i=0; i<nCount; i++){
-		memset(input, 0, DES_BLOCK_SIZE);
-		memcpy(input, &(spInput.get()[i * DES_BLOCK_SIZE]), DES_BLOCK_SIZE);
-		memset(output, 0, DES_BLOCK_SIZE);
-
-		DES_ecb_encrypt(&input, &output, &schedule, DES_ENCRYPT);
-		memcpy(&(spEncrypted.get()[i * DES_BLOCK_SIZE]), output, DES_BLOCK_SIZE);
-	}
-
-	YBase64::Encode(spEncrypted.get(), nLen, sEncrypted);
-
-	return true;
+	return DES_ECB_Decrypt(sKey, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, pDecrypted, nDecryptLen, paddingScheme);
 }
 
-int YCrypto_DES::DES64_ECB_Decrypt_MD5AsKey(const std::string& sKey, const std::string& sSrc,  std::string& sDecrypted, int paddingScheme)
+int YCrypto_DES::DES_ECB_Decrypt(const std::string& sKey, const unsigned char *pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
 {
-	int nLen = sSrc.length();
-	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-	memset(spDecrypted.get(), 0, nLen);
-
-	nLen = DES64_ECB_Decrypt_MD5AsKey(sKey,  sSrc, spDecrypted.get(), nLen, paddingScheme);
-	if(nLen > 0)
-		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
-
-	return nLen;
-}
-
-int YCrypto_DES::DES64_ECB_Decrypt_MD5AsKey(const std::string& sKey, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme)
-{
-	if(sKey.length() < DES_BLOCK_SIZE ) return false;
-
-	DES_cblock key;
-	GetMD5AsKey(sKey, &key);
-
-	return DES64_ECB_Decrypt(std::string(reinterpret_cast<char*>(&key)), sSrc, pDecrypted, nDecryptLen, paddingScheme);
-}
-
-int YCrypto_DES::DES64_ECB_Decrypt(const std::string& sKey, const std::string& sSrc,  std::string& sDecrypted, int paddingScheme)
-{
-	int nLen = sSrc.length();
-	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-	memset(spDecrypted.get(), 0, nLen);
-
-	nLen = DES64_ECB_Decrypt(sKey,  sSrc, spDecrypted.get(), nLen, paddingScheme);
-	if(nLen > 0)
-		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
-
-	return nLen;
-}
-
-int YCrypto_DES::DES64_ECB_Decrypt(const std::string& sKey, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme)
-{
-	if(sKey.length() < DES_BLOCK_SIZE) return 0;
-
-	int nLen = sSrc.length(); 
-	std::shared_ptr<unsigned char> spInput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-	memset(spInput.get(), 0, nLen);
-	nLen = YBase64::Decode(sSrc, spInput.get(), nLen);
-	if(nLen <= 0 || nDecryptLen < nLen)
+	if(sKey.length() < DES_BLOCK_SIZE)
 		return 0;
 
-	DES_cblock key;
-	memcpy(&key, sKey.c_str(), DES_BLOCK_SIZE);
+	DES_cblock desKey = {};
+	memcpy(&desKey, sKey.data(), DES_BLOCK_SIZE);
 
-	int nOutLen = DES_ECB_Decrypt(&key, spInput.get(), nLen, pDecrypted, nDecryptLen, paddingScheme);
-
-	return nOutLen;
+	return DES_ECB_Decrypt(&desKey, pSrc, nSrcLen, pDecrypted, nDecryptLen, paddingScheme);
 }
 
-int YCrypto_DES::DES_ECB_Decrypt(const_DES_cblock* pKey, const unsigned char *pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme)
+int YCrypto_DES::DES_ECB_Decrypt(const_DES_cblock* pKey, const unsigned char *pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
 {
 	DES_key_schedule schedule;
 	DES_set_key_unchecked(pKey, &schedule);
@@ -271,7 +389,75 @@ int YCrypto_DES::DES_ECB_Decrypt(const_DES_cblock* pKey, const unsigned char *pS
 	return nLen;
 }
 
-int YCrypto_DES::DES_ECB_Encrypt(const_DES_cblock* pKey, const unsigned char *pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme)
+int YCrypto_DES::DES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const std::string& sSrc, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+
+	return DES_CBC_Encrypt(sKey, sIv, pSrc, nSrcLen, pEncrypted, nEncryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const char *pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	return DES_CBC_Encrypt(sKey, sIv, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, pEncrypted, nEncryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const unsigned char *pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	if(sKey.length() < DES_BLOCK_SIZE || sIv.length() < DES_BLOCK_SIZE)
+		return 0;
+
+	DES_cblock desKey = {};
+	DES_cblock desIv = {};
+	memcpy(&desKey, sKey.data(), DES_BLOCK_SIZE);
+	memcpy(&desIv, sIv.data(), DES_BLOCK_SIZE);
+
+	return DES_CBC_Encrypt(&desKey, &desIv, pSrc, nSrcLen, pEncrypted, nEncryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES_CBC_Encrypt(DES_cblock* pKey, DES_cblock* pIv, const unsigned char *pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
+{
+	DES_key_schedule schedule;
+	DES_set_key_unchecked(pKey, &schedule);
+
+	//padding for encryption
+	int nLen  = (nSrcLen/DES_BLOCK_SIZE + 1) * DES_BLOCK_SIZE;
+	std::shared_ptr<unsigned char> spInput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
+	nLen = Padding(pSrc, nSrcLen, spInput.get(), nLen, DES_BLOCK_SIZE, paddingScheme);
+	if(nLen <= 0 || nEncryptLen < nLen)
+		return 0;
+
+	//encrypt
+	DES_cbc_encrypt(spInput.get(), pEncrypted, nLen, &schedule, pIv, DES_ENCRYPT);
+
+	return nLen;
+}
+
+int YCrypto_DES::DES_ECB_Encrypt(const std::string& sKey, const std::string& sSrc, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme /*= padding_pkcs5*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+
+	return DES_ECB_Encrypt(sKey, pSrc, nSrcLen, pEncrypted, nEncryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES_ECB_Encrypt(const std::string& sKey, const char *pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/* = padding_pkcs5*/)
+{
+	return DES_ECB_Encrypt(sKey, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, pEncrypted, nEncryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES_ECB_Encrypt(const std::string& sKey, const unsigned char *pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme /*= padding_pkcs5*/)
+{
+	if(sKey.length() < DES_BLOCK_SIZE)
+		return 0;
+
+	DES_cblock desKey = {};
+	memcpy(&desKey, sKey.data(), DES_BLOCK_SIZE);
+
+	return DES_ECB_Encrypt(&desKey, pSrc, nSrcLen, pEncrypted, nEncryptLen, paddingScheme);
+}
+
+int YCrypto_DES::DES_ECB_Encrypt(const_DES_cblock* pKey, const unsigned char *pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/*= padding_scheme::padding_pkcs5*/)
 {
 	DES_key_schedule schedule;
 	DES_set_key_unchecked(pKey, &schedule);
