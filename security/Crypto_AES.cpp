@@ -5,6 +5,18 @@
 #include "Base64.h"
 #include <memory>
 
+bool YCrypto_AES::AES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,  const std::string& sSrc, std::string& sEncrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+	return AES64_CBC_Encrypt(sKey, sIv, pSrc, nSrcLen, sEncrypted, paddingScheme, nKeyBits);
+}
+
+bool YCrypto_AES::AES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,  const char* pSrc, int nSrcLen, std::string& sEncrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+{
+	return AES64_CBC_Encrypt(sKey, sIv, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sEncrypted, paddingScheme, nKeyBits);
+}
+
 bool YCrypto_AES::AES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,  const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
 {
 	if(sKey.length() < AES_BLOCK_SIZE || sIv.length() < AES_BLOCK_SIZE) return false;
@@ -35,6 +47,18 @@ bool YCrypto_AES::AES64_CBC_Encrypt(const std::string& sKey, const std::string& 
 
 int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const std::string sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
 {
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+	return AES64_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, pDecrypted, nDecryptLen, paddingScheme, nKeyBits);
+}
+
+int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const char* pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+{
+	return AES64_CBC_Decrypt(sKey, sIv, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, pDecrypted, nDecryptLen, paddingScheme, nKeyBits);
+}
+
+int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const unsigned char* pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+{
 	if(sKey.length() < AES_BLOCK_SIZE || sIv.length() < AES_BLOCK_SIZE) return 0;
 
 	AES_KEY key;
@@ -43,10 +67,10 @@ int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& s
 	AES_cblock iv;
 	memcpy(&iv, sIv.c_str(), AES_BLOCK_SIZE);
 
-	int nLen = sSrc.length();
-	std::shared_ptr<unsigned char> spInput(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-	memset(spInput.get(), 0, nLen);
-	nLen = YBase64::Decode(sSrc, spInput.get(), nLen);
+	//prepare buffer size = nSrcLen, because base64 decode result has a less length
+	std::shared_ptr<unsigned char> spInput(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	memset(spInput.get(), 0, nSrcLen);
+	int nLen = YBase64::Decode(pSrc, nSrcLen, spInput.get(), nLen);
 	if(nLen <= 0 || nDecryptLen < nLen)
 		return 0;
 
@@ -56,15 +80,38 @@ int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& s
 
 int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const std::string sSrc, std::string& sDecrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
 {
-	int nLen =sSrc.length();
-	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nLen], std::default_delete<unsigned char[]>());
-	memset(spDecrypted.get(), 0, nLen);
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+	return AES64_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, sDecrypted, paddingScheme, nKeyBits);
+}
 
-	nLen = AES64_CBC_Decrypt(sKey, sIv, sSrc, spDecrypted.get(), nLen, paddingScheme, nKeyBits);
+int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const char* pSrc, int  nSrcLen, std::string& sDecrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+{
+	return AES64_CBC_Decrypt(sKey, sIv, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sDecrypted, paddingScheme, nKeyBits);
+}
+
+int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const unsigned char* pSrc, int  nSrcLen, std::string& sDecrypted, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+{
+	std::shared_ptr<unsigned char> spDecrypted(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
+	memset(spDecrypted.get(), 0, nSrcLen);
+
+	int nLen = AES64_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, spDecrypted.get(), nLen, paddingScheme, nKeyBits);
 	if(nLen > 0)
 		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
 
 	return nLen;
+}
+
+int YCrypto_AES::AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const std::string& sSrc, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+	return AES_CBC_Encrypt(sKey, sIv, pSrc, nSrcLen, pEncrypted, nEncryptLen, paddingScheme, nKeyBits);
+}
+
+int YCrypto_AES::AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const char* pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+{
+	return AES_CBC_Encrypt(sKey, sIv, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, pEncrypted, nEncryptLen, paddingScheme, nKeyBits);
 }
 
 int YCrypto_AES::AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
@@ -89,6 +136,18 @@ int YCrypto_AES::AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv
 		AES_cbc_encrypt(spInput.get(), pEncrypted, nLen, &key, iv, AES_ENCRYPT);
 	
 		return nLen;
+}
+
+int YCrypto_AES::AES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+	return AES_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, pDecrypted, nDecryptLen, paddingScheme, nKeyBits);
+}
+
+int YCrypto_AES::AES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const char* pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)
+{
+	return AES_CBC_Decrypt(sKey, sIv, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, pDecrypted, nDecryptLen, paddingScheme, nKeyBits);
 }
 
 int YCrypto_AES::AES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme/*= padding_pkcs7*/, int nKeyBits/* = 128*/)

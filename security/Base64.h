@@ -18,6 +18,8 @@ public:
 		return: 0 - decode failed.  > 0  length of output data
 		remark: pDecoded should be big enough otherwise result will be truncated
 	*/
+	static int Decode(const char* pSrc, int nSrcLen, unsigned char* pDecoded, int nDecodedLen);
+	static int Decode(const unsigned char* pSrc, int nSrcLen, unsigned char* pDecoded, int nDecodedLen);
 	static int Decode(const std::string& sSrc, unsigned char* pDecoded, int nDecodedLen);
 
 private:

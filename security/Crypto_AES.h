@@ -7,41 +7,69 @@
 typedef unsigned char AES_cblock[16];
 
 class YCrypto_AES{
-	//CBC modd
-public:
-/*AES(CBC mode)	 encrypt and Base64 encode*/
-static bool AES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,  const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted, int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
-/*Base64 decode and AES(CBC mode)	decrypt*/
-static int AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const std::string sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
-static int AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  const std::string sSrc, std::string& sDecrypted, int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);//输出为string和int，此函数是为了方便使用，不需要编程者自己创建输出buffer
 
 public:
-	/*AES encrypt(CBC mode)
-		parameters:
-			sKey: AES key
-			nKeyBits: 128/192/256
-			sIv: initial vector
-			pSrc: source data
-			nSrcLen: length of source data in bytes
-			pEncrypted: buffer to receive encrypted data
-			nEncryptLen: buffer length
-			paddingCheme: padding scheme
-		return: length of output data
+	/*
+		Encrypt and base64
+		return : true on success, false on failure
 	*/
+	static bool AES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,  
+																	const std::string& sSrc, 
+																	std::string& sEncrypted, 
+																	int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+	static bool AES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,  
+																	const char* pSrc, int nSrcLen, 
+																	std::string& sEncrypted, 
+																	int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+	static bool AES64_CBC_Encrypt(const std::string& sKey, const std::string& sIv,  
+																	const unsigned char* pSrc, int nSrcLen, 
+																	std::string& sEncrypted, 
+																	int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+
+	/*
+		Base64 and decrypt
+		return: size of decrypted data on success,  0 on failure
+	*/
+	static int AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  
+																	const char* pSrc, int nSrcLen,
+																	unsigned char *pDecrypted, int nDecryptLen, 
+																	int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+	static int AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  
+																	const unsigned char* pSrc, int nSrcLen,
+																	unsigned char *pDecrypted, int nDecryptLen, 
+																	int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+	static int AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  
+																const std::string sSrc, 
+																unsigned char *pDecrypted, int nDecryptLen, 
+																int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+
+	static int AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  
+																const char* pSrc, int  nSrcLen,
+																std::string& sDecrypted, 
+																int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+	static int AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  
+																const unsigned char* pSrc, int  nSrcLen,
+																std::string& sDecrypted, 
+																int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+	static int AES64_CBC_Decrypt(const std::string& sKey, const std::string& sIv,  
+																const std::string sSrc, 
+																std::string& sDecrypted, 
+																int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+
+public:
+	/*
+	encrypt
+	return: size of encrypted data on success,  0 on failure
+	*/
+	static int AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const std::string& sSrc, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+	static int AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const char* pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
 	static int AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, unsigned char *pEncrypted, int nEncryptLen, int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
 
-		/*AES decrypt(CBC mode)
-		parameters:
-			sKey: AES key
-			nKeyBits: 128/192/256
-			sIv: initial vector
-			pSrc: source data
-			nSrcLen: length of source data in bytes
-			pDecrypted: buffer to receive decrypted data
-			nDecryptLen: buffer length
-			paddingCheme: padding scheme
-		return: length of output data
+	/*decrypt
+		return: size of decrypted data on success,  0 on failure
 	*/
+	static int AES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const std::string& sSrc, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
+	static int AES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const char* pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
 	static int AES_CBC_Decrypt(const std::string& sKey, const std::string& sIv, const unsigned char* pSrc, int nSrcLen, unsigned char *pDecrypted, int nDecryptLen, int paddingScheme= padding_scheme::padding_pkcs7, int nKeyBits = 128);
 
 public:
