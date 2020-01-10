@@ -6,14 +6,12 @@
 class YBase64{
 /*Fast-use methods*/
 public:
+	static std::string Encode(const char* pSrc, int nSrcLen);
 	static std::string Encode(const unsigned char *pSrc, int nSrcLen);
 	static std::string Encode(const std::string sSrc, int nSrcLen);
 
-public:
-	/*Encode: input binary array*/
+	static void Encode(const char *pSrc, int nSrcLen, std::string& sEncoded);
 	static void Encode(const unsigned char *pSrc, int nSrcLen, std::string& sEncoded);
-
-	/*Encode: input text string*/
 	static void Encode(const std::string sSrc, int nSrcLen, std::string& sEncoded);
 
 	/*Decode

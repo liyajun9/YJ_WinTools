@@ -7,6 +7,11 @@ static const std::string base64_chars =
 	"abcdefghijklmnopqrstuvwxyz"
 	"0123456789+/";
 
+std::string YBase64::Encode(const char* pSrc, int nSrcLen)
+{
+	return Encode(reinterpret_cast<const unsigned char*>(pSrc), nSrcLen);
+}
+
 std::string YBase64::Encode(const unsigned char *pSrc, int nSrcLen)
 {
 	std::string sEncoded;
@@ -20,6 +25,11 @@ void YBase64::Encode(const std::string sSrc, int nSrcLen, std::string& sEncoded)
 	memset(spSrc.get(), 0, nSrcLen); memcpy(spSrc.get(), sSrc.data(), nSrcLen);
 	Encode(spSrc.get(), nSrcLen, sEncoded);
 }
+
+ void YBase64::Encode(const char *pSrc, int nSrcLen, std::string& sEncoded)
+ {
+	 Encode(reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sEncoded);
+ }
 
  void YBase64::Encode(const unsigned char *pSrc, int nSrcLen, std::string& sEncoded)
  {
