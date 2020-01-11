@@ -6,14 +6,17 @@
 
 #pragma warning(disable:4996)
 
-bool YCrypto_RSA::PubKey_Encrypt64(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
+bool YCrypto_RSA::PriKey_Decrypt64(const std::string& sPEMFilePath, const std::string& sSrc, std::string& sDecrypted)
 {
-	std::string sTmp;
-	int nLen = PubKey_Encrypt(sPEMFilePath, pSrc, nSrcLen, sTmp);
-	if(0 >= nLen)		return false;
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
 
-	YBase64::Encode(sTmp, nLen, sEncrypted);
-	return true;
+	return PriKey_Decrypt64(sPEMFilePath, pSrc, nSrcLen, sDecrypted);
+}
+
+bool YCrypto_RSA::PriKey_Decrypt64(const std::string& sPEMFilePath, const char *pSrc, int nSrcLen, std::string& sDecrypted)
+{
+	return PriKey_Decrypt64(sPEMFilePath, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sDecrypted);
 }
 
 bool YCrypto_RSA::PriKey_Decrypt64(const std::string& sPEMFilePath, const unsigned char *pSrc, int nSrcLen, std::string& sDecrypted)
@@ -27,49 +30,40 @@ bool YCrypto_RSA::PriKey_Decrypt64(const std::string& sPEMFilePath, const unsign
 	return bRet;
 }
 
-int YCrypto_RSA::PubKey_Encrypt(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
+bool YCrypto_RSA::PubKey_Encrypt64(const std::string& sPEMFilePath, const std::string& sSrc, std::string& sEncrypted)
 {
-	sEncrypted.clear();
-	FILE* pPubKeyFile = fopen(sPEMFilePath.c_str(), "rb");
-	if(pPubKeyFile == NULL)
-		return 0;
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
 
-	RSA *pPubKey = RSA_new();
-	pPubKey = PEM_read_RSA_PUBKEY(pPubKeyFile, &pPubKey, NULL, NULL);
+	return PubKey_Encrypt64(sPEMFilePath, pSrc, nSrcLen, sEncrypted);
+}
 
-	fclose(pPubKeyFile);
-	if(pPubKey == NULL)
-		return 0;
+bool YCrypto_RSA::PubKey_Encrypt64(const std::string& sPEMFilePath, const char* pSrc, int nSrcLen, std::string& sEncrypted)
+{
+	return PubKey_Encrypt64(sPEMFilePath, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sEncrypted);
+}
 
-	int nRemain = nSrcLen;
-	int nModulusLen = RSA_size(pPubKey);	//cipher text length
-	std::shared_ptr<unsigned char> spUnitDst(new unsigned char[nModulusLen], std::default_delete<unsigned char[]>());
-	int nUnitLen = nModulusLen - 11; //PKCS#1 padding
-		
-	int nCurrLen = 0;
-	int nPos = 0;
-	int nOutLen = 0;
+bool YCrypto_RSA::PubKey_Encrypt64(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
+{
+	std::string sTmp;
+	int nLen = PubKey_Encrypt(sPEMFilePath, pSrc, nSrcLen, sTmp);
+	if(0 >= nLen)		return false;
 
-	while(nRemain > 0){
-		if(nRemain > nUnitLen)
-			nCurrLen = nUnitLen;
-		else
-			nCurrLen = nRemain;
+	YBase64::Encode(sTmp, nLen, sEncrypted);
+	return true;
+}
 
-		memset(spUnitDst.get(), 0, nModulusLen);
-		int nRes = RSA_public_encrypt(nCurrLen, pSrc + nPos, spUnitDst.get(), pPubKey, RSA_PKCS1_PADDING);
-		if(nRes < 0)
-			break;
+int YCrypto_RSA::PriKey_Decrypt(const std::string& sPEMFilePath, const std::string& sSrc, std::string& sDecrypted)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
 
-		sEncrypted.append(reinterpret_cast<char *>(spUnitDst.get()), nRes);
+	return PriKey_Decrypt(sPEMFilePath, pSrc, nSrcLen, sDecrypted);
+}
 
-		nRemain -= nCurrLen;
-		nPos += nCurrLen;
-		nOutLen += nRes;
-	}
-	RSA_free(pPubKey);
-	CRYPTO_cleanup_all_ex_data();
-	return nOutLen;
+int YCrypto_RSA::PriKey_Decrypt(const std::string& sPEMFilePath, const char *pSrc, int nSrcLen, std::string& sDecrypted)
+{
+	return PriKey_Decrypt(sPEMFilePath, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sDecrypted);
 }
 
 int YCrypto_RSA::PriKey_Decrypt(const std::string& sPEMFilePath, const unsigned char *pSrc, int nSrcLen, std::string& sDecrypted)
@@ -113,6 +107,64 @@ int YCrypto_RSA::PriKey_Decrypt(const std::string& sPEMFilePath, const unsigned 
 	}
 
 	RSA_free(pPriKey);
+	CRYPTO_cleanup_all_ex_data();
+	return nOutLen;
+}
+
+int YCrypto_RSA::PubKey_Encrypt(const std::string& sPEMFilePath, const std::string& sSrc, std::string& sEncrypted)
+{
+	const unsigned char* pSrc = reinterpret_cast<const unsigned char*>(sSrc.c_str());
+	int nSrcLen = sSrc.length();
+
+	return PubKey_Encrypt(sPEMFilePath, pSrc, nSrcLen, sEncrypted);
+}
+
+int YCrypto_RSA::PubKey_Encrypt(const std::string& sPEMFilePath, const char* pSrc, int nSrcLen, std::string& sEncrypted)
+{
+	return PubKey_Encrypt(sPEMFilePath, reinterpret_cast<const unsigned char*>(pSrc), nSrcLen, sEncrypted);
+}
+
+int YCrypto_RSA::PubKey_Encrypt(const std::string& sPEMFilePath, const unsigned char* pSrc, int nSrcLen, std::string& sEncrypted)
+{
+	sEncrypted.clear();
+	FILE* pPubKeyFile = fopen(sPEMFilePath.c_str(), "rb");
+	if(pPubKeyFile == NULL)
+		return 0;
+
+	RSA *pPubKey = RSA_new();
+	pPubKey = PEM_read_RSA_PUBKEY(pPubKeyFile, &pPubKey, NULL, NULL);
+
+	fclose(pPubKeyFile);
+	if(pPubKey == NULL)
+		return 0;
+
+	int nRemain = nSrcLen;
+	int nModulusLen = RSA_size(pPubKey);	//cipher text length
+	std::shared_ptr<unsigned char> spUnitDst(new unsigned char[nModulusLen], std::default_delete<unsigned char[]>());
+	int nUnitLen = nModulusLen - 11; //PKCS#1 padding
+
+	int nCurrLen = 0;
+	int nPos = 0;
+	int nOutLen = 0;
+
+	while(nRemain > 0){
+		if(nRemain > nUnitLen)
+			nCurrLen = nUnitLen;
+		else
+			nCurrLen = nRemain;
+
+		memset(spUnitDst.get(), 0, nModulusLen);
+		int nRes = RSA_public_encrypt(nCurrLen, pSrc + nPos, spUnitDst.get(), pPubKey, RSA_PKCS1_PADDING);
+		if(nRes < 0)
+			break;
+
+		sEncrypted.append(reinterpret_cast<char *>(spUnitDst.get()), nRes);
+
+		nRemain -= nCurrLen;
+		nPos += nCurrLen;
+		nOutLen += nRes;
+	}
+	RSA_free(pPubKey);
 	CRYPTO_cleanup_all_ex_data();
 	return nOutLen;
 }
