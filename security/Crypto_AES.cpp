@@ -47,7 +47,7 @@ int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& s
 	memset(spDecrypted.get(), 0, nSrcLen);
 
 	int nLen(0);
-	nLen = AES64_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, spDecrypted.get(), nLen, paddingScheme, nKeyBits);
+	nLen = AES64_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, spDecrypted.get(), nSrcLen, paddingScheme, nKeyBits);
 	if(nLen > 0)
 		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
 
@@ -82,10 +82,10 @@ bool YCrypto_AES::AES64_CBC_Encrypt(const std::string& sKey, const std::string& 
 {
 	if(sKey.length() < AES_BLOCK_SIZE || sIv.length() < AES_BLOCK_SIZE) return false;
 
-	AES_KEY key;
+	AES_KEY key = {};
 	if(0 != AES_set_encrypt_key(reinterpret_cast<const unsigned char*>(sKey.c_str()), nKeyBits, &key)) return false;	
 
-	AES_cblock iv;
+	AES_cblock iv = {};
 	memcpy(&iv, sIv.data(), AES_BLOCK_SIZE);
 
 	//padding for encryption
@@ -110,17 +110,17 @@ int YCrypto_AES::AES64_CBC_Decrypt(const std::string& sKey, const std::string& s
 {
 	if(sKey.length() < AES_BLOCK_SIZE || sIv.length() < AES_BLOCK_SIZE) return 0;
 
-	AES_KEY key;
+	AES_KEY key = {};
 	if(0 != AES_set_decrypt_key(reinterpret_cast<const unsigned char*>(sKey.c_str()), nKeyBits, &key)) return 0;
 
-	AES_cblock iv;
+	AES_cblock iv = {};
 	memcpy(&iv, sIv.c_str(), AES_BLOCK_SIZE);
 
 	//prepare buffer size = nSrcLen, because base64 decode result has a less length
 	std::shared_ptr<unsigned char> spInput(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());
 	memset(spInput.get(), 0, nSrcLen);
 	int nLen(0);
-	nLen = YBase64::Decode(pSrc, nSrcLen, spInput.get(), nLen);
+	nLen = YBase64::Decode(pSrc, nSrcLen, spInput.get(), nSrcLen);
 	if(nLen <= 0 || nDecryptLen < nLen)
 		return 0;
 
@@ -132,10 +132,10 @@ int YCrypto_AES::AES_CBC_Encrypt(const std::string& sKey, const std::string& sIv
 {
 	if(sKey.length() < AES_BLOCK_SIZE || sIv.length() < AES_BLOCK_SIZE) return 0;
 
-	AES_KEY key;
+	AES_KEY key = {};
 	if(0 != AES_set_encrypt_key(reinterpret_cast<const unsigned char*>(sKey.c_str()), nKeyBits, &key)) return 0;	
 
-	AES_cblock iv;
+	AES_cblock iv = {};
 	memcpy(&iv, sIv.data(), AES_BLOCK_SIZE);
 
 	//padding for encryption
@@ -156,10 +156,10 @@ int YCrypto_AES::AES_CBC_Decrypt(const std::string& sKey, const std::string& sIv
 {
 		if(sKey.length() < AES_BLOCK_SIZE || sIv.length() < AES_BLOCK_SIZE) return 0;
 	
-		AES_KEY key;
+		AES_KEY key = {};
 		if(0 != AES_set_decrypt_key(reinterpret_cast<const unsigned char*>(sKey.c_str()), nKeyBits, &key)) return 0;
 	
-		AES_cblock iv;
+		AES_cblock iv = {};
 		memcpy(&iv, sIv.c_str(), AES_BLOCK_SIZE);
 	
 		std::shared_ptr<unsigned char> spOutput(new unsigned char[nSrcLen], std::default_delete<unsigned char[]>());

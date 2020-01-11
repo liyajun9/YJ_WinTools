@@ -97,7 +97,7 @@ int YCrypto_DES::DES64_CBC_Decrypt(const std::string& sKey, const std::string& s
 	memset(spDecrypted.get(), 0, nSrcLen);
 
 	int nLen(0);
-	nLen = DES64_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, spDecrypted.get(), nLen, paddingScheme);
+	nLen = DES64_CBC_Decrypt(sKey, sIv, pSrc, nSrcLen, spDecrypted.get(), nSrcLen, paddingScheme);
 	if(nLen > 0)
 		sDecrypted = std::string(reinterpret_cast<char *>(spDecrypted.get()), nLen);
 
