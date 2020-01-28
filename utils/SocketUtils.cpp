@@ -11,8 +11,6 @@
 #define MAX_LEN_OF_PORT 16
 #define RADIX_DECIMAL 10
 
-using namespace NS_Yutils;
-
 int NS_Yutils::GetWildcardAddr(int nPort, SOCKADDR *pAddr)
 {
 	return _GetFirstAddrInfo(tstring(_T("")), nPort, 0, AF_INET, 0, AI_PASSIVE|AI_NUMERICSERV, pAddr);

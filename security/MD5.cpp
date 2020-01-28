@@ -6,8 +6,6 @@
 #pragma comment(lib,"libcrypto.lib")
 #pragma comment(lib,"libssl.lib")
 
-using namespace std;
-
 std::string YMD5::Update(const std::string& sIn, bool toUpperCase /*= true*/)
 {
 	size_t nLen = sIn.length();
@@ -27,7 +25,7 @@ std::string YMD5::Update(const std::string& sIn, size_t nLen, bool toUpperCase /
 	for (unsigned int i = 0; i < MD5_BUFFER_SIZE/2; i++){
 		sprintf(szTmp + i * 2, fmt, MD[i]);
 	}
-	string sOut = szTmp;
+	std::string sOut = szTmp;
 	return sOut;
 }
 

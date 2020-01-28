@@ -92,6 +92,7 @@ private:
 	tstring m_sCurrDate;
 
 	tofstream m_stream;
+	tostringstream m_strstr;
 };
 
 extern YLog yLog;

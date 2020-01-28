@@ -5,7 +5,6 @@
 #include <sstream>
 
 #pragma warning(disable:4996)
-using namespace std;
 
 std::string TranslateErrCode(DWORD errCode);
 
@@ -68,7 +67,7 @@ const char* YWSAException::what() const throw()
 const std::string& YWSAException::ToString() const
 {
 	if(m_sWhat.empty()){
-		stringstream sstr;
+		std::stringstream sstr;
 		sstr << GetClassName() 
 			<< ":: "<< m_sFile 
 			<< "(" << m_nLine << ")"

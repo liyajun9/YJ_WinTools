@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <tchar.h>
+#include <sstream>
 
 #if defined(UNICODE) || defined(_UNICODE)
 
@@ -11,7 +12,8 @@
 #define tofstream std::wofstream
 #define tifstream std::wifstream
 #define tfstream std::wfstream
-#define tstringstream std::wstringstream
+#define tistringstream std::wistringstream
+#define tostringstream std::wostringstream
 
 #else
 
@@ -22,7 +24,8 @@
 #define tofstream std::ofstream
 #define tifstream std::ifstream
 #define tfstream std::fstream
-#define tstringstream std::stringstream
+#define tistringstream std::istringstream
+#define tostringstream std::ostringstream
 
 #endif
 

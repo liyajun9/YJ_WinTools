@@ -2,8 +2,6 @@
 #include "Exception.h"
 #include <sstream>
 
-using namespace std;
-
 YException::YException(const char* message, const char* file, const char* func, int line) throw()
 	: std::exception()
 	,m_sMessage(message)
@@ -53,7 +51,7 @@ const char* YException::what() const throw()
 const std::string& YException::ToString() const
 {
 	if(m_sWhat.empty()){
-		stringstream sstr;
+		std::stringstream sstr;
 		sstr << GetClassName() 
 			<< ":: "<< m_sFile 
 			<< "(" << m_nLine << ")"

@@ -212,7 +212,7 @@ bool YSQLite::ExecuteTransac(const TransactSQLs& vecSQL)
 
 bool YSQLite::GetIsTableExist(const tstring& sTable)
 {
-	tstringstream ssSQL;
+	tostringstream ssSQL;
 	ssSQL<<_T("select count(*) from sqlite_master where type = \'table\' and name = \'")<<sTable<<_T("\'");
 
 	return GetIntField(ssSQL.str()) > 0;
@@ -220,7 +220,7 @@ bool YSQLite::GetIsTableExist(const tstring& sTable)
 
 bool YSQLite::GetIsColumnExist(const tstring& sTable, const tstring& sCol)
 {
-	tstringstream ssSQL;
+	tostringstream ssSQL;
 	ssSQL<<_T("select count(*) from PRAGMA_table_info(\'")<<sTable<<_T("\') where name=\'")<<sCol<<_T("\'");
 
 	return GetIntField(ssSQL.str()) > 0;

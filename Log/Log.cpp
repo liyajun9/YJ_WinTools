@@ -5,16 +5,13 @@
 #pragma warning(disable:4482)
 #pragma warning(disable:4996)
 
-using namespace NS_Yutils;
-
-//Creat a global instance
 YLog yLog(_T("log"), true,  static_cast<int>(YLog::ELogItem::DATETIME) | static_cast<int>(YLog::ELogItem::THREADID), 3);
 
 YLog::YLog(tstring sLogFileDirectory, bool bAutoEndline ,int loggableItem, int nExpireLogDays):
 m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nExpireLogDays(nExpireLogDays)
 {
 	InitializeCriticalSection(&m_cs);
-	m_sCurrDate = GetCurrDate(Date_Format_3);
+	m_sCurrDate = GetCurrDate(NS_Yutils::Date_Format_3);
 	tstring sPath;
 
 	if(m_sDirectory.empty()){
@@ -24,7 +21,7 @@ m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(logg
 		sPath = m_sDirectory + _T("\\") + m_sCurrDate + _T(".log");
 	}
 #if defined(UNICODE) || defined(_UNICODE)		
-	m_stream.open((WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
+	m_stream.open((NS_Yutils::WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
 #else
 	m_stream.open(sPath.c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
 #endif
@@ -51,7 +48,7 @@ void YLog::LogInfo(const char* pszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = MBToWChar(sData);
+	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
 	write(sDataTmp.c_str(), ELogType::Info);
 #else
 	write(sData.c_str(), ELogType::Info);
@@ -95,7 +92,7 @@ void YLog::LogDebug(const char* pszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = MBToWChar(sData);
+	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
 	write(sDataTmp.c_str(), ELogType::Debug);
 #else
 	write(sData.c_str(), ELogType::Debug);
@@ -139,7 +136,7 @@ void YLog::LogWarn(const char* pszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = MBToWChar(sData);
+	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
 	write(sDataTmp.c_str(), ELogType::Warn);
 #else
 	write(sData.c_str(), ELogType::Warn);
@@ -183,7 +180,7 @@ void YLog::LogError(const char* pszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = MBToWChar(sData);
+	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
 	write(sDataTmp.c_str(), ELogType::Error);
 #else
 	write(sData.c_str(), ELogType::Error);
@@ -227,7 +224,7 @@ void YLog::LogFatal(const char* pszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = MBToWChar(sData);
+	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
 	write(sDataTmp.c_str(), ELogType::Fatal);
 #else
 	write(sData.c_str(), ELogType::Fatal);
@@ -271,7 +268,7 @@ void YLog::Log(ELogType logType, const char* pszData, ...)
 	va_end(argList);
 
 #if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = MBToWChar(sData);
+	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
 	write(sDataTmp.c_str(), logType);
 #else
 	write(sData.c_str(), logType);
@@ -307,7 +304,7 @@ void YLog::write(const TCHAR* pData, ELogType logLevel)
 	static bool bIsFirstRun = true;
 	bool bIsNewDay = false;
 
-	tstring sCurrDate = GetCurrDate(Date_Format_3);
+	tstring sCurrDate = GetCurrDate(NS_Yutils::Date_Format_3);
 	 bIsNewDay = m_sCurrDate.compare(sCurrDate)!=0;
 
 	if(bIsFirstRun || bIsNewDay){//delete expired log files
@@ -320,55 +317,57 @@ void YLog::write(const TCHAR* pData, ELogType logLevel)
 		tstring sPath;
 		sPath = m_sDirectory + _T("\\") + m_sCurrDate + _T(".log");
 #if defined(UNICODE) || defined(_UNICODE)		
-		m_stream.open((WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
+		m_stream.open((NS_Yutils::WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
 #else
 		m_stream.open(sPath.c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
 #endif
+		if(!m_stream)
+			return;
+
 		const std::locale cn_loc("chs");
 		m_stream.imbue(cn_loc);
 	}
 
-	tstringstream sstr;
-
+	m_strstr.clear();
+	m_strstr.str(_T(""));
 	if(bIsFirstRun){ //write header
-		sstr << _T("\r\n********************************New Log*********************************") << std::endl;
+		m_strstr << _T("\r\n********************************New Log*********************************") << std::endl;
 		bIsFirstRun = false;
 	}	
 
 	if(m_loggableItem & static_cast<int>(DATETIME)){
-		sstr<<GetCurrDateTime(Date_Format_3, true);
+		m_strstr<<GetCurrDateTime(NS_Yutils::Date_Format_3, true);
 	}
 	if(m_loggableItem & static_cast<int>(THREADID)){
-		sstr<<_T("[")<<GetCurrentThreadId()<<_T("]");
+		m_strstr<<_T("[")<<GetCurrentThreadId()<<_T("]");
 	}
 	switch (logLevel)
 	{
 	case Debug:
-		sstr<<_T("[debug]");
+		m_strstr<<_T("[debug]");
 		break;
 	case Info:
-		sstr<<_T("[info]");
+		m_strstr<<_T("[info]");
 		break;
 	case Warn:
-		sstr<<_T("[warn]");
+		m_strstr<<_T("[warn]");
 		break;
 	case Error:
-		sstr<<_T("[error]");
+		m_strstr<<_T("[error]");
 		break;
 	case Fatal:
-		sstr<<_T("[fatal]");
+		m_strstr<<_T("[fatal]");
 		break;
 	default:
-		sstr<<_T("[unknown]");
+		m_strstr<<_T("[unknown]");
 		break;
 	}
 	if(m_bAutoEndline)
-		sstr<<_T(" ")<<pData<<std::endl;
+		m_strstr<<_T(" ")<<pData<<std::endl;
 	else
-		sstr<<_T(" ")<<pData;
+		m_strstr<<_T(" ")<<pData;
 
-	m_stream<<sstr.str();
-	m_stream.flush();
+	m_stream<<m_strstr.str()<<std::flush;
 }
 
 void YLog::DeleteExpiredOrInvalidLog()
@@ -414,7 +413,7 @@ bool YLog::IsFreshValidLog(tstring sFileName)
 
 	if(sFileName.length() == 6){
 		if(sFileName.find_first_not_of(_T("0123456789")) == tstring::npos){
-			tstring sExpireDate = GetAddedDate(0 - m_nExpireLogDays, Date_Format_3);
+			tstring sExpireDate = NS_Yutils::GetAddedDate(0 - m_nExpireLogDays, NS_Yutils::Date_Format_3);
 			if(sFileName.compare(sExpireDate) > 0)
 				return true;
 		}
