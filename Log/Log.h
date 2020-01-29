@@ -16,12 +16,14 @@
 #include "..\Utils\CriticalSection.h"
 #include "..\Utils\CharEncodings.h"
 
-#if(defined DEBUG || defined _DEBUG)
-#define LOG_LEVEL		LOG_LEVEL_DEBUG
-#else
-#define LOG_LEVEL		LOG_LEVEL_WARN
-#endif
+//use these macros to make logging
+#define LOG_DEBUG yLog.LogDebug
+#define LOG_INFO yLog.LogInfo
+#define LOG_WARN yLog.LogWarn
+#define LOG_ERROR yLog.LogError
+#define LOG_FATAL yLog.LogFatal
 
+//Log levels
 #define LOG_LEVEL_FATAL			ELogType::Fatal
 #define LOG_LEVEL_ERROR		(LOG_LEVEL_FATAL|ELogType::Error)
 #define LOG_LEVEL_WARN		(LOG_LEVEL_ERROR|ELogType::Warn)
@@ -30,15 +32,13 @@
 #define LOG_LEVEL_ALL				0xff
 #define LOG_LEVEL_NONE		0x00
 
-#define LOG_DEBUG yLog.LogDebug
-#define LOG_INFO yLog.LogInfo
-#define LOG_WARN yLog.LogWarn
-#define LOG_ERROR yLog.LogError
-#define LOG_FATAL yLog.LogFatal
+#if(defined DEBUG || defined _DEBUG)
+#define LOG_LEVEL		LOG_LEVEL_DEBUG
+#else
+#define LOG_LEVEL		LOG_LEVEL_WARN
+#endif
 
-class YLog{
-public:
-	enum ELogType
+enum ELogType
 	{
 		Fatal = 0x01,
 		Error = 0x02,
@@ -53,11 +53,10 @@ public:
 		THREADID	= 0x02
 	};
 
+
+class YLog{
 public:
-	explicit YLog(tstring sLogFileDirectory,		// log directory. support only one sub-directory. empty indicates current path.
-						bool bAutoEndline = false,	// whether auto add end of line
-						int loggableItem = DATETIME | THREADID, //prefix of each line includings
-						int nExpireLogDays = 7);			// saving log for days
+	explicit YLog(tstring sDirectory,	bool bAutoEndline = false,	int nLogItem = DATETIME | THREADID, int nDays = 7);	
 	~YLog();
 
 	void LogDebug(const char* pszData, ...); 
@@ -80,15 +79,15 @@ private:
 	YLog& operator =(const YLog& rhs);
 
 	void write(const TCHAR* pData, ELogType logLevel);
-	void DeleteExpiredOrInvalidLog();
-	bool IsFreshValidLog(tstring sFileName);
+	void DeleteExpired();
+	bool IsExpired(tstring sFileName);
 
 private:
 	CRITICAL_SECTION m_cs;
 	
 	bool m_bAutoEndline;
-	int m_loggableItem;
-	int m_nExpireLogDays;
+	int m_logItem;
+	int m_nNumExpireDays;
 	tstring m_sDirectory;
 	tstring m_sCurrDate;
 

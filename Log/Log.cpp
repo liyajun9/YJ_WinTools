@@ -4,10 +4,10 @@
 #pragma warning(disable:4482)
 #pragma warning(disable:4996)
 
-YLog yLog(_T("log"), true,  YLog::ELogItem::DATETIME | YLog::ELogItem::THREADID, 3);
+YLog yLog(_T("log"), true,  ELogItem::DATETIME | ELogItem::THREADID, 3);
 
-YLog::YLog(tstring sLogFileDirectory, bool bAutoEndline ,int loggableItem, int nExpireLogDays):
-m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nExpireLogDays(nExpireLogDays)
+YLog::YLog(tstring sDirectory, bool bAutoEndline ,int nLogItem, int nDays):
+m_sDirectory(sDirectory),m_bAutoEndline(bAutoEndline),m_logItem(nLogItem), m_nNumExpireDays(nDays)
 {
 	InitializeCriticalSection(&m_cs);
 	m_sCurrDate = GetCurrDate(NS_Yutils::Date_Format_3);
@@ -307,7 +307,7 @@ void YLog::write(const TCHAR* pData, ELogType logLevel)
 	 bIsNewDay = m_sCurrDate.compare(sCurrDate)!=0;
 
 	if(bIsFirstRun || bIsNewDay){//delete expired log files
-		DeleteExpiredOrInvalidLog();
+		DeleteExpired();
 	}
 
 	if(bIsNewDay){ //refresh m_stream
@@ -334,10 +334,10 @@ void YLog::write(const TCHAR* pData, ELogType logLevel)
 		bIsFirstRun = false;
 	}	
 
-	if(m_loggableItem & static_cast<int>(DATETIME)){
+	if(m_logItem & static_cast<int>(DATETIME)){
 		m_strstr<<GetCurrDateTime(NS_Yutils::Date_Format_3, true);
 	}
-	if(m_loggableItem & static_cast<int>(THREADID)){
+	if(m_logItem & static_cast<int>(THREADID)){
 		m_strstr<<_T("[")<<GetCurrentThreadId()<<_T("]");
 	}
 	switch (logLevel)
@@ -369,7 +369,7 @@ void YLog::write(const TCHAR* pData, ELogType logLevel)
 	m_stream<<m_strstr.str()<<std::flush;
 }
 
-void YLog::DeleteExpiredOrInvalidLog()
+void YLog::DeleteExpired()
 {
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 	WIN32_FIND_DATA ffd;
@@ -389,7 +389,7 @@ void YLog::DeleteExpiredOrInvalidLog()
 			if(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY){
 				continue;
 			}else{
-				if(!IsFreshValidLog(ffd.cFileName)){
+				if(IsExpired(ffd.cFileName)){
 					memset(pszFile + nLen, 0, MAX_PATH - nLen);
 					memcpy(pszFile + nLen, _T("\\"), 1);
 					memcpy(pszFile + nLen + 1, ffd.cFileName, _tcslen(ffd.cFileName));
@@ -403,7 +403,7 @@ void YLog::DeleteExpiredOrInvalidLog()
 	hFind = INVALID_HANDLE_VALUE;
 }
 
-bool YLog::IsFreshValidLog(tstring sFileName)
+bool YLog::IsExpired(tstring sFileName)
 {
 	tstring::size_type nPos = sFileName.find_last_of(_T('.'));
 	if(nPos != tstring::npos){
@@ -412,10 +412,10 @@ bool YLog::IsFreshValidLog(tstring sFileName)
 
 	if(sFileName.length() == 6){
 		if(sFileName.find_first_not_of(_T("0123456789")) == tstring::npos){
-			tstring sExpireDate = NS_Yutils::GetAddedDate(0 - m_nExpireLogDays, NS_Yutils::Date_Format_3);
+			tstring sExpireDate = NS_Yutils::GetAddedDate(0 - m_nNumExpireDays, NS_Yutils::Date_Format_3);
 			if(sFileName.compare(sExpireDate) > 0)
-				return true;
+				return false;
 		}
 	}
-	 return false;
+	 return true;
 }
