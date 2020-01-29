@@ -1,6 +1,6 @@
 #pragma once
 #include <Shlwapi.h>
-#include "..\Log\tstring.h"
+#include "ttype.h"
 
 namespace NS_Yutils{
 

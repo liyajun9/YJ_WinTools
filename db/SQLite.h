@@ -2,7 +2,7 @@
 #include "..\sqlite\include\sqlite3.h"
 #include <winbase.h>
 #include <vector>
-#include "..\Log\tstring.h"
+#include "ttype.h"
 
 #define SQLITE_QUERY_SUCCESS 0
 #define SQLITE_QUERY_ERROR 1

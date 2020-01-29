@@ -3,17 +3,18 @@
 // author:liyajun
 
 #pragma once
-#include "tstring.h"
+#include "..\ttype.h"
 #include <Windows.h>
 #include <fstream>
 #include <iosfwd>
 #include <stdarg.h>
-#include "..\Utils\TimeUtils.h"
-#include "..\Utils\CriticalSection.h"
-#include "..\Utils\CharEncodings.h"
 #include <direct.h>
 #include <xlocale>
 #include <wchar.h>
+#include <sstream>
+#include "..\Utils\TimeUtils.h"
+#include "..\Utils\CriticalSection.h"
+#include "..\Utils\CharEncodings.h"
 
 #if(defined DEBUG || defined _DEBUG)
 #define LOG_LEVEL		LOG_LEVEL_DEBUG
@@ -55,9 +56,9 @@ public:
 public:
 	explicit YLog(tstring sLogFileDirectory,		// log directory. support only one sub-directory. empty indicates current path.
 						bool bAutoEndline = false,	// whether auto add end of line
-						int loggableItem = static_cast<int>(DATETIME) | static_cast<int>(THREADID), //prefix of each line includings
+						int loggableItem = DATETIME | THREADID, //prefix of each line includings
 						int nExpireLogDays = 7);			// saving log for days
-	virtual ~YLog();
+	~YLog();
 
 	void LogDebug(const char* pszData, ...); 
 	void LogDebug(const wchar_t* pwszData, ...);

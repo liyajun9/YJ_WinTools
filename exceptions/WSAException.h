@@ -1,6 +1,6 @@
 #pragma once
 #include <concrt.h>
-#include "..\Log\tstring.h"
+#include "ttype.h"
 #include <exception>
 
 class YWSAException : public std::exception

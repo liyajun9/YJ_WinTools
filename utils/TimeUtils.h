@@ -1,7 +1,7 @@
 #pragma once
 #include <time.h>
 #include <string>
-#include "..\Log\tstring.h"
+#include "ttype.h"
 
 namespace NS_Yutils{
 

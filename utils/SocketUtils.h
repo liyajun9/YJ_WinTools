@@ -4,7 +4,7 @@
 #pragma once
 #include <vector>
 #include <winsock.h>
-#include "..\Log\tstring.h"
+#include "ttype.h"
 
 namespace NS_Yutils
 {

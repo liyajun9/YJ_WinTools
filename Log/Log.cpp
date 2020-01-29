@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "Log.h"
-#include <sstream>
 
 #pragma warning(disable:4482)
 #pragma warning(disable:4996)
 
-YLog yLog(_T("log"), true,  static_cast<int>(YLog::ELogItem::DATETIME) | static_cast<int>(YLog::ELogItem::THREADID), 3);
+YLog yLog(_T("log"), true,  YLog::ELogItem::DATETIME | YLog::ELogItem::THREADID, 3);
 
 YLog::YLog(tstring sLogFileDirectory, bool bAutoEndline ,int loggableItem, int nExpireLogDays):
 m_sDirectory(sLogFileDirectory),m_bAutoEndline(bAutoEndline),m_loggableItem(loggableItem), m_nExpireLogDays(nExpireLogDays)

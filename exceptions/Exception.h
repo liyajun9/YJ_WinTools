@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "..\Log\tstring.h"
+#include "ttype.h"
 
 class YException : public std::exception
 {

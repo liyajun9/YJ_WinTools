@@ -3,7 +3,7 @@
 // author:liyajun
 #pragma once
 #include <string>
-#include "..\Log\tstring.h"
+#include "ttype.h"
 
 #if defined(_UNICODE) || defined(UNICODE)
 #define MBToTString			NS_Yutils::MBToWChar

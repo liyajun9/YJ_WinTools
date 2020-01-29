@@ -6,8 +6,8 @@
 #if defined(UNICODE) || defined(_UNICODE)
 
 #define tstring std::wstring
-#define tout std::wcout
-#define tin std::wcin
+#define tcout std::wcout
+#define tcin std::wcin
 #define tostream std::wostream
 #define tofstream std::wofstream
 #define tifstream std::wifstream
@@ -18,8 +18,8 @@
 #else
 
 #define tstring std::string
-#define tout std::cout
-#define tin std::cin
+#define tcout std::cout
+#define tcin std::cin
 #define tostream std::ostream
 #define tofstream std::ofstream
 #define tifstream std::ifstream

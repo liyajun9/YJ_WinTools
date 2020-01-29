@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "..\Log\tstring.h"
+#include "ttype.h"
 #include <exception>
 #include <concrt.h>
 
