@@ -1,9 +1,10 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "SQLite.h"
-#include "..\Log\Log.h"
-#include "..\exceptions\SQliteException.h"
+#include "log\Log.h"
+#include "exceptions\SQliteException.h"
 #include <sstream>
-#include "..\Utils\CharEncodings.h"
+#include "utils\encodings\CharEncodings.h"
+#include "utils\synchronize\cslocker.h"
 
 #pragma comment(lib, "sqlite3.lib")
 
@@ -16,7 +17,8 @@ YSQLite& YSQLite::GetInstance()
 	return dbSqliteInstance;
 }
 
-YSQLite::YSQLite() : m_nLastError(0)
+YSQLite::YSQLite() 
+	:nLastError(0)
 {
 	::InitializeCriticalSection(&m_cs);
 }
@@ -27,29 +29,29 @@ YSQLite::~YSQLite()
 	::DeleteCriticalSection(&m_cs);
 }
 
-bool YSQLite::ExecuteSQL(const tstring& sSQL, unsigned int *pAffectedRows)
+bool YSQLite::ExecuteSQL(const tstring& sSQL, unsigned int *pAffectedRows /*= NULL*/)
 {
-	std::string sSQLutf8 = TStringToUtf8(sSQL);
+	std::string sSQLutf8 = TOUTF8(sSQL);
 
-	YCriticalSection cs(m_cs); 
+	YCSLocker locker(m_cs); 
 	char *pszErrMsg = NULL;
 	try{
 		InitConnection();
 		if(!pDbconnection)
-			throw YSQLiteException("invalid connection!", sSQLutf8.c_str(), "ExecuteSQL");
+			throw YSQLiteException("invalid connection!", TOMB(sSQL).c_str(), "ExecuteSQL");
 
 		int nRes(0);
 		if(nRes = sqlite3_exec(pDbconnection, sSQLutf8.c_str(), NULL, NULL, &pszErrMsg) != SQLITE_OK)
-			throw YSQLiteException(pszErrMsg, sSQLutf8.c_str(), "ExecuteSQL");
+			throw YSQLiteException(pszErrMsg, TOMB(sSQL).c_str(), "ExecuteSQL");
 
 		if(pAffectedRows)
 			*pAffectedRows = sqlite3_changes(pDbconnection);
 
-		m_nLastError = SQLITE_QUERY_SUCCESS;
+		nLastError = SQLITE_QUERY_SUCCESS;
 	}catch(YSQLiteException& e){
-		LOG_ERROR(e.what());
+		LOGERROR(e.what());
 		sqlite3_free(pszErrMsg);
-		m_nLastError = SQLITE_QUERY_ERROR;
+		nLastError = SQLITE_QUERY_ERROR;
 		return false;
 	}
 
@@ -59,9 +61,9 @@ bool YSQLite::ExecuteSQL(const tstring& sSQL, unsigned int *pAffectedRows)
 
 bool YSQLite::GetIsExist(const tstring& sSQL)
 {
-	std::string sSQLutf8 = TStringToUtf8(sSQL);
+	std::string sSQLutf8 = TOUTF8(sSQL);
 
-	YCriticalSection cs(m_cs);
+	YCSLocker locker(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	bool bRet(false);
@@ -69,11 +71,11 @@ bool YSQLite::GetIsExist(const tstring& sSQL)
 	try{
 		InitConnection();
 		if(!pDbconnection)
-			throw YSQLiteException("invalid connection!", sSQLutf8.c_str(), "GetIntField");
+			throw YSQLiteException("invalid connection!", TOMB(sSQL).c_str(), "GetIntField");
 
 		int nRes(0);
 		if(nRes = sqlite3_prepare_v2(pDbconnection, sSQLutf8.c_str(), -1, &stmt, NULL) != SQLITE_OK)
-			throw YSQLiteException("prepare statement error", sSQLutf8.c_str(), "GetIntField");
+			throw YSQLiteException("prepare statement error", TOMB(sSQL).c_str(), "GetIntField");
 
 		if(nRes = sqlite3_step(stmt) == SQLITE_ROW){
 			bRet = true;
@@ -82,13 +84,13 @@ bool YSQLite::GetIsExist(const tstring& sSQL)
 		}else{
 			std::stringstream ssErr;
 			ssErr<<"step statement error("<<nRes<<")";
-			throw YSQLiteException(ssErr.str().c_str(), sSQLutf8.c_str(), "GetIntField");
+			throw YSQLiteException(ssErr.str().c_str(), TOMB(sSQL).c_str(), "GetIntField");
 		}
-		m_nLastError = SQLITE_QUERY_SUCCESS;
+		nLastError = SQLITE_QUERY_SUCCESS;
 	}catch(YSQLiteException& e){
 		bRet = false;
-		LOG_ERROR(e.what());
-		m_nLastError = SQLITE_QUERY_ERROR;
+		LOGERROR(e.what());
+		nLastError = SQLITE_QUERY_ERROR;
 	}
 
 	if(stmt)		sqlite3_finalize(stmt);
@@ -98,9 +100,9 @@ bool YSQLite::GetIsExist(const tstring& sSQL)
 
 int YSQLite::GetIntField(const tstring& sSQL)
 {
-	std::string sSQLutf8 = TStringToUtf8(sSQL);
+	std::string sSQLutf8 = TOUTF8(sSQL);
 
-	YCriticalSection cs(m_cs);
+	YCSLocker locker(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	int nRet(-1);
@@ -108,11 +110,11 @@ int YSQLite::GetIntField(const tstring& sSQL)
 	try{
 		InitConnection();
 		if(!pDbconnection)
-			throw YSQLiteException("invalid connection!", sSQLutf8.c_str(), "GetIntField");
+			throw YSQLiteException("invalid connection!", TOMB(sSQL).c_str(), "GetIntField");
 
 		int nRes(0);
 		if(nRes = sqlite3_prepare_v2(pDbconnection, sSQLutf8.c_str(), -1, &stmt, NULL) != SQLITE_OK)
-			throw YSQLiteException("prepare statement error", sSQLutf8.c_str(), "GetIntField");
+			throw YSQLiteException("prepare statement error", TOMB(sSQL).c_str(), "GetIntField");
 
 		if(nRes = sqlite3_step(stmt) == SQLITE_ROW){
 			nRet = sqlite3_column_int(stmt, 0);
@@ -121,13 +123,13 @@ int YSQLite::GetIntField(const tstring& sSQL)
 		}else{
 			std::stringstream ssErr;
 			ssErr<<"step statement error("<<nRes<<")";
-			throw YSQLiteException(ssErr.str().c_str(), sSQLutf8.c_str(), "GetIntField");
+			throw YSQLiteException(ssErr.str().c_str(), TOMB(sSQL).c_str(), "GetIntField");
 		}
-		m_nLastError = SQLITE_QUERY_SUCCESS;
+		nLastError = SQLITE_QUERY_SUCCESS;
 	}catch(YSQLiteException& e){
 		nRet = -1;
-		LOG_ERROR(e.what());
-		m_nLastError = SQLITE_QUERY_ERROR;
+		LOGERROR(e.what());
+		nLastError = SQLITE_QUERY_ERROR;
 	}
 
 	if(stmt)		sqlite3_finalize(stmt);
@@ -137,9 +139,9 @@ int YSQLite::GetIntField(const tstring& sSQL)
 
 tstring YSQLite::GetStringField(const tstring& sSQL)
 {
-	std::string sSQLutf8 = TStringToUtf8(sSQL);
+	std::string sSQLutf8 = TOUTF8(sSQL);
 
-	YCriticalSection cs(m_cs);
+	YCSLocker locker(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	std::string sRet = "";
@@ -147,11 +149,11 @@ tstring YSQLite::GetStringField(const tstring& sSQL)
 	try{
 		InitConnection();
 		if(!pDbconnection)
-			throw YSQLiteException("invalid connection!", sSQLutf8.c_str(), "GetIntField");
+			throw YSQLiteException("invalid connection!", TOMB(sSQL).c_str(), "GetIntField");
 
 		int nRes(0);
 		if(nRes = sqlite3_prepare_v2(pDbconnection, sSQLutf8.c_str(), -1, &stmt, NULL) != SQLITE_OK)
-			throw YSQLiteException("prepare statement error", sSQLutf8.c_str(), "GetIntField");
+			throw YSQLiteException("prepare statement error", TOMB(sSQL).c_str(), "GetIntField");
 
 		if(nRes = sqlite3_step(stmt) == SQLITE_ROW){
 			sRet = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
@@ -160,23 +162,23 @@ tstring YSQLite::GetStringField(const tstring& sSQL)
 		}else{
 			std::stringstream ssErr;
 			ssErr<<"step statement error("<<nRes<<")";
-			throw YSQLiteException(ssErr.str().c_str(), sSQLutf8.c_str(), "GetIntField");
+			throw YSQLiteException(ssErr.str().c_str(), TOMB(sSQL).c_str(), "GetIntField");
 		}
-		m_nLastError = SQLITE_QUERY_SUCCESS;
+		nLastError = SQLITE_QUERY_SUCCESS;
 	}catch(YSQLiteException& e){
 		sRet = "";
-		LOG_ERROR(e.what());
-		m_nLastError = SQLITE_QUERY_ERROR;
+		LOGERROR(e.what());
+		nLastError = SQLITE_QUERY_ERROR;
 	}
 
 	if(stmt)		sqlite3_finalize(stmt);
 	if(pszErrMsg)		sqlite3_free(pszErrMsg);
-	return Utf8ToTString(sRet);
+	return FROMUTF8(sRet);
 }
 
 bool YSQLite::ExecuteTransac(const TransactSQLs& vecSQL)
 {
-	YCriticalSection cs(m_cs);
+	YCSLocker locker(m_cs);
 	sqlite3_stmt *stmt = NULL;
 	char *pszErrMsg = NULL;
 	bool bRet(false);
@@ -191,18 +193,18 @@ bool YSQLite::ExecuteTransac(const TransactSQLs& vecSQL)
 
 		for(TransactSQLs::const_iterator iter = vecSQL.begin(); iter != vecSQL.end(); ++iter){
 			const tstring& sSQL = (tstring)(*iter);
-			std::string sSQLutf8 = TStringToUtf8(sSQL);
+			std::string sSQLutf8 = TOUTF8(sSQL);
 			if(nRes = sqlite3_exec(pDbconnection, sSQLutf8.c_str(), NULL, NULL, &pszErrMsg) != SQLITE_OK)
-				throw YSQLiteException(pszErrMsg, sSQLutf8.c_str(), "ExecuteTransac");
+				throw YSQLiteException(pszErrMsg, TOMB(sSQL).c_str(), "ExecuteTransac");
 		}
 
 		sqlite3_exec(pDbconnection, "commit", NULL, NULL, NULL);
-		m_nLastError = SQLITE_QUERY_SUCCESS;
+		nLastError = SQLITE_QUERY_SUCCESS;
 	}catch(YSQLiteException& e){
 		sqlite3_exec(pDbconnection, "rollback", NULL, NULL, NULL);
-		LOG_ERROR(e.what());
+		LOGERROR(e.what());
 		sqlite3_free(pszErrMsg);
-		m_nLastError = SQLITE_QUERY_ERROR;
+		nLastError = SQLITE_QUERY_ERROR;
 		return false;
 	}
 
@@ -234,7 +236,7 @@ void YSQLite::InitConnection()
 
 int YSQLite::GetLastError()
 {
-	return m_nLastError;
+	return nLastError;
 }
 
 

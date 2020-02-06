@@ -4,7 +4,6 @@
 //
 //      will output:
 //			2018-07-01 11:33:20 debug output variable value = 5
-// author:liyajun
 #pragma once
 #include <time.h>
 
@@ -14,8 +13,8 @@
 #define YTRACE(x)
 #endif
 
-#define TRACE_BUFFER_LEN 1024
-#define DATETIME_LEN 20
+constexpr int TRACE_BUFFER_LEN = 1024;
+constexpr int DATETIME_LEN = 20;
 
 namespace NS_Yutils{
 

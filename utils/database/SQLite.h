@@ -1,12 +1,22 @@
 #pragma once
-#include "..\sqlite\include\sqlite3.h"
-#include <winbase.h>
+#include "sqlite3.h"
 #include <vector>
-#include "ttype.h"
+#include "Macros\ttype.h"
 
-#define SQLITE_QUERY_SUCCESS 0
-#define SQLITE_QUERY_ERROR 1
-typedef std::vector<tstring> TransactSQLs;
+#if defined(UNICODE) || defined(_UNICODE)
+#define TOUTF8		NS_Yutils::WCharToUtf8
+#define FROMUTF8	NS_Yutils::Utf8ToWChar
+#define TOMB		NS_Yutils::WCharToMB
+#else
+#define TOUTF8		NS_Yutils::MBToUtf8
+#define FROMUTF8	NS_Yutils::Utf8ToMB
+#define TOMB
+#endif
+
+constexpr int SQLITE_QUERY_SUCCESS = 0;
+constexpr int SQLITE_QUERY_ERROR = 1;
+
+using TransactSQLs = std::vector<tstring>;
 
 #define SQLite YSQLite::GetInstance()
 
@@ -31,15 +41,12 @@ private:
 
 private:	
 	YSQLite();
-	YSQLite(const YSQLite& );
-	virtual ~YSQLite();
-
-	void operator=(const YSQLite&);
+	~YSQLite();
 
 private:
 	static sqlite3 *pDbconnection;
 	static const char *pDbfilename;
 	CRITICAL_SECTION m_cs;  
 
-	int m_nLastError; //0 - success    other-error
+	int nLastError; //0 - success    other-error
 };

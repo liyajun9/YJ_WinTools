@@ -1,10 +1,10 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "StringUtils.h"
 #include <algorithm>
 #include <stdarg.h>
 #pragma warning(disable:4996)
 
-std::string NS_Yutils::FormatToString(const char* lpszMsg, ...)
+std::string NS_Yutils::formatToString(const char* lpszMsg, ...)
 {
     std::string sRes;
     va_list argList;
@@ -19,7 +19,7 @@ std::string NS_Yutils::FormatToString(const char* lpszMsg, ...)
     return sRes;
 }
 
-std::wstring NS_Yutils::FormatToString(const wchar_t* lpszMsg, ...)
+std::wstring NS_Yutils::formatToString(const wchar_t* lpszMsg, ...)
 {
 	std::wstring sRes;
 	va_list argList;

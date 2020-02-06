@@ -1,31 +1,20 @@
 #pragma once
 #include <concrt.h>
-#include "ttype.h"
-#include <exception>
+#include "Macros\ttype.h"
+#include "Exception.h"
 
-class YWSAException : public std::exception
+class YWSAException : public YException
 {
 public:
-	YWSAException(const char* file, const char* func, int line) throw();
-	YWSAException(const char* file, const char* func) throw();
-	YWSAException(const char* file) throw();
-	YWSAException() throw();
-	virtual ~YWSAException(){}
+	explicit YWSAException(const char* file = "<unknown file>", const char* func = "<unknown func>", int line = -1, const char* type = "YWSAException") noexcept;
 
 public:
-	DWORD GetErrorCode() const;
-	std::string GetMessage() const;
-	const char* GetClassName() const;
-	const char* what() const throw();
-	const std::string& ToString() const;
+	std::string toString() const override;
+	const char* what() const noexcept override;
 
 protected:
-	DWORD m_dwErrorCode;
-	std::string m_sMessage;
-	std::string m_sFile;
-	std::string m_sFunc;
-	int m_nLine;
+	std::string TranslateErrCode(DWORD errCode);
 
 private:
-	mutable std::string m_sWhat;
+	DWORD dwErrCode;
 };

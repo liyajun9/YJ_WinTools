@@ -1,9 +1,10 @@
 //  Logger
-//Note: character encodings of log files is GB2312
-// author:liyajun
+//Note: character encoding of log file is GB2312
+//liyajun
 
 #pragma once
-#include "..\ttype.h"
+
+#include "Macros\ttype.h"
 #include <Windows.h>
 #include <fstream>
 #include <iosfwd>
@@ -12,87 +13,83 @@
 #include <xlocale>
 #include <wchar.h>
 #include <sstream>
-#include "..\Utils\TimeUtils.h"
-#include "..\Utils\CriticalSection.h"
-#include "..\Utils\CharEncodings.h"
+#include "utils\time\TimeUtils.h"
+#include "utils\synchronize\CSLocker.h"
+#include "utils\encodings\CharEncodings.h"
+
+#pragma warning(disable:4996)
 
 //use these macros to make logging
-#define LOG_DEBUG yLog.LogDebug
-#define LOG_INFO yLog.LogInfo
-#define LOG_WARN yLog.LogWarn
-#define LOG_ERROR yLog.LogError
-#define LOG_FATAL yLog.LogFatal
+#define LOGDEBUG yLog.LogDebug
+#define LOGINFO yLog.LogInfo
+#define LOGWARN yLog.LogWarn
+#define LOGERROR yLog.LogError
+#define LOGFATAL yLog.LogFatal
 
-//Log levels
-#define LOG_LEVEL_FATAL			ELogType::Fatal
-#define LOG_LEVEL_ERROR		(LOG_LEVEL_FATAL|ELogType::Error)
-#define LOG_LEVEL_WARN		(LOG_LEVEL_ERROR|ELogType::Warn)
-#define LOG_LEVEL_INFO			(LOG_LEVEL_WARN|ELogType::Info)
-#define LOG_LEVEL_DEBUG		(LOG_LEVEL_INFO|ELogType::Debug)
-#define LOG_LEVEL_ALL				0xff
-#define LOG_LEVEL_NONE		0x00
+//Log levels and types and default log level
+enum ELogType //use old enum type in order to have bit operation
+{
+	ELog_Fatal = 0x01,
+	ELog_Error = 0x02,
+	ELog_Warn = 0x04,
+	ELog_Info = 0x08,
+	ELog_Debug = 0x10
+};
+constexpr int LOG_LEVEL_FATAL = ELogType::ELog_Fatal;
+constexpr int LOG_LEVEL_ERROR = (LOG_LEVEL_FATAL | ELogType::ELog_Error);
+constexpr int LOG_LEVEL_WARN = (LOG_LEVEL_ERROR | ELogType::ELog_Warn);
+constexpr int LOG_LEVEL_INFO = (LOG_LEVEL_WARN | ELogType::ELog_Info);
+constexpr int LOG_LEVEL_DEBUG = (LOG_LEVEL_INFO | ELogType::ELog_Debug);
 
 #if(defined DEBUG || defined _DEBUG)
-#define LOG_LEVEL		LOG_LEVEL_DEBUG
+constexpr int LOG_LEVEL = LOG_LEVEL_DEBUG;
 #else
-#define LOG_LEVEL		LOG_LEVEL_WARN
+constexpr int LOG_LEVEL = LOG_LEVEL_WARN;
 #endif
 
-enum ELogType
-	{
-		Fatal = 0x01,
-		Error = 0x02,
-		Warn = 0x04,
-		Info = 0x08,
-		Debug = 0x10
-	};
-
-	enum ELogItem
-	{
-		DATETIME	= 0x01,
-		THREADID	= 0x02
-	};
-
+//log items
+enum class ELogItem
+{
+	DATETIME = 0x01,
+	THREADID = 0x02,
+	ALL = 0x03
+};
 
 class YLog{
 public:
-	explicit YLog(tstring sDirectory,	bool bAutoEndline = false,	int nLogItem = DATETIME | THREADID, int nDays = 7);	
+	explicit YLog(tstring sDir, bool bAutoEndline = false, ELogItem nLogItem = ELogItem::ALL, int nDays = 7);
 	~YLog();
 
-	void LogDebug(const char* pszData, ...); 
-	void LogDebug(const wchar_t* pwszData, ...);
-	void LogInfo(const char* pszData, ...); 
-	void LogInfo(const wchar_t* pwszData, ...);
-	void LogWarn(const char* pszData, ...); 
-	void LogWarn(const wchar_t* pwszData, ...);
-	void LogError(const char* pszData, ...); 
-	void LogError(const wchar_t* pwszData, ...);
-	void LogFatal(const char* pszData, ...); 
-	void LogFatal(const wchar_t* pwszData, ...);
+	void LogDebug(const char* format, ...);
+	void LogDebug(const wchar_t* format, ...);
+	void LogInfo(const char* format, ...);
+	void LogInfo(const wchar_t* format, ...);
+	void LogWarn(const char* format, ...);
+	void LogWarn(const wchar_t* format, ...);
+	void LogError(const char* format, ...);
+	void LogError(const wchar_t* format, ...);
+	void LogFatal(const char* format, ...);
+	void LogFatal(const wchar_t* format, ...);
 
-	void Log(ELogType logType, const char* pszData, ...);	
-	void Log(ELogType logType, const wchar_t* pwszData, ...);
-
-private:
-	YLog();
-	YLog(const YLog& rhs);
-	YLog& operator =(const YLog& rhs);
-
-	void write(const TCHAR* pData, ELogType logLevel);
-	void DeleteExpired();
-	bool IsExpired(tstring sFileName);
+	void Log(ELogType logType, const char* format, ...);	
+	void Log(ELogType logType, const wchar_t* format, ...);
 
 private:
-	CRITICAL_SECTION m_cs;
-	
+	void write(ELogType logLevel, const wchar_t* pData);
+	void delExpired();
+	bool isExpired(std::wstring sFileName);
+
+private:	
 	bool m_bAutoEndline;
-	int m_logItem;
-	int m_nNumExpireDays;
-	tstring m_sDirectory;
-	tstring m_sCurrDate;
+	ELogItem logItem;
+	int nNumExpireDays;
+	std::wstring sDirectory;
+	std::wstring sToday;
 
-	tofstream m_stream;
-	tostringstream m_strstr;
+	std::wofstream m_fstream;
+	std::wostringstream m_strstr;
+
+	CRITICAL_SECTION m_cs;
 };
 
 extern YLog yLog;

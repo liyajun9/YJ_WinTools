@@ -1,24 +1,18 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "FileUtils.h"
 
 #pragma comment(lib, "Shlwapi.lib")
 
-tstring NS_Yutils::GetModuleFilePath(HINSTANCE hModule)
+tstring NS_Yutils::getModuleFilePath(HINSTANCE hModule /*= 0*/, bool removeLastSlash/* = true*/)
 {
 	TCHAR pszFileName[MAX_PATH]; memset(pszFileName, 0, MAX_PATH);
 	::GetModuleFileName(hModule, pszFileName, MAX_PATH);
-	::PathRemoveFileSpec(pszFileName);
+	if(removeLastSlash)
+		::PathRemoveFileSpec(pszFileName);
 	return tstring(pszFileName);
 }
 
-tstring NS_Yutils::GetModuleFilePathWithSlash(HINSTANCE hModule)
-{
-	TCHAR pszFileName[MAX_PATH]; memset(pszFileName, 0, MAX_PATH);
-	::GetModuleFileName(hModule, pszFileName, MAX_PATH);
-	return tstring(pszFileName);
-}
-
-tstring& NS_Yutils::RemoveFileExtension(tstring& sFileName)
+tstring& NS_Yutils::removeSuffix(tstring& sFileName)
 {
 	tstring::size_type nPos = sFileName.find_last_of(_T('.'));
 	if(nPos != tstring::npos){
@@ -27,7 +21,7 @@ tstring& NS_Yutils::RemoveFileExtension(tstring& sFileName)
 	return sFileName;
 }
 
-void NS_Yutils::TraverseDirectory(const tstring& sDir, void(*cb)(const TCHAR *pszFileName))
+void NS_Yutils::HandleFiles(const tstring& sDir, void(*cb)(const TCHAR *pszFileName))
 {
 	HANDLE hFind = INVALID_HANDLE_VALUE;
 	WIN32_FIND_DATA ffd;

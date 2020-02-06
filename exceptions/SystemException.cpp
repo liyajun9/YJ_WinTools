@@ -1,36 +1,34 @@
-#include "pch.h"
-#include "WSAException.h"
-#include <winsock.h>
+﻿#include "pch.h"
+#include "SystemException.h"
 #include <sstream>
 
 #pragma warning(disable:4996)
 
-YWSAException::YWSAException(const char* file/* = "<unknown file>"*/, const char* func /*= "<unknown func>"*/, int line /*= -1*/, const char* type /*= "YWSAException"*/) noexcept
+YSystemException::YSystemException(const char* file/* = "<unknown file>"*/, const char* func /*= "<unknown func>"*/, int line /*= -1*/, const char* type /*= "YSystemException"*/) noexcept
 	:YException("", file, func, line, type)
-	,dwErrCode(WSAGetLastError())
+	,dwErrCode(GetLastError())
 {
 	sMessage = TranslateErrCode(dwErrCode);
 }
 
-const char* YWSAException::what() const noexcept
+const char* YSystemException::what() const noexcept
 {
 	if (sWhat.empty())
 		toString();
 	return sWhat.c_str();
 }
 
-std::string YWSAException::toString() const
+std::string YSystemException::toString() const
 {
 	if(sWhat.empty()){
 		std::stringstream sstr;
-		sstr << sType << " caught: (" << dwErrCode << ")" << sMessage << ".\tat " << sFile << "." << sFunc << " line " << nLine;
-
+		sstr << sType << " caught: (" << dwErrCode << ")" <<sMessage << ".\tat " << sFile << "." << sFunc << " line " << nLine;
 		sWhat = sstr.str();
 	}
 	return sWhat;
 }
 
-std::string YWSAException::TranslateErrCode(DWORD errCode)
+std::string YSystemException::TranslateErrCode(DWORD errCode)
 {
 	LPVOID lpMsgBuf;
 	if (!FormatMessageA(
@@ -50,3 +48,4 @@ std::string YWSAException::TranslateErrCode(DWORD errCode)
 	LocalFree(lpMsgBuf);
 	return sRet;
 }
+

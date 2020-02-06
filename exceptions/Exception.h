@@ -1,31 +1,22 @@
 #pragma once
-#include <string>
-#include "ttype.h"
+#include "Macros\ttype.h"
 
 class YException : public std::exception
 {
 public:
-	YException(const char* message, const char* file, const char* func, int line) throw();
-	YException(const char* message, const char* file, const char* func) throw();
-	YException(const char* message, const char* file) throw();
-	YException(const char* message) throw();
-	virtual ~YException() {};
+	explicit YException(const char* message = "", const char* file = "<unknown file>", const char* func = "<unknown func>", int line = -1, const char* type = "YException") noexcept;
+	//virtual ~YLogicException() = default;
 
 public:
-	void Init(const char* file, const char* func, int line);
-
-	virtual std::string GetClassName() const;
-	std::string GetMessage() const;
-	const char* what() const throw();			
-	const std::string& ToString() const;
+	virtual std::string toString() const;
+	const char* what() const noexcept override;				
 
 protected:
-	std::string m_sMessage;
-	std::string m_sFile;
-	std::string m_sFunc;
-	int m_nLine;
-
-private:
-	mutable std::string m_sWhat; 
+	std::string sType;
+	mutable std::string sWhat;
+	std::string sMessage;
+	std::string sFile;
+	std::string sFunc;
+	int nLine;
 };
 

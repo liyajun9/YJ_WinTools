@@ -1,7 +1,7 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "SystemUtils.h"
 
-int NS_Yutils::GetNumberOfProcessors()
+int NS_Yutils::getNumberOfProcessors()
 {
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);

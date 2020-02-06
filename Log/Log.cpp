@@ -1,418 +1,193 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Log.h"
 
-#pragma warning(disable:4482)
 #pragma warning(disable:4996)
 
-YLog yLog(_T("log"), true,  ELogItem::DATETIME | ELogItem::THREADID, 3);
+YLog yLog(_T("log"), true,  ELogItem::ALL, 3);
 
-YLog::YLog(tstring sDirectory, bool bAutoEndline ,int nLogItem, int nDays):
-m_sDirectory(sDirectory),m_bAutoEndline(bAutoEndline),m_logItem(nLogItem), m_nNumExpireDays(nDays)
+YLog::YLog(tstring sDir, bool bAutoEndline /*= false*/, ELogItem nLogItem /*= ELogItem::ALL*/, int nDays /*= 7*/)
+	:sDirectory(
+#if defined(UNICODE) || defined(_UNICODE)
+		sDir
+#else
+		NS_Yutils::MBToWChar(sDir)
+#endif
+	)
+	,m_bAutoEndline(bAutoEndline)
+	,logItem(nLogItem)
+	,nNumExpireDays(nDays)
 {
 	InitializeCriticalSection(&m_cs);
-	m_sCurrDate = GetCurrDate(NS_Yutils::Date_Format_3);
-	tstring sPath;
-
-	if(m_sDirectory.empty()){
-		sPath = m_sCurrDate + _T(".log");
-	}else{
-		_tmkdir(m_sDirectory.c_str());
-		sPath = m_sDirectory + _T("\\") + m_sCurrDate + _T(".log");
-	}
-#if defined(UNICODE) || defined(_UNICODE)		
-	m_stream.open((NS_Yutils::WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
-#else
-	m_stream.open(sPath.c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
-#endif
+	sToday = getCurrDateW(NS_Yutils::Date_Format_3);
 }
 
 YLog::~YLog()
 {
-	m_stream.close();
+	m_fstream.close();
 	DeleteCriticalSection(&m_cs);
 }
 
-void YLog::LogInfo(const char* pszData, ...)
-{
-	if(!(LOG_LEVEL & ELogType::Info)) return;
-
-	std::string sData;
-	va_list argList;
-	va_start(argList, pszData);
-	size_t nSize = _vscprintf(pszData, argList);
-	if(sData.capacity() < (nSize + 1))
-		sData.resize(nSize + 1);
-
-	vsprintf((char*)sData.data(), pszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
-	write(sDataTmp.c_str(), ELogType::Info);
-#else
-	write(sData.c_str(), ELogType::Info);
-#endif
+#define WRITE_ARGLISTA(TYPE, FORMAT) \
+{\
+if(!(LOG_LEVEL & TYPE)) return;\
+va_list argList;\
+va_start(argList, FORMAT);\
+auto len = _vscprintf(FORMAT, argList);\
+std::unique_ptr<char[]> spData(new char[len+1]());\
+vsprintf(spData.get(), FORMAT, argList);\
+va_end(argList);\
+std::wstring sData;\
+NS_Yutils::MBToWChar(sData, spData.get(), len);\
+write(TYPE, sData.c_str());\
 }
 
-void YLog::LogInfo(const wchar_t* pwszData, ...)
-{
-	if(!(LOG_LEVEL & ELogType::Info)) return;
-
-	std::wstring sData;
-	va_list argList;
-	va_start(argList, pwszData);
-	size_t nSize = _vscwprintf(pwszData, argList);
-	if(sData.capacity() < (nSize + 2))
-		sData.resize(nSize + 2);
-
-	vswprintf((wchar_t*)sData.data(), pwszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), ELogType::Info);
-#else
-	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), ELogType::Info);
-#endif
+#define WRITE_ARGLISTW(TYPE, FORMAT) \
+{\
+if(!(LOG_LEVEL & TYPE)) return;\
+va_list argList;\
+va_start(argList, FORMAT);\
+auto len = _vscwprintf(FORMAT, argList);\
+std::unique_ptr<wchar_t[]> spData(new wchar_t[len + 1]()); \
+vswprintf(spData.get(), FORMAT, argList);\
+va_end(argList);\
+write(TYPE, spData.get());\
 }
 
-void YLog::LogDebug(const char* pszData, ...)
+void YLog::LogInfo(const char* format, ...){	WRITE_ARGLISTA(ELogType::ELog_Info, format);	}
+void YLog::LogInfo(const wchar_t* format, ...){	WRITE_ARGLISTW(ELogType::ELog_Info, format);	}
+void YLog::LogDebug(const char* format, ...){	WRITE_ARGLISTA(ELogType::ELog_Debug, format);	}
+void YLog::LogDebug(const wchar_t* format, ...){	WRITE_ARGLISTW(ELogType::ELog_Debug, format);	}
+void YLog::LogWarn(const char* format, ...){	WRITE_ARGLISTA(ELogType::ELog_Warn, format);	}
+void YLog::LogWarn(const wchar_t* format, ...){	WRITE_ARGLISTW(ELogType::ELog_Warn, format);	}
+void YLog::LogError(const char* format, ...){	WRITE_ARGLISTA(ELogType::ELog_Warn, format);	}
+void YLog::LogError(const wchar_t* format, ...){	WRITE_ARGLISTW(ELogType::ELog_Error, format);	}
+void YLog::LogFatal(const char* format, ...){	WRITE_ARGLISTA(ELogType::ELog_Fatal, format);	}
+void YLog::LogFatal(const wchar_t* format, ...){	WRITE_ARGLISTW(ELogType::ELog_Fatal, format);	}
+void YLog::Log(ELogType logType, const char* format, ...){	WRITE_ARGLISTA(logType, format);	}
+void YLog::Log(ELogType logType, const wchar_t* format, ...){	WRITE_ARGLISTW(logType, format);	}
+
+void YLog::write(ELogType logLevel, const wchar_t* pData)
 {
-	if(!(LOG_LEVEL & ELogType::Debug)) return;
+	YCSLocker locker(m_cs);
 
-	std::string sData;
-	va_list argList;
-	va_start(argList, pszData);
-	size_t nSize = _vscprintf(pszData, argList);
-	if(sData.capacity() < (nSize + 1))
-		sData.resize(nSize + 1);
+	static bool bFirstRun = true;
+	bool bNewDay = false;
 
-	vsprintf((char*)sData.data(), pszData, argList);
-	va_end(argList);
+	std::wstring sCurrDate = getCurrDateW(NS_Yutils::Date_Format_3);
+	 bNewDay = sToday.compare(sCurrDate)!=0;
 
-#if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
-	write(sDataTmp.c_str(), ELogType::Debug);
-#else
-	write(sData.c_str(), ELogType::Debug);
-#endif
-}
-
-void YLog::LogDebug(const wchar_t* pwszData, ...)
-{
-	if(!(LOG_LEVEL & ELogType::Debug)) return;
-
-	std::wstring sData;
-	va_list argList;
-	va_start(argList, pwszData);
-	size_t nSize = _vscwprintf(pwszData, argList);
-	if(sData.capacity() < (nSize + 2))
-		sData.resize(nSize + 2);
-
-	vswprintf((wchar_t*)sData.data(), pwszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), ELogType::Debug);
-#else
-	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), ELogType::Debug);
-#endif
-}
-
-void YLog::LogWarn(const char* pszData, ...)
-{
-	if(!(LOG_LEVEL & ELogType::Warn)) return;
-
-	std::string sData;
-	va_list argList;
-	va_start(argList, pszData);
-	size_t nSize = _vscprintf(pszData, argList);
-	if(sData.capacity() < (nSize + 1))
-		sData.resize(nSize + 1);
-
-	vsprintf((char*)sData.data(), pszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
-	write(sDataTmp.c_str(), ELogType::Warn);
-#else
-	write(sData.c_str(), ELogType::Warn);
-#endif
-}
-
-void YLog::LogWarn(const wchar_t* pwszData, ...)
-{
-	if(!(LOG_LEVEL & ELogType::Warn)) return;
-
-	std::wstring sData;
-	va_list argList;
-	va_start(argList, pwszData);
-	size_t nSize = _vscwprintf(pwszData, argList);
-	if(sData.capacity() < (nSize + 2))
-		sData.resize(nSize + 2);
-
-	vswprintf((wchar_t*)sData.data(), pwszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), ELogType::Warn);
-#else
-	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), ELogType::Warn);
-#endif
-}
-
-void YLog::LogError(const char* pszData, ...)
-{
-	if(!(LOG_LEVEL & ELogType::Error)) return;
-
-	std::string sData;
-	va_list argList;
-	va_start(argList, pszData);
-	size_t nSize = _vscprintf(pszData, argList);
-	if(sData.capacity() < (nSize + 1))
-		sData.resize(nSize + 1);
-
-	vsprintf((char*)sData.data(), pszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
-	write(sDataTmp.c_str(), ELogType::Error);
-#else
-	write(sData.c_str(), ELogType::Error);
-#endif
-}
-
-void YLog::LogError(const wchar_t* pwszData, ...)
-{
-	if(!(LOG_LEVEL & ELogType::Error)) return;
-
-	std::wstring sData;
-	va_list argList;
-	va_start(argList, pwszData);
-	size_t nSize = _vscwprintf(pwszData, argList);
-	if(sData.capacity() < (nSize + 2))
-		sData.resize(nSize + 2);
-
-	vswprintf((wchar_t*)sData.data(), pwszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), ELogType::Error);
-#else
-	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), ELogType::Error);
-#endif
-}
-
-void YLog::LogFatal(const char* pszData, ...)
-{
-	if(!(LOG_LEVEL & ELogType::Fatal)) return;
-
-	std::string sData;
-	va_list argList;
-	va_start(argList, pszData);
-	size_t nSize = _vscprintf(pszData, argList);
-	if(sData.capacity() < (nSize + 1))
-		sData.resize(nSize + 1);
-
-	vsprintf((char*)sData.data(), pszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
-	write(sDataTmp.c_str(), ELogType::Fatal);
-#else
-	write(sData.c_str(), ELogType::Fatal);
-#endif
-}
-
-void YLog::LogFatal(const wchar_t* pwszData, ...)
-{
-	if(!(LOG_LEVEL & ELogType::Fatal)) return;
-
-	std::wstring sData;
-	va_list argList;
-	va_start(argList, pwszData);
-	size_t nSize = _vscwprintf(pwszData, argList);
-	if(sData.capacity() < (nSize + 2))
-		sData.resize(nSize + 2);
-
-	vswprintf((wchar_t*)sData.data(), pwszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), ELogType::Fatal);
-#else
-	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), ELogType::Fatal);
-#endif
-}
-
-void YLog::Log(ELogType logType, const char* pszData, ...)
-{
-	if(!(LOG_LEVEL & logType)) return;
-
-	std::string sData;
-	va_list argList;
-	va_start(argList, pszData);
-	size_t nSize = _vscprintf(pszData, argList);
-	if(sData.capacity() < (nSize + 1))
-		sData.resize(nSize + 1);
-
-	vsprintf((char*)sData.data(), pszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)		
-	std::wstring sDataTmp = NS_Yutils::MBToWChar(sData);
-	write(sDataTmp.c_str(), logType);
-#else
-	write(sData.c_str(), logType);
-#endif
-}
-
-void YLog::Log(ELogType logType, const wchar_t* pwszData, ...)
-{
-	if(!(LOG_LEVEL & logType)) return;
-
-	std::wstring sData;
-	va_list argList;
-	va_start(argList, pwszData);
-	size_t nSize = _vscwprintf(pwszData, argList);
-	if(sData.capacity() < (nSize + 2))
-		sData.resize(nSize + 2);
-
-	vswprintf((wchar_t*)sData.data(), pwszData, argList);
-	va_end(argList);
-
-#if defined(UNICODE) || defined(_UNICODE)
-	write(sData.c_str(), logType);
-#else
-	std::string sDataTmp = WCharToMB(sData);
-	write(sDataTmp.c_str(), logType);
-#endif
-}
-
-void YLog::write(const TCHAR* pData, ELogType logLevel)
-{
-	YCriticalSection cs(m_cs);
-
-	static bool bIsFirstRun = true;
-	bool bIsNewDay = false;
-
-	tstring sCurrDate = GetCurrDate(NS_Yutils::Date_Format_3);
-	 bIsNewDay = m_sCurrDate.compare(sCurrDate)!=0;
-
-	if(bIsFirstRun || bIsNewDay){//delete expired log files
-		DeleteExpired();
+	 //delete expired
+	if(bFirstRun || bNewDay){
+		delExpired();
 	}
 
-	if(bIsNewDay){ //refresh m_stream
-		m_sCurrDate = sCurrDate;
-		m_stream.close();
-		tstring sPath;
-		sPath = m_sDirectory + _T("\\") + m_sCurrDate + _T(".log");
-#if defined(UNICODE) || defined(_UNICODE)		
-		m_stream.open((NS_Yutils::WCharToMB(sPath)).c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
-#else
-		m_stream.open(sPath.c_str(), std::ofstream::out|std::ofstream::app|std::ios::binary);
-#endif
-		if(!m_stream)
-			return;
-
-		const std::locale cn_loc("chs");
-		m_stream.imbue(cn_loc);
+	//open file stream
+	if (!m_fstream.is_open() || bNewDay) {
+		if (bNewDay) {
+			m_fstream.close();
+			m_fstream.clear();
+			bFirstRun = true;
+		}
+		sToday = sCurrDate;
+		std::wstring sPath;
+		if (sDirectory.empty()) {
+			sPath = sToday + L".log";
+		}else {
+			_wmkdir(sDirectory.c_str());
+			sPath = sDirectory + L"\\" + sToday + L".log";
+		}
+		m_fstream.open(sPath.c_str(), std::ofstream::out | std::ofstream::app | std::ios::binary);
+		m_fstream.imbue(std::locale("chs"));
 	}
+	if (!m_fstream.is_open()) return;
 
 	m_strstr.clear();
-	m_strstr.str(_T(""));
-	if(bIsFirstRun){ //write header
-		m_strstr << _T("\r\n********************************New Log*********************************") << std::endl;
-		bIsFirstRun = false;
+	//m_strstr.str("");
+	if(bFirstRun){
+		m_strstr << L"\r\n********************************New Log*********************************" << std::endl;
+		bFirstRun = false;
 	}	
-
-	if(m_logItem & static_cast<int>(DATETIME)){
-		m_strstr<<GetCurrDateTime(NS_Yutils::Date_Format_3, true);
-	}
-	if(m_logItem & static_cast<int>(THREADID)){
-		m_strstr<<_T("[")<<GetCurrentThreadId()<<_T("]");
-	}
 	switch (logLevel)
 	{
-	case Debug:
-		m_strstr<<_T("[debug]");
+	case ELogType::ELog_Debug:
+		m_strstr << L"debug ";
 		break;
-	case Info:
-		m_strstr<<_T("[info]");
+	case ELogType::ELog_Info:
+		m_strstr << L"info ";
 		break;
-	case Warn:
-		m_strstr<<_T("[warn]");
+	case ELogType::ELog_Warn:
+		m_strstr << L"warn ";
 		break;
-	case Error:
-		m_strstr<<_T("[error]");
+	case ELogType::ELog_Error:
+		m_strstr << L"error ";
 		break;
-	case Fatal:
-		m_strstr<<_T("[fatal]");
+	case ELogType::ELog_Fatal:
+		m_strstr << L"fatal ";
 		break;
 	default:
-		m_strstr<<_T("[unknown]");
+		m_strstr << L"unknown ";
 		break;
 	}
-	if(m_bAutoEndline)
-		m_strstr<<_T(" ")<<pData<<std::endl;
-	else
-		m_strstr<<_T(" ")<<pData;
 
-	m_stream<<m_strstr.str()<<std::flush;
+	if(static_cast<int>(logItem) & static_cast<int>(ELogItem::DATETIME)){
+		m_strstr << getCurrDateTimeW(NS_Yutils::Date_Format_0, true);
+	}
+	if(static_cast<int>(logItem) & static_cast<int>(ELogItem::THREADID)){
+		m_strstr << L"["<<GetCurrentThreadId() << "]";
+	}
+	
+	if(m_bAutoEndline)
+		m_strstr << L" " << pData << std::endl;
+	else
+		m_strstr << L" " << pData;
+
+	m_fstream << m_strstr.str() << std::flush;
 }
 
-void YLog::DeleteExpired()
+void YLog::delExpired()
 {
 	HANDLE hFind = INVALID_HANDLE_VALUE;
-	WIN32_FIND_DATA ffd;
+	WIN32_FIND_DATAW ffd;
 
-	tstring sWildcard = m_sDirectory;
-	sWildcard.append(_T("\\*.*"));
-	hFind = FindFirstFile(sWildcard.c_str(), &ffd);
+	std::wstring sWildcard = sDirectory;
+	sWildcard.append(L"\\*.*");
+	hFind = FindFirstFileW(sWildcard.c_str(), &ffd);
 	if(hFind == INVALID_HANDLE_VALUE)
 		return;
 
-	TCHAR pszFile[MAX_PATH];
-	tstring::size_type nLen = m_sDirectory.length();
-	memset(pszFile, 0, MAX_PATH);
-	memcpy(pszFile, m_sDirectory.c_str(),nLen);
+	wchar_t pszFile[MAX_PATH];
+	std::wstring::size_type cblen = sDirectory.length() * sizeof(wchar_t);
+	memset(pszFile, 0, MAX_PATH * sizeof(wchar_t));
+	memcpy(pszFile, sDirectory.c_str(), cblen);
 	do{
-		if(_tcscmp(ffd.cFileName, _T(".")) != 0 && _tcscmp(ffd.cFileName, _T("..")) != 0){
+		if(wcscmp(ffd.cFileName, L".") != 0 && wcscmp(ffd.cFileName, L"..") != 0){
 			if(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY){
 				continue;
 			}else{
-				if(IsExpired(ffd.cFileName)){
-					memset(pszFile + nLen, 0, MAX_PATH - nLen);
-					memcpy(pszFile + nLen, _T("\\"), 1);
-					memcpy(pszFile + nLen + 1, ffd.cFileName, _tcslen(ffd.cFileName));
-					_tremove(pszFile);
+				if(isExpired(ffd.cFileName)){
+					memset(pszFile + cblen, 0, MAX_PATH * sizeof(wchar_t) - cblen);
+					memcpy(pszFile + cblen, L"\\", sizeof(wchar_t));
+					memcpy(pszFile + cblen + sizeof(wchar_t), ffd.cFileName, wcslen(ffd.cFileName) * sizeof(wchar_t));
+					_wremove(pszFile);
 				}
 			}
 		}
-	}while(FindNextFile(hFind, &ffd) != 0);
+	}while(FindNextFileW(hFind, &ffd) != 0);
 
 	FindClose(hFind);
 	hFind = INVALID_HANDLE_VALUE;
 }
 
-bool YLog::IsExpired(tstring sFileName)
+bool YLog::isExpired(std::wstring sFileName)
 {
-	tstring::size_type nPos = sFileName.find_last_of(_T('.'));
-	if(nPos != tstring::npos){
+	auto nPos = sFileName.find_last_of('.');
+	if(nPos != std::wstring::npos){
 		sFileName = sFileName.substr(0,nPos);
 	}
 
-	if(sFileName.length() == 6){
-		if(sFileName.find_first_not_of(_T("0123456789")) == tstring::npos){
-			tstring sExpireDate = NS_Yutils::GetAddedDate(0 - m_nNumExpireDays, NS_Yutils::Date_Format_3);
+	if(sFileName.length() == 6){//length of log filename
+		if(sFileName.find_first_not_of(L"0123456789") == std::wstring::npos){
+			std::wstring sExpireDate = NS_Yutils::getAddedDateW(0 - nNumExpireDays, NS_Yutils::Date_Format_3);
 			if(sFileName.compare(sExpireDate) > 0)
 				return false;
 		}

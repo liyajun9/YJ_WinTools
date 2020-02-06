@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Trace.h"
 
 void NS_Yutils::_trace(const char *format, ...)
