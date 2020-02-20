@@ -38,17 +38,20 @@ bool YEvent::Wait(DWORD timeoutMillis) const
 	}
 }
 
-bool YEvent::Set()
+void YEvent::Set()
 {
-	return SetEvent(m_hEvent) > 0;
+	if (!SetEvent(m_hEvent))
+		throw YSystemException("Event", "Set");
 }
 
-bool YEvent::Reset()
+void YEvent::Reset()
 {
-	return ResetEvent(m_hEvent) > 0;
+	if(!ResetEvent(m_hEvent))
+		throw YSystemException("Event", "Reset");
 }
 
-bool YEvent::Pulse()
+void YEvent::Pulse()
 {
-	return PulseEvent(m_hEvent);
+	if(!PulseEvent(m_hEvent))
+		throw YSystemException("Event", "Pulse");
 }

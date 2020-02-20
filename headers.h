@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <tchar.h>
+#include <WinBase.h>
 
 extern "C" {
 #include <openssl\applink.c>

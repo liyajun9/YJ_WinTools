@@ -10,9 +10,9 @@ public:
 	HANDLE GetEvent() const;
 	DWORD Wait() const;
 	bool Wait(DWORD timeoutMillis) const;
-	bool Set();
-	bool Reset();
-	bool Pulse();
+	void Set();
+	void Reset();
+	void Pulse();
 
 private:
 	HANDLE m_hEvent;

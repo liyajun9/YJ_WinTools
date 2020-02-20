@@ -30,3 +30,44 @@ security\			安全
 					Crypto_AES
 					Crypto_RSA
 					Crypto_Sign
+socketserver\		threadpool\ 线程池	IOCPThreadPool基本的IOCP线程池模板，可绑定设备，可手动dispatch派发任务，可手动增加或减少活动线程数
+								\IOCP   完成端口
+								\workerThread 工作线程
+								
+
+├─exceptions
+├─libs
+│  ├─jsoncpp
+│  │  └─json
+│  ├─libcurl
+│  │  ├─bin
+│  │  ├─include
+│  │  │  └─curl
+│  │  └─lib
+│  ├─openssl
+│  │  ├─bin
+│  │  ├─include
+│  │  │  └─openssl
+│  │  └─lib
+│  └─sqlite
+│      ├─bin
+│      ├─include
+│      └─lib
+├─log
+├─macros
+├─server
+├─socketserver
+│  ├─buffer
+│  ├─connection
+│  ├─protocol
+│  └─threadPool
+│      ├─IOCP
+│      └─workerThread
+├─templates
+└─utils
+    ├─database
+    ├─encodings
+    ├─synchronize
+    ├─thread
+    ├─time
+    └─trace

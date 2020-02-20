@@ -4,6 +4,7 @@
 #include "exceptions\Exception.h"
 #include <process.h>
 #include <handleapi.h>
+#include <log\Log.h>
 
 #pragma warning(disable:4482)
 
@@ -41,6 +42,26 @@ unsigned YAbstractThread::getThreadId() const
 	return nThreadID;
 }
 
+void YAbstractThread::addListener(std::shared_ptr<YAbstractThreadListener>& spListener)
+{
+	if (spListener) {
+		//std::weak_ptr<YAbstractThreadListener> wp(spListener);
+		listeners.emplace_back(spListener);
+	}
+}
+
+void YAbstractThread::removeListener(std::shared_ptr<YAbstractThreadListener>& spListener)
+{
+	if (spListener) {
+		auto it = std::find_if(listeners.begin(), listeners.end(), [&spListener](std::weak_ptr<YAbstractThreadListener> wp) {
+			auto sp = wp.lock();
+			if (!sp) return false;
+			else return sp == spListener; });
+		if (it != listeners.end())
+			listeners.erase(it);
+	}
+}
+
 int YAbstractThread::getReturned() const
 {
 	return nReturned;
@@ -49,17 +70,16 @@ int YAbstractThread::getReturned() const
 void YAbstractThread::start()
 {
 	if(eState == EState::running || eState == EState::paused)	return;
-	OnStart();
+	OnInitialise();
 	nReturned = THREAD_SUCCESS;
 
 	try{
 		hThread = (HANDLE)_beginthreadex(NULL, 0, threadEntry, reinterpret_cast<void*>(this), 0, &nThreadID);
-		if(INVALID_HANDLE_VALUE == hThread){
+		if(INVALID_HANDLE_VALUE == hThread)
 			throw YSystemException("YAbstractThread", "Start");
-		}
 	}catch(YSystemException& e){
 		eState = EState::failed;
-		//LOG_ERROR(e.what());
+		LOGFATAL(e.what());
 	}
 }
 
@@ -78,7 +98,7 @@ void YAbstractThread::suspend()
 		OnSuspend();
 	}
 	catch (YSystemException & e) {
-		//LOG_ERROR(e.what());
+		LOGFATAL(e.what());
 	}
 }
 
@@ -97,7 +117,7 @@ void YAbstractThread::resume()
 		OnResume();
 	}
 	catch (YSystemException & e) {
-		//LOG_ERROR(e.what());
+		LOGFATAL(e.what());
 	}
 }
 
@@ -150,7 +170,7 @@ unsigned __stdcall YAbstractThread::threadEntry(void *pParam)
 	YAbstractThread *pThread = reinterpret_cast<YAbstractThread *>(pParam);
 
 	try{
-		pThread->OnRun();
+		pThread->OnStart();
 		pThread->eState = EState::running;
 		pThread->nReturned = pThread->Run();
 
@@ -171,61 +191,132 @@ unsigned __stdcall YAbstractThread::threadEntry(void *pParam)
 		pThread->OnException();
 		pThread->nReturned = THREAD_EXCEPTION;
 		pThread->eState = EState::exception;
-		//LOG_FATAL(_T("exception in YThread threadEntry - %s"), e.what());
+		LOGFATAL(_T("exception in YThread threadEntry - %s"), e.what());
 	}
 	catch (...) {
 		pThread->OnException();
 		pThread->nReturned = THREAD_EXCEPTION;
 		pThread->eState = EState::exception;
+		LOGFATAL(_T("exception in YThread threadEntry - unknown exception"));
 	}
 	return pThread->nReturned;
 }
 
-void YAbstractThread::OnStart()
+void YAbstractThread::OnInitialise()
 {
-	//LOG_INFO(_T("OnStart"));
+	for (std::list<std::weak_ptr<YAbstractThreadListener>>::iterator it = listeners.begin();
+		it != listeners.end(); ++it) {
+		std::shared_ptr<YAbstractThreadListener> spListener = it->lock();
+		if (spListener)
+			spListener->OnInitialise(this);
+		else
+			listeners.erase(it);
+	}
 }
 
-void YAbstractThread::OnRun()
+void YAbstractThread::OnStart()
 {
-	//LOG_INFO(_T("OnRun"));
+	for (std::list<std::weak_ptr<YAbstractThreadListener>>::iterator it = listeners.begin();
+		it != listeners.end(); ++it) {
+		std::shared_ptr<YAbstractThreadListener> spListener = it->lock();
+		if (spListener)
+			spListener->OnStart(this);
+		else
+			listeners.erase(it);
+	}
 }
 
 void YAbstractThread::OnSuspend()
 {
-	//LOG_INFO(_T("OnSuspend"));
+	for (std::list<std::weak_ptr<YAbstractThreadListener>>::iterator it = listeners.begin();
+		it != listeners.end(); ++it) {
+		std::shared_ptr<YAbstractThreadListener> spListener = it->lock();
+		if (spListener)
+			spListener->OnSuspend(this);
+		else
+			listeners.erase(it);
+	}
 }
 
 void YAbstractThread::OnResume()
 {
-	//LOG_INFO(_T("OnThreadResume"));
+	for (std::list<std::weak_ptr<YAbstractThreadListener>>::iterator it = listeners.begin();
+		it != listeners.end(); ++it) {
+		std::shared_ptr<YAbstractThreadListener> spListener = it->lock();
+		if (spListener)
+			spListener->OnResume(this);
+		else
+			listeners.erase(it);
+	}
 }
 
 void YAbstractThread::OnJoin()
 {
-	//LOG_INFO(_T("OnJoin"));
+	for (std::list<std::weak_ptr<YAbstractThreadListener>>::iterator it = listeners.begin();
+		it != listeners.end(); ++it) {
+		std::shared_ptr<YAbstractThreadListener> spListener = it->lock();
+		if (spListener)
+			spListener->OnJoin(this);
+		else
+			listeners.erase(it);
+	}
 }
 
 void YAbstractThread::OnWait()
 {
-	//LOG_INFO(_T("OnWait"));
+	for (std::list<std::weak_ptr<YAbstractThreadListener>>::iterator it = listeners.begin();
+		it != listeners.end(); ++it) {
+		std::shared_ptr<YAbstractThreadListener> spListener = it->lock();
+		if (spListener)
+			spListener->OnWait(this);
+		else
+			listeners.erase(it);
+	}
 }
 
 void YAbstractThread::OnLogicError()
 {
-	//LOG_INFO(_T("OnLogicError"));
+	for (std::list<std::weak_ptr<YAbstractThreadListener>>::iterator it = listeners.begin();
+		it != listeners.end(); ++it) {
+		std::shared_ptr<YAbstractThreadListener> spListener = it->lock();
+		if (spListener)
+			spListener->OnLogicError(this);
+		else
+			listeners.erase(it);
+	}
 }
 void YAbstractThread::OnException()
 {
-	//LOG_INFO(_T("OnException"));
+	for (std::list<std::weak_ptr<YAbstractThreadListener>>::iterator it = listeners.begin();
+		it != listeners.end(); ++it) {
+		std::shared_ptr<YAbstractThreadListener> spListener = it->lock();
+		if (spListener)
+			spListener->OnException(this);
+		else
+			listeners.erase(it);
+	}
 }
 
 void YAbstractThread::OnCancel()
 {
-	//LOG_INFO(_T("OnCancel"));
+	for (std::list<std::weak_ptr<YAbstractThreadListener>>::iterator it = listeners.begin();
+		it != listeners.end(); ++it) {
+		std::shared_ptr<YAbstractThreadListener> spListener = it->lock();
+		if (spListener)
+			spListener->OnCancel(this);
+		else
+			listeners.erase(it);
+	}
 }
 
 void YAbstractThread::OnReturn()
 {
-	//LOG_INFO(_T("OnReturn"));
+	for (std::list<std::weak_ptr<YAbstractThreadListener>>::iterator it = listeners.begin();
+		it != listeners.end(); ++it) {
+		std::shared_ptr<YAbstractThreadListener> spListener = it->lock();
+		if (spListener)
+			spListener->OnReturn(this);
+		else
+			listeners.erase(it);
+	}
 }

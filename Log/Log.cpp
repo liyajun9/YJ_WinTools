@@ -101,8 +101,7 @@ void YLog::write(ELogType logLevel, const wchar_t* pData)
 	}
 	if (!m_fstream.is_open()) return;
 
-	m_strstr.clear();
-	//m_strstr.str("");
+	m_strstr.str(_T(""));
 	if(bFirstRun){
 		m_strstr << L"\r\n********************************New Log*********************************" << std::endl;
 		bFirstRun = false;
@@ -156,18 +155,18 @@ void YLog::delExpired()
 		return;
 
 	wchar_t pszFile[MAX_PATH];
-	std::wstring::size_type cblen = sDirectory.length() * sizeof(wchar_t);
+	std::wstring::size_type len = sDirectory.length();
 	memset(pszFile, 0, MAX_PATH * sizeof(wchar_t));
-	memcpy(pszFile, sDirectory.c_str(), cblen);
+	memcpy(pszFile, sDirectory.c_str(), len * sizeof(wchar_t));
 	do{
 		if(wcscmp(ffd.cFileName, L".") != 0 && wcscmp(ffd.cFileName, L"..") != 0){
 			if(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY){
 				continue;
 			}else{
 				if(isExpired(ffd.cFileName)){
-					memset(pszFile + cblen, 0, MAX_PATH * sizeof(wchar_t) - cblen);
-					memcpy(pszFile + cblen, L"\\", sizeof(wchar_t));
-					memcpy(pszFile + cblen + sizeof(wchar_t), ffd.cFileName, wcslen(ffd.cFileName) * sizeof(wchar_t));
+					memset(pszFile + len, 0, (MAX_PATH - len) * sizeof(wchar_t));
+					memcpy(pszFile + len, L"\\", sizeof(wchar_t));
+					memcpy(pszFile + len + 1, ffd.cFileName, wcslen(ffd.cFileName) * sizeof(wchar_t));
 					_wremove(pszFile);
 				}
 			}

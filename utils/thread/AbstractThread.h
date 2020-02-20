@@ -1,5 +1,7 @@
 #pragma once
 #include <concrt.h>
+#include "AbstractThreadListener.h"
+#include <list>
 
 class YAbstractThread{
 public:
@@ -33,6 +35,9 @@ public:
 	HANDLE getHandle() const;
 	unsigned getThreadId() const;
 
+	void addListener(std::shared_ptr<YAbstractThreadListener>& spListener);
+	void removeListener(std::shared_ptr<YAbstractThreadListener>& spListener);
+
 protected:
 	HANDLE hThread;
 	unsigned nThreadID;
@@ -42,16 +47,17 @@ protected:
 private:
 	virtual int Run() = 0; //your async task		
 
-	virtual void OnStart(); 
-	virtual void OnRun(); 
+	virtual void OnInitialise();
+	virtual void OnStart();
 	virtual void OnJoin();
 	virtual void OnWait();
 	virtual void OnCancel();
-	virtual void OnSuspend();      
+	virtual void OnSuspend();
 	virtual void OnResume();
-	virtual void OnReturn();			
-	virtual void OnLogicError();		//Run return THREAD_LOGIC_ERROR
-	virtual void OnException();			//Run return THREAD_EXCEPTION
+	virtual void OnReturn();
+	virtual void OnLogicError();
+	virtual void OnException();
 
 	static unsigned __stdcall threadEntry(void* pParam);
+	std::list<std::weak_ptr<YAbstractThreadListener>> listeners;
 };
