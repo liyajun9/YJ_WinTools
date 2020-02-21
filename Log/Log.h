@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Macros\ttype.h"
+#include "..\Macros\ttype.h"
 #include <Windows.h>
 #include <fstream>
 #include <iosfwd>
@@ -13,9 +13,9 @@
 #include <xlocale>
 #include <wchar.h>
 #include <sstream>
-#include "utils\time\TimeUtils.h"
-#include "utils\synchronize\CSLocker.h"
-#include "utils\encodings\CharEncodings.h"
+#include "..\utils\time\TimeUtils.h"
+#include "..\utils\synchronize\CSLocker.h"
+#include "..\utils\encodings\CharEncodings.h"
 
 #pragma warning(disable:4996)
 
@@ -44,7 +44,7 @@ constexpr int LOG_LEVEL_DEBUG = (LOG_LEVEL_INFO | ELogType::ELog_Debug);
 #if(defined DEBUG || defined _DEBUG)
 constexpr int LOG_LEVEL = LOG_LEVEL_DEBUG;
 #else
-constexpr int LOG_LEVEL = LOG_LEVEL_WARN;
+constexpr int LOG_LEVEL = LOG_LEVEL_INFO;
 #endif
 
 //log items

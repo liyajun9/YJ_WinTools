@@ -9,7 +9,7 @@
 #pragma comment(lib, "sqlite3.lib")
 
 sqlite3* YSQLite::pDbconnection = NULL;
-const char* YSQLite::pDbfilename = "netbar.db";
+const char* YSQLite::pDbfilename = "D:\\gitRepo\\netbar.db";
 
 YSQLite& YSQLite::GetInstance()
 {
