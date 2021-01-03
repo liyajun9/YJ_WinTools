@@ -98,11 +98,12 @@ void HexStringToChar(std::string sSrc, bool isUpperCase,unsigned char *pDst, uns
 	memset(pDst, 0, nCbLen);
 	char higher, lower;
 	char charA = isUpperCase ? 'A' : 'a';
+    char charF = isUpperCase ? 'F' : 'f';
 	unsigned int nSrcLen = static_cast<unsigned int>(sSrc.length());
 	unsigned int nLen = nSrcLen /2 < (nCbLen-1) ? nSrcLen/2 : (nCbLen-1);
 	for(unsigned int i=0; i<nLen; i++){
-		if(sSrc[i*2] < '0' || sSrc[i*2 ] > 'F' || sSrc[i*2] > '9' && sSrc[i*2] < 'A' ||
-				sSrc[i*2 + 1] < '0' || sSrc[i*2 + 1] > 'F' || sSrc[i*2 + 1] > '9' && sSrc[i*2 + 1] < 'A')
+		if(sSrc[i*2] < '0' || sSrc[i*2 ] > charF || sSrc[i*2] > '9' && sSrc[i*2] < charA ||
+				sSrc[i*2 + 1] < '0' || sSrc[i*2 + 1] > charF || sSrc[i*2 + 1] > '9' && sSrc[i*2 + 1] < charA)
 			pDst[nLen -i -1] = '\0';
 		else{
 			higher = sSrc[i*2] <= '9' ? sSrc[i*2] - '0' : sSrc[i*2] + 10 - charA;
