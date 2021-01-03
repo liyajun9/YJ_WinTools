@@ -93,14 +93,14 @@ std::string CharToHexString(const void *pSrc, unsigned int nLen, bool isToUpperC
 	return sHex;
 }
 
-void HexStringToChar(std::string sSrc, bool isUpperCase, char *pDst, unsigned int nCbLen)
+void HexStringToChar(std::string sSrc, bool isUpperCase,unsigned char *pDst, unsigned int nCbLen)
 {
 	memset(pDst, 0, nCbLen);
 	char higher, lower;
 	char charA = isUpperCase ? 'A' : 'a';
 	unsigned int nSrcLen = static_cast<unsigned int>(sSrc.length());
-	unsigned int nLen = nSrcLen < nCbLen ? nSrcLen : nCbLen;
-	for(unsigned int i=0; i<nLen; i++){
+	unsigned int nLen = nSrcLen < nCbLen/2 ? nSrcLen : nCbLen/2;
+	for(unsigned int i=0; i<nLen - 1; i++){
 		if(sSrc[i*2] < '0' || sSrc[i*2 ] > 'F' || sSrc[i*2] > '9' && sSrc[i*2] < 'A' ||
 				sSrc[i*2 + 1] < '0' || sSrc[i*2 + 1] > 'F' || sSrc[i*2 + 1] > '9' && sSrc[i*2 + 1] < 'A')
 			pDst[i] = '\0';

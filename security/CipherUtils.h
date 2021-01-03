@@ -47,4 +47,4 @@ std::string CharToHexString(const void *pSrc, unsigned int nLen, bool isToUpperC
 		pDst: output buffer. a character array. 
 		nCbLen: length of output buffer. If output buffer is less than required length, the result will be truncated.
 */
-void HexStringToChar(std::string sSrc, bool isUpperCase, char *pDst, unsigned int nCbLen);
+void HexStringToChar(std::string sSrc, bool isUpperCase, unsigned char *pDst, unsigned int nCbLen);
